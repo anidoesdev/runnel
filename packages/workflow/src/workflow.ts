@@ -1,17 +1,213 @@
+import { NodeGraph } from './graph.js';
+import { WorkflowOperationError } from './interfaces/errors.js';
+import { renameNodeReferencesInParameters } from './expression-reference-rewriter.js';
 import type { INode } from './interfaces/node.interfaces.js';
-import type { IWorkflowBase } from './interfaces/workflow.interfaces.js';
+import type { IConnections, IWorkflowBase } from './interfaces/workflow.interfaces.js';
+
+export interface IllegalCycle {
+  nodes: string[];
+}
 
 /**
- * Graph model over an IWorkflowBase: node lookup, traversal, execution-order
- * resolution, cycle detection, and the atomic node-rename operation.
+ * Graph model over an IWorkflowBase: node lookup, traversal, execution-order resolution,
+ * cycle detection, and the atomic node-rename operation.
  *
- * Real graph logic (traversal, execution order, cycle detection, rename) lands in M2 —
- * this is the M1 skeleton so the rest of the monorepo has a stable import target.
+ * This class has no notion of *what* a node does — node-type-dependent decisions (is this
+ * type allowed to loop?) are injected by the caller as a predicate rather than looked up
+ * here, since the node-type registry lives in packages/core, one layer below this one.
  */
 export class Workflow {
   constructor(private readonly definition: IWorkflowBase) {}
 
+  private buildGraph(): NodeGraph {
+    return new NodeGraph(
+      this.definition.nodes.map((node) => node.name),
+      this.definition.connections,
+    );
+  }
+
   getNode(name: string): INode | undefined {
     return this.definition.nodes.find((node) => node.name === name);
+  }
+
+  /** A deep-cloned, JSON-serializable snapshot of the underlying definition. */
+  toJSON(): IWorkflowBase {
+    return structuredClone(this.definition);
+  }
+
+  /** Direct + transitive descendants of `name`, excluding `name` itself. `depth: -1` (default) means unlimited. */
+  getChildNodes(name: string, depth = -1): string[] {
+    return this.buildGraph().reachable(name, 'forward', depth);
+  }
+
+  /** Direct + transitive ancestors of `name`, excluding `name` itself. `depth: -1` (default) means unlimited. */
+  getParentNodes(name: string, depth = -1): string[] {
+    return this.buildGraph().reachable(name, 'backward', depth);
+  }
+
+  /**
+   * A cycle is legal only if at least one of its members is an "iteration node"
+   * (SplitInBatches / Loop Over Items) — decided by the caller-supplied predicate, since
+   * this package has no node-type registry of its own. A self-loop (a node connected to
+   * itself) counts as a size-1 cycle.
+   */
+  detectIllegalCycles(isIterationNode: (nodeType: string) => boolean = () => false): IllegalCycle[] {
+    const graph = this.buildGraph();
+    const illegal: IllegalCycle[] = [];
+
+    for (const component of graph.stronglyConnectedComponents()) {
+      const isCycle = component.length > 1 || graph.children(component[0]!).includes(component[0]!);
+      if (!isCycle) continue;
+
+      const hasIterationNode = component.some((name) => {
+        const node = this.getNode(name);
+        return node ? isIterationNode(node.type) : false;
+      });
+
+      if (!hasIterationNode) illegal.push({ nodes: component });
+    }
+
+    return illegal;
+  }
+
+  /**
+   * Structural execution order: a topological sort of the graph's strongly-connected-
+   * component condensation (which is always acyclic), with each multi-node component
+   * (a legal loop) internally ordered by BFS from its entry node. This returns each node
+   * once — the runtime engine (packages/core, M4) is what re-enters a loop body across
+   * multiple `runIndex`es; this method only establishes the structural order of a single pass.
+   */
+  getExecutionOrder(startNode: string): string[] {
+    if (!this.getNode(startNode)) {
+      throw new WorkflowOperationError(`Node "${startNode}" not found.`);
+    }
+
+    const graph = this.buildGraph();
+    const reachable = new Set([startNode, ...graph.reachable(startNode, 'forward')]);
+    const components = graph
+      .stronglyConnectedComponents()
+      .filter((component) => component.some((node) => reachable.has(node)));
+
+    const componentIndexOf = new Map<string, number>();
+    components.forEach((component, i) => component.forEach((node) => componentIndexOf.set(node, i)));
+
+    const outEdges: Set<number>[] = components.map(() => new Set());
+    const inDegree: number[] = components.map(() => 0);
+    components.forEach((component, i) => {
+      for (const node of component) {
+        for (const child of graph.children(node)) {
+          const j = componentIndexOf.get(child);
+          if (j === undefined || j === i || outEdges[i]!.has(j)) continue;
+          outEdges[i]!.add(j);
+          inDegree[j]!++;
+        }
+      }
+    });
+
+    const startComponentIndex = componentIndexOf.get(startNode)!;
+    const queue: number[] = [];
+    const queued = new Set<number>();
+    const enqueueReady = (i: number): void => {
+      if (inDegree[i] === 0 && !queued.has(i)) {
+        queued.add(i);
+        queue.push(i);
+      }
+    };
+    components.forEach((_, i) => enqueueReady(i));
+    queue.sort((a, b) => Number(a !== startComponentIndex) - Number(b !== startComponentIndex));
+
+    const componentOrder: number[] = [];
+    while (queue.length > 0) {
+      const i = queue.shift()!;
+      componentOrder.push(i);
+      for (const j of outEdges[i]!) {
+        inDegree[j]!--;
+        if (inDegree[j] === 0) enqueueReady(j);
+      }
+    }
+
+    if (componentOrder.length !== components.length) {
+      throw new WorkflowOperationError(
+        'Execution order resolution failed: the strongly-connected-component condensation was not acyclic.',
+      );
+    }
+
+    const order: string[] = [];
+    for (const i of componentOrder) {
+      const preferredEntry = order.length === 0 ? startNode : undefined;
+      order.push(...this.orderWithinComponent(components[i]!, graph, preferredEntry));
+    }
+    return order;
+  }
+
+  private orderWithinComponent(component: string[], graph: NodeGraph, preferredEntry?: string): string[] {
+    if (component.length === 1) return component;
+
+    const componentSet = new Set(component);
+    const entry =
+      component.find((node) => node === preferredEntry) ??
+      component.find((node) => graph.parents(node).some((parent) => !componentSet.has(parent))) ??
+      component[0]!;
+
+    const visited = new Set<string>();
+    const order: string[] = [];
+    const queue = [entry];
+    while (queue.length > 0) {
+      const node = queue.shift()!;
+      if (visited.has(node)) continue;
+      visited.add(node);
+      order.push(node);
+      for (const child of graph.children(node)) {
+        if (componentSet.has(child) && !visited.has(child)) queue.push(child);
+      }
+    }
+
+    for (const node of component) {
+      if (!visited.has(node)) order.push(node);
+    }
+    return order;
+  }
+
+  /**
+   * Renames a node atomically: the node itself, every connection that references it (as
+   * source key or as a target), its pinData entry, and every `$node["Old"]` / `$("Old")`
+   * reference inside every other node's expression-enabled parameters. Returns a new
+   * Workflow — the underlying definition is not mutated in place.
+   */
+  renameNode(oldName: string, newName: string): Workflow {
+    if (oldName === newName) return this;
+    if (!this.getNode(oldName)) {
+      throw new WorkflowOperationError(`Node "${oldName}" not found.`);
+    }
+    if (this.getNode(newName)) {
+      throw new WorkflowOperationError(`A node named "${newName}" already exists.`);
+    }
+
+    const cloned = structuredClone(this.definition);
+
+    for (const node of cloned.nodes) {
+      if (node.name === oldName) node.name = newName;
+    }
+
+    const newConnections: IConnections = {};
+    for (const [source, connection] of Object.entries(cloned.connections)) {
+      newConnections[source === oldName ? newName : source] = {
+        main: connection.main.map((branch) =>
+          branch.map((entry) => (entry.node === oldName ? { ...entry, node: newName } : entry)),
+        ),
+      };
+    }
+    cloned.connections = newConnections;
+
+    if (cloned.pinData && oldName in cloned.pinData) {
+      const { [oldName]: renamedData, ...rest } = cloned.pinData;
+      cloned.pinData = { ...rest, [newName]: renamedData! };
+    }
+
+    for (const node of cloned.nodes) {
+      node.parameters = renameNodeReferencesInParameters(node.parameters, oldName, newName);
+    }
+
+    return new Workflow(cloned);
   }
 }
