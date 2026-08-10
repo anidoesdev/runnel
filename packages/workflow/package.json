@@ -1,0 +1,30 @@
+{
+  "name": "@n8n-clone/workflow",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -b",
+    "lint": "eslint src",
+    "test": "vitest run --coverage",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "luxon": "^3.5.0"
+  },
+  "devDependencies": {
+    "@types/luxon": "^3.4.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

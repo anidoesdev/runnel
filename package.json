@@ -1,0 +1,33 @@
+{
+  "name": "n8n-clone",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@10.11.1",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint && pnpm depcruise",
+    "test": "turbo run test",
+    "depcruise": "depcruise --config .dependency-cruiser.cjs packages/*/src",
+    "clean": "turbo run clean && rimraf node_modules"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "dependency-cruiser": "^16.7.0",
+    "eslint": "^9.16.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "rimraf": "^6.0.1",
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vitest": "^2.1.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": ["esbuild", "vue-demi"]
+  }
+}
