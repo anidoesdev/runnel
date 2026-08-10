@@ -1,5 +1,7 @@
+export type IDataObjectValue = string | number | boolean | null | undefined | IDataObject | IDataObjectValue[];
+
 export type IDataObject = {
-  [key: string]: string | number | boolean | null | undefined | IDataObject | IDataObject[];
+  [key: string]: IDataObjectValue;
 };
 
 export interface IPairedItemData {

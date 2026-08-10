@@ -7,3 +7,4 @@ export * from './interfaces/expression.interfaces.js';
 export * from './workflow.js';
 export * from './expression-reference-rewriter.js';
 export { NodeGraph } from './graph.js';
+export * from './expression/index.js';
