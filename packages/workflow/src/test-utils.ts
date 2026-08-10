@@ -8,12 +8,11 @@ let autoId = 0;
 export function makeNode(fixture: NodeFixture): INode {
   autoId += 1;
   return {
-    id: fixture.id ?? `node-${autoId}`,
-    name: fixture.name,
-    type: fixture.type ?? 'n8n-clone.noOp',
-    typeVersion: fixture.typeVersion ?? 1,
-    position: fixture.position ?? [0, 0],
-    parameters: fixture.parameters ?? {},
+    id: `node-${autoId}`,
+    type: 'n8n-clone.noOp',
+    typeVersion: 1,
+    position: [0, 0],
+    parameters: {},
     ...fixture,
   };
 }

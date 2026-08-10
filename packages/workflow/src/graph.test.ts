@@ -55,4 +55,22 @@ describe('NodeGraph', () => {
     const sccs = graph.stronglyConnectedComponents();
     expect(sccs.map((c) => c.length)).toEqual([1, 1, 1]);
   });
+
+  it('returns an empty array from children/parents for a name that was never registered', () => {
+    const graph = new NodeGraph(['A'], {});
+    expect(graph.children('Unknown')).toEqual([]);
+    expect(graph.parents('Unknown')).toEqual([]);
+  });
+
+  it('tolerates a connection that references nodes outside the declared node list', () => {
+    // Malformed input (stale connections pointing at deleted nodes) must not throw — both
+    // endpoints become traversable adjacency even when neither was in nodeNames.
+    const graph = new NodeGraph(['A'], conn('A', 'Ghost'));
+    expect(graph.children('A')).toEqual(['Ghost']);
+    expect(graph.parents('Ghost')).toEqual(['A']);
+
+    const orphanGraph = new NodeGraph([], conn('GhostSource', 'GhostTarget'));
+    expect(orphanGraph.children('GhostSource')).toEqual(['GhostTarget']);
+    expect(orphanGraph.parents('GhostTarget')).toEqual(['GhostSource']);
+  });
 });
