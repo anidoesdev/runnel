@@ -140,6 +140,8 @@ export interface IExecuteFunctions {
   getNode(): INode;
   getWorkflow(): { id: string; name: string; active: boolean };
   continueOnFail(): boolean;
+  /** A persistent object scoped to this node ('node') or the whole run ('flow'), surviving across loop re-entries (runIndex increments). Backed by IRunExecutionData.executionData.contextData. */
+  getContext(type: 'node' | 'flow'): IDataObject;
   helpers: {
     httpRequest(options: IHttpRequestOptions): Promise<unknown>;
     returnJsonArray(items: IDataObject[]): INodeExecutionData[];

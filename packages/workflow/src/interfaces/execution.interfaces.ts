@@ -1,4 +1,4 @@
-import type { NodeOutput } from './common.interfaces.js';
+import type { INodeExecutionData, NodeOutput } from './common.interfaces.js';
 import type { INode } from './node.interfaces.js';
 
 export type ExecutionStatus =
@@ -8,6 +8,7 @@ export type ExecutionStatus =
   | 'error'
   | 'crashed'
   | 'waiting'
+  | 'skipped'
   | 'canceled';
 
 export type WorkflowExecuteMode =
@@ -24,13 +25,20 @@ export interface ISourceData {
   previousNodeRun?: number;
 }
 
+export interface ITaskDataError {
+  message: string;
+  description?: string;
+  node: string;
+  timestamp: number;
+}
+
 export interface ITaskData {
   startTime: number;
   executionTime: number;
   executionStatus: ExecutionStatus;
   source: Array<ISourceData | null>;
   data?: { main: NodeOutput };
-  error?: { message: string; description?: string; node: string; timestamp: number };
+  error?: ITaskDataError;
 }
 
 /**
@@ -48,15 +56,16 @@ export interface IRunExecutionData {
   startData?: { startNodes?: string[]; destinationNode?: string };
   resultData: {
     runData: Record<string, ITaskData[]>;
-    pinData?: Record<string, unknown>;
+    pinData?: Record<string, INodeExecutionData[]>;
     lastNodeExecuted?: string;
-    error?: { message: string; node?: string; timestamp: number };
+    error?: ITaskDataError;
   };
   executionData?: {
     contextData: Record<string, unknown>;
     nodeExecutionStack: IExecuteData[];
-    waitingExecution: Record<string, Record<number, NodeOutput>>;
-    waitingExecutionSource: Record<string, Record<string, Array<{ previousNode: string } | null> | null>> | null;
+    /** Partial inputs collected for a node with multiple inputs, keyed by target node name then input index, until every required index has arrived. */
+    waitingExecution: Record<string, Record<number, INodeExecutionData[]>>;
+    waitingExecutionSource: Record<string, Record<number, ISourceData | null>>;
   };
   /** ISO date string, never a Date instance, to stay serialization-safe. */
   waitTill?: string;
