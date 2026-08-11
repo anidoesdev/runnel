@@ -9,6 +9,7 @@ import type { Request, Response } from 'express';
 import type { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import type { ExecutionEntity } from '../db/entities/Execution.entity.js';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
+import type { ActiveWorkflowManager } from '../active-workflows/active-workflow-manager.js';
 
 @RestController('/rest/workflows')
 export class WorkflowsController {
@@ -19,6 +20,7 @@ export class WorkflowsController {
     private readonly nodeTypes: INodeTypes,
     private readonly credentialTypes: ICredentialTypes,
     private readonly encryptionKey: string,
+    private readonly activeWorkflowManager: ActiveWorkflowManager,
   ) {}
 
   @Post('/')
@@ -27,14 +29,14 @@ export class WorkflowsController {
     const entity = this.workflows.create({
       id: generateId(),
       name: parsed.name,
-      active: parsed.active,
+      active: false,
       nodes: parsed.nodes,
       connections: parsed.connections,
       settings: parsed.settings ?? null,
       staticData: null,
       pinData: null,
     });
-    await this.workflows.save(entity);
+    await this.setActive(entity, parsed.active);
     return entity;
   }
 
@@ -54,18 +56,21 @@ export class WorkflowsController {
     const parsed = updateWorkflowSchema.parse(req.body);
 
     if (parsed.name !== undefined) entity.name = parsed.name;
-    if (parsed.active !== undefined) entity.active = parsed.active;
     if (parsed.nodes !== undefined) entity.nodes = parsed.nodes;
     if (parsed.connections !== undefined) entity.connections = parsed.connections;
     if (parsed.settings !== undefined) entity.settings = parsed.settings;
 
-    await this.workflows.save(entity);
+    // Re-running setActive(true) even when `active` didn't change re-activates the workflow,
+    // which is exactly what's needed when nodes/connections/settings changed underneath it —
+    // otherwise a webhook path or poll interval edited while active would never take effect.
+    await this.setActive(entity, parsed.active ?? entity.active);
     return entity;
   }
 
   @Delete('/:id')
   async remove(req: Request, res: Response) {
     const entity = await this.findOrThrow(String(req.params.id));
+    await this.activeWorkflowManager.deactivate(entity.id);
     await this.workflows.remove(entity);
     res.status(204).end();
   }
@@ -107,6 +112,21 @@ export class WorkflowsController {
     await this.executions.save(executionEntity);
 
     return { executionId: executionEntity.id, status, data: run.result };
+  }
+
+  /** Starts/stops the workflow's triggers, polls, and webhooks to match `active`, then persists the flag — a failed activation (e.g. a webhook path collision) leaves the workflow inactive rather than silently saving a flag the runtime doesn't actually reflect. */
+  private async setActive(entity: WorkflowEntity, active: boolean): Promise<void> {
+    if (active) {
+      try {
+        await this.activeWorkflowManager.activate(entity);
+      } catch (err) {
+        throw new BadRequestError(err instanceof Error ? err.message : String(err));
+      }
+    } else {
+      await this.activeWorkflowManager.deactivate(entity.id);
+    }
+    entity.active = active;
+    await this.workflows.save(entity);
   }
 
   private async findOrThrow(id: string): Promise<WorkflowEntity> {

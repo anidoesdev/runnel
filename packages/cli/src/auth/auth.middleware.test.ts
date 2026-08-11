@@ -7,7 +7,7 @@ import type { AuthenticatedRequest } from './auth.middleware.js';
 
 const secret = new TextEncoder().encode('test-secret-at-least-32-bytes-long!');
 
-function buildApp(publicPaths?: ReadonlySet<string>) {
+function buildApp(publicPaths?: ReadonlySet<string>, publicPathPrefixes?: readonly string[]) {
   const app = express();
   app.use((req, res, next) => {
     const cookieHeader = req.headers.cookie;
@@ -19,9 +19,10 @@ function buildApp(publicPaths?: ReadonlySet<string>) {
     }
     next();
   });
-  app.use(requireAuth(secret, publicPaths));
+  app.use(requireAuth(secret, publicPaths, publicPathPrefixes));
   app.get('/rest/auth/setup', (_req, res) => res.json({ public: true }));
   app.get('/rest/workflows', (req, res) => res.json({ user: (req as AuthenticatedRequest).user }));
+  app.get('/webhook/my-hook', (_req, res) => res.json({ webhook: true }));
   return app;
 }
 
@@ -53,6 +54,17 @@ describe('requireAuth', () => {
 
   it('still guards a non-allowlisted path even when a publicPaths set is provided', async () => {
     const res = await request(buildApp(new Set(['/rest/auth/setup']))).get('/rest/workflows');
+    expect(res.status).toBe(401);
+  });
+
+  it('lets a path under an allowlisted prefix through without a session', async () => {
+    const res = await request(buildApp(undefined, ['/webhook/'])).get('/webhook/my-hook');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ webhook: true });
+  });
+
+  it('still guards paths that do not match any allowlisted prefix', async () => {
+    const res = await request(buildApp(undefined, ['/webhook/'])).get('/rest/workflows');
     expect(res.status).toBe(401);
   });
 });

@@ -206,7 +206,8 @@ export interface ITriggerResponse {
 }
 
 export interface IWebhookResponseData {
-  workflowData?: NodeOutput[];
+  /** Becomes the initial `startData` handed to WorkflowExecute.run() for the rest of the workflow — same shape as any other node's output, not an array of them. */
+  workflowData?: NodeOutput;
   webhookResponse?: unknown;
   noWebhookResponse?: boolean;
 }

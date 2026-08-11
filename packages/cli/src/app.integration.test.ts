@@ -18,12 +18,12 @@ beforeAll(async () => {
   dataSource = createDataSource(sqliteConfig(':memory:'));
   await dataSource.initialize();
   await dataSource.runMigrations();
-  app = createApp({
+  ({ app } = createApp({
     dataSource,
     encryptionKey: 'test-encryption-key',
     jwtSecret: new TextEncoder().encode('test-jwt-secret-at-least-32-bytes!'),
     logger: createLogger({ level: 'silent' }),
-  });
+  }));
 });
 
 afterAll(async () => {
@@ -214,6 +214,85 @@ describe('REST API — credentials never expose their values', () => {
     const res = await agent.delete(`/rest/credentials/${credentialId}`);
     expect(res.status).toBe(204);
     expect((await agent.get(`/rest/credentials/${credentialId}`)).status).toBe(404);
+  });
+});
+
+describe('REST API — activating a workflow starts its webhook (M7)', () => {
+  let agent: ReturnType<typeof request.agent>;
+
+  beforeAll(async () => {
+    agent = request.agent(app);
+    await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });
+  });
+
+  function webhookWorkflowPayload(path: string, active: boolean) {
+    return {
+      name: 'Webhook workflow',
+      active,
+      nodes: [
+        { id: '1', name: 'Webhook', type: 'webhook', typeVersion: 1, position: [0, 0], parameters: { httpMethod: 'POST', path, responseMode: 'lastNode' } },
+        {
+          id: '2',
+          name: 'Set',
+          type: 'set',
+          typeVersion: 1,
+          position: [1, 0],
+          parameters: { fields: { values: [{ name: 'greeting', type: 'string', value: '={{ "hi " + $json.body.name }}' }] } },
+        },
+      ],
+      connections: { Webhook: { main: [[{ node: 'Set', type: 'main', index: 0 }]] } },
+    };
+  }
+
+  it('an unauthenticated request to an inactive workflow\'s webhook path 404s', async () => {
+    const created = await agent.post('/rest/workflows').send(webhookWorkflowPayload('inactive-hook', false));
+    expect(created.body.active).toBe(false);
+
+    const res = await request(app).post('/webhook/inactive-hook').send({ name: 'Ada' });
+    expect(res.status).toBe(404);
+  });
+
+  it('creating an active workflow registers its webhook, reachable without a session', async () => {
+    const created = await agent.post('/rest/workflows').send(webhookWorkflowPayload('greet', true));
+    expect(created.status).toBe(200);
+    expect(created.body.active).toBe(true);
+    const workflowId = created.body.id as string;
+
+    const webhookRes = await request(app).post('/webhook/greet').send({ name: 'Ada' });
+    expect(webhookRes.status).toBe(200);
+    expect(webhookRes.body).toEqual([{ json: { headers: expect.any(Object), params: {}, query: {}, body: { name: 'Ada' }, greeting: 'hi Ada' }, pairedItem: { item: 0 } }]);
+
+    const executions = await agent.get('/rest/executions').query({ workflowId });
+    expect(executions.body).toHaveLength(1);
+    expect(executions.body[0].mode).toBe('webhook');
+  });
+
+  it('deactivating a workflow un-registers its webhook', async () => {
+    const created = await agent.post('/rest/workflows').send(webhookWorkflowPayload('to-deactivate', true));
+    const workflowId = created.body.id as string;
+    expect((await request(app).post('/webhook/to-deactivate').send({ name: 'x' })).status).toBe(200);
+
+    const deactivated = await agent.patch(`/rest/workflows/${workflowId}`).send({ active: false });
+    expect(deactivated.body.active).toBe(false);
+
+    const res = await request(app).post('/webhook/to-deactivate').send({ name: 'x' });
+    expect(res.status).toBe(404);
+  });
+
+  it('rejects activating a workflow whose webhook path collides with another active workflow, and never persists it', async () => {
+    const first = await agent.post('/rest/workflows').send(webhookWorkflowPayload('shared', true));
+    expect(first.body.active).toBe(true);
+
+    const beforeCount = (await agent.get('/rest/workflows')).body.length as number;
+
+    const second = await agent.post('/rest/workflows').send(webhookWorkflowPayload('shared', true));
+    expect(second.status).toBe(400);
+
+    const afterCount = (await agent.get('/rest/workflows')).body.length as number;
+    expect(afterCount).toBe(beforeCount);
+
+    // The webhook still routes to the first (successfully activated) workflow.
+    expect((await request(app).post('/webhook/shared').send({ name: 'x' })).status).toBe(200);
   });
 });
 

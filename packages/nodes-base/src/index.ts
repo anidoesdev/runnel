@@ -7,6 +7,9 @@ export { merge } from './nodes/Merge/Merge.node.js';
 export { splitInBatches } from './nodes/SplitInBatches/SplitInBatches.node.js';
 export { httpRequestNode } from './nodes/HttpRequest/HttpRequest.node.js';
 export { codeNode } from './nodes/Code/Code.node.js';
+export { scheduleTrigger } from './nodes/ScheduleTrigger/ScheduleTrigger.node.js';
+export { webhook } from './nodes/Webhook/Webhook.node.js';
+export { pollTrigger } from './nodes/PollTrigger/PollTrigger.node.js';
 
 export { httpBasicAuth } from './credentials/HttpBasicAuth.credentials.js';
 export { httpHeaderAuth } from './credentials/HttpHeaderAuth.credentials.js';
@@ -24,6 +27,9 @@ import { merge } from './nodes/Merge/Merge.node.js';
 import { splitInBatches } from './nodes/SplitInBatches/SplitInBatches.node.js';
 import { httpRequestNode } from './nodes/HttpRequest/HttpRequest.node.js';
 import { codeNode } from './nodes/Code/Code.node.js';
+import { scheduleTrigger } from './nodes/ScheduleTrigger/ScheduleTrigger.node.js';
+import { webhook } from './nodes/Webhook/Webhook.node.js';
+import { pollTrigger } from './nodes/PollTrigger/PollTrigger.node.js';
 import { httpBasicAuth } from './credentials/HttpBasicAuth.credentials.js';
 import { httpHeaderAuth } from './credentials/HttpHeaderAuth.credentials.js';
 import { httpQueryAuth } from './credentials/HttpQueryAuth.credentials.js';
@@ -41,6 +47,9 @@ export const allNodeTypes = [
   splitInBatches,
   httpRequestNode,
   codeNode,
+  scheduleTrigger,
+  webhook,
+  pollTrigger,
 ];
 
 export function registerAllNodeTypes(registry: MapNodeTypes): MapNodeTypes {

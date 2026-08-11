@@ -1,6 +1,15 @@
-import { buildExecuteFunctions } from '@n8n-clone/core';
-import type { IExecuteFunctionsOptions } from '@n8n-clone/core';
-import type { IExecuteFunctions, INode, INodeExecutionData, NodeOutput } from '@n8n-clone/workflow';
+import { buildExecuteFunctions, buildPollFunctions, buildTriggerFunctions, buildWebhookFunctions } from '@n8n-clone/core';
+import type { IExecuteFunctionsOptions, IPollOrTriggerFunctionsOptions, ITriggerFunctionsOptions, IWebhookFunctionsOptions } from '@n8n-clone/core';
+import type {
+  IExecuteFunctions,
+  INode,
+  INodeExecutionData,
+  IPollFunctions,
+  ITriggerFunctions,
+  IWebhookFunctions,
+  IWorkflowBase,
+  NodeOutput,
+} from '@n8n-clone/workflow';
 
 type NodeFixture = { name: string; type?: string } & Partial<Omit<INode, 'name' | 'type'>>;
 
@@ -37,4 +46,33 @@ export function makeExecuteFunctions(
     contextData: {},
     ...overrides,
   });
+}
+
+function makeWorkflowFor(node: INode): IWorkflowBase {
+  return { id: 'wf-1', name: 'Test Workflow', active: false, nodes: [node], connections: {} };
+}
+
+/** Builds a real IPollFunctions (via @n8n-clone/core's buildPollFunctions) around a single node. */
+export function makePollFunctions(
+  overrides: Partial<IPollOrTriggerFunctionsOptions> & { node: INode } = { node: makeNode({ name: 'Node1' }) },
+): IPollFunctions {
+  return buildPollFunctions({ workflow: makeWorkflowFor(overrides.node), mode: 'trigger', ...overrides });
+}
+
+/** Builds a real ITriggerFunctions (via @n8n-clone/core's buildTriggerFunctions) around a single node. */
+export function makeTriggerFunctions(
+  overrides: Partial<ITriggerFunctionsOptions> & { node: INode; emit: ITriggerFunctionsOptions['emit'] },
+): ITriggerFunctions {
+  return buildTriggerFunctions({ workflow: makeWorkflowFor(overrides.node), mode: 'trigger', ...overrides });
+}
+
+/** Builds a real IWebhookFunctions (via @n8n-clone/core's buildWebhookFunctions) around a single node. */
+export function makeWebhookFunctions(
+  overrides: Partial<IWebhookFunctionsOptions> & {
+    node: INode;
+    request: IWebhookFunctionsOptions['request'];
+    response: IWebhookFunctionsOptions['response'];
+  },
+): IWebhookFunctions {
+  return buildWebhookFunctions({ workflow: makeWorkflowFor(overrides.node), mode: 'webhook', ...overrides });
 }

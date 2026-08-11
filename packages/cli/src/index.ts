@@ -5,7 +5,8 @@ export function getLoadedNodeTypeNames(): string[] {
 }
 
 export { createApp } from './app.js';
-export type { ICreateAppOptions } from './app.js';
+export type { ICreateAppOptions, ICreatedApp } from './app.js';
+export { ActiveWorkflowManager } from './active-workflows/active-workflow-manager.js';
 export { startServer } from './server.js';
 export type { IRunningServer } from './server.js';
 export { loadConfig } from './config.js';

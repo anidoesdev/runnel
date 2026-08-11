@@ -31,14 +31,22 @@ export async function startServer(): Promise<IRunningServer> {
   await dataSource.initialize();
   await dataSource.runMigrations();
 
-  const app = createApp({ dataSource, encryptionKey: config.encryptionKey, jwtSecret: config.jwtSecret, logger });
+  const { app, activeWorkflowManager } = createApp({
+    dataSource,
+    encryptionKey: config.encryptionKey,
+    jwtSecret: config.jwtSecret,
+    logger,
+  });
 
   const server = await new Promise<Server>((resolve) => {
     const s = app.listen(config.port, () => resolve(s));
   });
   logger.info(`n8n-clone server listening on port ${config.port}`);
 
+  await activeWorkflowManager.init();
+
   const close = async (): Promise<void> => {
+    await activeWorkflowManager.deactivateAll();
     await new Promise<void>((resolve, reject) => {
       server.close((err) => (err ? reject(err) : resolve()));
     });

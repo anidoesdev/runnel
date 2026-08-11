@@ -10,6 +10,8 @@ import { CredentialsController } from './credentials/credentials.controller.js';
 import { ExecutionsController } from './executions/executions.controller.js';
 import { buildRouterForController } from './http/router-builder.js';
 import { buildErrorMiddleware } from './http/error-middleware.js';
+import { buildWebhookRouter } from './webhooks/webhook-router.js';
+import { ActiveWorkflowManager } from './active-workflows/active-workflow-manager.js';
 import { UserEntity } from './db/entities/User.entity.js';
 import { WorkflowEntity } from './db/entities/Workflow.entity.js';
 import { CredentialEntity } from './db/entities/Credential.entity.js';
@@ -25,6 +27,11 @@ export interface ICreateAppOptions {
   logger: Logger;
 }
 
+export interface ICreatedApp {
+  app: Express;
+  activeWorkflowManager: ActiveWorkflowManager;
+}
+
 // Both with and without the trailing slash: a @RestController('/healthz') + @Get('/') route
 // resolves to the full path "/healthz/", but callers reasonably also try "/healthz".
 const PUBLIC_PATHS = new Set([
@@ -35,7 +42,11 @@ const PUBLIC_PATHS = new Set([
   '/rest/auth/login',
 ]);
 
-export function createApp(options: ICreateAppOptions): Express {
+// Webhook paths are registered at runtime by active workflows, so they can't live in a fixed
+// Set — every request under /webhook/ is public by design (see auth.middleware.ts).
+const PUBLIC_PATH_PREFIXES = ['/webhook/'];
+
+export function createApp(options: ICreateAppOptions): ICreatedApp {
   const { dataSource, encryptionKey, jwtSecret, logger } = options;
 
   const nodeTypes = registerAllNodeTypes(new MapNodeTypes());
@@ -46,15 +57,34 @@ export function createApp(options: ICreateAppOptions): Express {
   const credentialRepo = dataSource.getRepository(CredentialEntity);
   const executionRepo = dataSource.getRepository(ExecutionEntity);
 
+  const activeWorkflowManager = new ActiveWorkflowManager(
+    nodeTypes,
+    credentialTypes,
+    workflowRepo,
+    executionRepo,
+    credentialRepo,
+    encryptionKey,
+    logger,
+  );
+
   const app = express();
   app.use(express.json());
   app.use(cookieParser());
-  app.use(requireAuth(jwtSecret, PUBLIC_PATHS));
+  app.use('/webhook', buildWebhookRouter(activeWorkflowManager));
+  app.use(requireAuth(jwtSecret, PUBLIC_PATHS, PUBLIC_PATH_PREFIXES));
 
   const controllers = [
     new HealthController(dataSource),
     new AuthController(userRepo, jwtSecret),
-    new WorkflowsController(workflowRepo, executionRepo, credentialRepo, nodeTypes, credentialTypes, encryptionKey),
+    new WorkflowsController(
+      workflowRepo,
+      executionRepo,
+      credentialRepo,
+      nodeTypes,
+      credentialTypes,
+      encryptionKey,
+      activeWorkflowManager,
+    ),
     new CredentialsController(credentialRepo, encryptionKey),
     new ExecutionsController(executionRepo),
   ];
@@ -66,5 +96,5 @@ export function createApp(options: ICreateAppOptions): Express {
 
   app.use(buildErrorMiddleware(logger));
 
-  return app;
+  return { app, activeWorkflowManager };
 }

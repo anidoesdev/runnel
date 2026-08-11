@@ -4,6 +4,12 @@ export { MapNodeTypes } from './execution/node-types.js';
 export type { INodeTypes, RegisterableNodeType } from './execution/node-types.js';
 export { buildExecuteFunctions } from './execution/execute-context.js';
 export type { IExecuteFunctionsOptions } from './execution/execute-context.js';
+export { buildPollFunctions, buildTriggerFunctions, buildWebhookFunctions } from './execution/trigger-context.js';
+export type {
+  IPollOrTriggerFunctionsOptions,
+  ITriggerFunctionsOptions,
+  IWebhookFunctionsOptions,
+} from './execution/trigger-context.js';
 
 export { encryptCredentialData, decryptCredentialData } from './credentials/encryption.js';
 export type { IEncryptedCredentialData } from './credentials/encryption.js';

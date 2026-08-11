@@ -21,14 +21,21 @@ export type AuthenticatedRequest = Request & { user: IAuthenticatedUser };
  * Verifies the session cookie and attaches `req.user`; rejects with 401 otherwise. Mounted
  * globally (not per-router), with an explicit allowlist of paths that must stay reachable
  * without a session — auth/setup and auth/login are how you *get* a session in the first
- * place, and healthz needs to answer before there's any concept of a logged-in caller.
- * Deciding this by an allowlist here, rather than by which routers get mounted before vs.
- * after the middleware, means there's exactly one place that says what's public — Express
- * route-registration order is not a security boundary you want to have to reason about.
+ * place, healthz needs to answer before there's any concept of a logged-in caller, and
+ * webhook URLs are called by external systems that were never going to have a session cookie
+ * at all. `publicPathPrefixes` exists only for webhooks, whose paths are registered at
+ * runtime and can't live in a fixed Set. Deciding this by an allowlist here, rather than by
+ * which routers get mounted before vs. after the middleware, means there's exactly one place
+ * that says what's public — Express route-registration order is not a security boundary you
+ * want to have to reason about.
  */
-export function requireAuth(jwtSecret: Uint8Array, publicPaths: ReadonlySet<string> = new Set()) {
+export function requireAuth(
+  jwtSecret: Uint8Array,
+  publicPaths: ReadonlySet<string> = new Set(),
+  publicPathPrefixes: readonly string[] = [],
+) {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
-    if (publicPaths.has(req.path)) {
+    if (publicPaths.has(req.path) || publicPathPrefixes.some((prefix) => req.path.startsWith(prefix))) {
       next();
       return;
     }
