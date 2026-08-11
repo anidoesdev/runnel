@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { MapNodeTypes } from '@n8n-clone/core';
-import { allNodeTypes, registerAllNodeTypes } from './index.js';
+import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
+import { allCredentialTypes, allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from './index.js';
 
 describe('registerAllNodeTypes', () => {
   it('registers all nine M5 node types under their declared names', () => {
@@ -15,5 +15,19 @@ describe('registerAllNodeTypes', () => {
     expect(names).toEqual(
       ['code', 'httpRequest', 'if', 'manualTrigger', 'merge', 'noOp', 'set', 'splitInBatches', 'start'].sort(),
     );
+  });
+});
+
+describe('registerAllCredentialTypes', () => {
+  it('registers every built-in credential type under its declared name', () => {
+    const registry = registerAllCredentialTypes(new MapCredentialTypes());
+    for (const credentialType of allCredentialTypes) {
+      expect(registry.getByName(credentialType.name)).toBe(credentialType);
+    }
+  });
+
+  it('exposes the five M5 credential types', () => {
+    const names = allCredentialTypes.map((c) => c.name).sort();
+    expect(names).toEqual(['httpBasicAuth', 'httpBearerAuth', 'httpHeaderAuth', 'httpQueryAuth', 'oAuth2Api'].sort());
   });
 });

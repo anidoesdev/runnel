@@ -1,0 +1,89 @@
+import { decryptCredentialData, WorkflowExecute } from '@n8n-clone/core';
+import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
+import type { INodeExecutionData, IRunExecutionData, IWorkflowBase, WorkflowExecuteMode } from '@n8n-clone/workflow';
+import type { Repository } from 'typeorm';
+import type { WorkflowEntity } from '../db/entities/Workflow.entity.js';
+import type { CredentialEntity } from '../db/entities/Credential.entity.js';
+
+export function toWorkflowBase(entity: WorkflowEntity): IWorkflowBase {
+  return {
+    id: entity.id,
+    name: entity.name,
+    active: entity.active,
+    nodes: entity.nodes,
+    connections: entity.connections,
+    settings: entity.settings ?? undefined,
+    staticData: entity.staticData ?? undefined,
+    pinData: entity.pinData ?? undefined,
+  };
+}
+
+/** A node with no incoming connection is a plausible start node (a trigger). Falls back to the first node when every node has a parent (e.g. a pure sub-workflow). */
+export function findStartNodeName(workflow: IWorkflowBase): string | undefined {
+  const targets = new Set<string>();
+  for (const connection of Object.values(workflow.connections)) {
+    for (const branch of connection.main) {
+      for (const entry of branch) targets.add(entry.node);
+    }
+  }
+  return workflow.nodes.find((node) => !targets.has(node.name))?.name ?? workflow.nodes[0]?.name;
+}
+
+export interface IRunWorkflowDeps {
+  nodeTypes: INodeTypes;
+  credentialTypes: ICredentialTypes;
+  credentials: Repository<CredentialEntity>;
+  encryptionKey: string;
+}
+
+export interface IRunWorkflowOptions {
+  mode: WorkflowExecuteMode;
+  startNodeName?: string;
+  startData?: INodeExecutionData[];
+}
+
+export interface IRunWorkflowResult {
+  workflowDef: IWorkflowBase;
+  startNodeName: string;
+  result: IRunExecutionData;
+}
+
+/**
+ * Shared by the REST "execute workflow" endpoint and the `n8n-clone execute` CLI command —
+ * both need the same "resolve start node, build a credentials-aware engine, run it" logic.
+ *
+ * Credential resolution is deliberately simple: "the first stored credential of the
+ * requested type". Proper per-node credential *assignment* (a node picking a specific
+ * credential id out of several of the same type, via `node.credentials[type].id`) is an
+ * editor concern — M8 is what actually lets a user make that choice.
+ */
+export async function runWorkflow(
+  workflowEntity: WorkflowEntity,
+  deps: IRunWorkflowDeps,
+  options: IRunWorkflowOptions,
+): Promise<IRunWorkflowResult> {
+  const workflowDef = toWorkflowBase(workflowEntity);
+  const startNodeName = options.startNodeName ?? findStartNodeName(workflowDef);
+  if (!startNodeName) {
+    throw new Error(`Workflow "${workflowEntity.id}" has no nodes to start from`);
+  }
+
+  const engine = new WorkflowExecute(deps.nodeTypes, {
+    mode: options.mode,
+    credentialTypes: deps.credentialTypes,
+    credentialsResolver: async (credentialTypeName: string) => {
+      const credential = await deps.credentials.findOneBy({ type: credentialTypeName });
+      if (!credential) throw new Error(`No stored credential of type "${credentialTypeName}"`);
+      return decryptCredentialData(
+        JSON.parse(credential.data) as Parameters<typeof decryptCredentialData>[0],
+        deps.encryptionKey,
+      );
+    },
+  });
+
+  const result = options.startData
+    ? await engine.run(workflowDef, startNodeName, [options.startData])
+    : await engine.run(workflowDef, startNodeName);
+
+  return { workflowDef, startNodeName, result };
+}
