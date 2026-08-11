@@ -1,7 +1,10 @@
 import { NodeApiError, NodeOperationError } from '@n8n-clone/workflow';
 import { buildExecuteFunctions } from './execute-context.js';
+import type { ICredentialTypes } from '../credentials/credential-types.js';
 import type {
+  IDataObject,
   IExecuteData,
+  IHttpRequestOptions,
   INode,
   INodeExecutionData,
   IRunExecutionData,
@@ -18,6 +21,9 @@ export interface IWorkflowExecuteOptions {
   mode: WorkflowExecuteMode;
   /** Injectable delay for retryOnFail's waitBetweenTries — tests pass a no-op to stay fast. */
   sleep?: (ms: number) => Promise<void>;
+  credentialsResolver?: (credentialTypeName: string) => Promise<IDataObject>;
+  credentialTypes?: ICredentialTypes;
+  httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
 }
 
 const defaultSleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -144,6 +150,9 @@ export class WorkflowExecute {
           mode: this.options.mode,
           executeOnce: node.executeOnce,
           contextData: runExecutionData.executionData!.contextData,
+          credentialsResolver: this.options.credentialsResolver,
+          credentialTypes: this.options.credentialTypes,
+          httpClient: this.options.httpClient,
         });
 
         let output = await nodeType.execute!.call(context);

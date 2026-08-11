@@ -125,6 +125,23 @@ export interface IHttpRequestOptions {
   qs?: IDataObject;
   body?: IDataObject | string;
   json?: boolean;
+  timeout?: number;
+  /** Defaults to true. When false, a redirect response is returned as-is instead of followed. */
+  followRedirect?: boolean;
+  maxRedirects?: number;
+  /** When true, resolves to { statusCode, headers, body } instead of just the body. */
+  returnFullResponse?: boolean;
+  /** How to parse the response body. Defaults to 'json' when the response is JSON, else 'text'. */
+  encoding?: 'json' | 'text' | 'arraybuffer';
+  /** Accepted for forward compatibility; proxy tunneling is not yet wired up (M5 scope note — see http-client.ts). */
+  proxy?: string;
+  retry?: { maxRetries?: number; retryDelayMs?: number };
+}
+
+export interface IHttpResponse {
+  statusCode: number;
+  headers: Record<string, string>;
+  body: unknown;
 }
 
 /**
@@ -144,6 +161,8 @@ export interface IExecuteFunctions {
   getContext(type: 'node' | 'flow'): IDataObject;
   helpers: {
     httpRequest(options: IHttpRequestOptions): Promise<unknown>;
+    /** Resolves the named credential, applies its declarative `authenticate` block to `options`, and performs the request. */
+    httpRequestWithAuthentication(credentialTypeName: string, options: IHttpRequestOptions): Promise<unknown>;
     returnJsonArray(items: IDataObject[]): INodeExecutionData[];
     constructExecutionMetaData(
       items: INodeExecutionData[],

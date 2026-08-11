@@ -1,26 +1,42 @@
-import type { INodeType } from '@n8n-clone/workflow';
+import type { INodeType, VersionedNodeType } from '@n8n-clone/workflow';
 
 /**
  * Decouples WorkflowExecute from how node types are actually loaded/versioned. The real
- * loader (scanning nodes-base/dist, custom extensions, VersionedNodeType resolution) lands
- * in M5 — for now this is just the seam, and tests supply a trivial Map-backed registry.
+ * loader (scanning nodes-base/dist, custom extensions, lazy known/nodes.json indexing) is a
+ * CLI-startup concern that lands in M6 — this is just the seam. `MapNodeTypes` resolves
+ * VersionedNodeType entries (a saved node pins `typeVersion`; unversioned node types just
+ * return themselves regardless of what version is asked for, matching how a node with a
+ * single `version: 1` behaves in practice).
  */
 export interface INodeTypes {
   getByNameAndVersion(type: string, version?: number): INodeType;
 }
 
-export class MapNodeTypes implements INodeTypes {
-  private readonly types = new Map<string, INodeType>();
+export type RegisterableNodeType = INodeType | VersionedNodeType;
 
-  register(type: INodeType): this {
+function isVersioned(type: RegisterableNodeType): type is VersionedNodeType {
+  return 'nodeVersions' in type;
+}
+
+export class MapNodeTypes implements INodeTypes {
+  private readonly types = new Map<string, RegisterableNodeType>();
+
+  register(type: RegisterableNodeType): this {
     this.types.set(type.description.name, type);
     return this;
   }
 
-  getByNameAndVersion(type: string): INodeType {
-    const nodeType = this.types.get(type);
-    if (!nodeType) {
+  getByNameAndVersion(type: string, version?: number): INodeType {
+    const entry = this.types.get(type);
+    if (!entry) {
       throw new Error(`Unknown node type "${type}"`);
+    }
+    if (!isVersioned(entry)) return entry;
+
+    const resolvedVersion = version ?? entry.currentVersion;
+    const nodeType = entry.nodeVersions[resolvedVersion];
+    if (!nodeType) {
+      throw new Error(`Unknown version ${resolvedVersion} of node type "${type}"`);
     }
     return nodeType;
   }

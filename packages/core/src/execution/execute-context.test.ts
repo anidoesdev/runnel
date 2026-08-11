@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { NodeOperationError } from '@n8n-clone/workflow';
 import { buildExecuteFunctions } from './execute-context.js';
 import { makeNode, makeWorkflow } from './test-utils.js';
+import { MapCredentialTypes } from '../credentials/credential-types.js';
 import type { IExecuteFunctionsOptions } from './execute-context.js';
 
 function baseOptions(overrides: Partial<IExecuteFunctionsOptions> = {}): IExecuteFunctionsOptions {
@@ -56,6 +57,25 @@ describe('buildExecuteFunctions — getNodeParameter', () => {
     expect(ctx.getNodeParameter('value', 1)).toBe(20);
   });
 
+  it('resolves expressions nested inside an array/object parameter (e.g. a fixedCollection)', () => {
+    const node = makeNode({
+      name: 'N',
+      parameters: {
+        fields: {
+          values: [
+            { name: 'literal', value: 'plain text' },
+            { name: 'computed', value: '={{ $json.a + 1 }}' },
+          ],
+        },
+      },
+    });
+    const ctx = buildExecuteFunctions(baseOptions({ node }));
+    expect(ctx.getNodeParameter('fields.values', 0)).toEqual([
+      { name: 'literal', value: 'plain text' },
+      { name: 'computed', value: 2 },
+    ]);
+  });
+
   it('exposes $parameter as the node\'s own parameters inside an expression', () => {
     const node = makeNode({ name: 'N', parameters: { mode: 'test', value: '={{ $parameter.mode }}' } });
     const ctx = buildExecuteFunctions(baseOptions({ node }));
@@ -93,14 +113,64 @@ describe('buildExecuteFunctions — misc surface', () => {
     expect(cont.continueOnFail()).toBe(true);
   });
 
-  it('getCredentials throws — not available until M5/M6', async () => {
+  it('getCredentials throws when no credentialsResolver was supplied', async () => {
     const ctx = buildExecuteFunctions(baseOptions());
     await expect(ctx.getCredentials('any')).rejects.toThrow(NodeOperationError);
   });
 
-  it('helpers.httpRequest throws — not available until M5', async () => {
-    const ctx = buildExecuteFunctions(baseOptions());
-    await expect(ctx.helpers.httpRequest({ url: 'http://x' })).rejects.toThrow(NodeOperationError);
+  it('getCredentials delegates to the supplied credentialsResolver', async () => {
+    const ctx = buildExecuteFunctions(
+      baseOptions({ credentialsResolver: async (name) => ({ resolvedFor: name }) }),
+    );
+    await expect(ctx.getCredentials('httpBasicAuth')).resolves.toEqual({ resolvedFor: 'httpBasicAuth' });
+  });
+
+  it('helpers.httpRequest delegates to the injected httpClient', async () => {
+    const calls: unknown[] = [];
+    const ctx = buildExecuteFunctions(
+      baseOptions({
+        httpClient: async (opts) => {
+          calls.push(opts);
+          return { ok: true };
+        },
+      }),
+    );
+    const result = await ctx.helpers.httpRequest({ url: 'http://example.com' });
+    expect(result).toEqual({ ok: true });
+    expect(calls).toEqual([{ url: 'http://example.com' }]);
+  });
+
+  it('helpers.httpRequestWithAuthentication throws when no credentialTypes registry was supplied', async () => {
+    const ctx = buildExecuteFunctions(
+      baseOptions({ credentialsResolver: async () => ({}), httpClient: async () => ({}) }),
+    );
+    await expect(ctx.helpers.httpRequestWithAuthentication('httpBasicAuth', { url: 'http://x' })).rejects.toThrow(
+      NodeOperationError,
+    );
+  });
+
+  it('helpers.httpRequestWithAuthentication resolves credentials, applies auth, then requests', async () => {
+    const credentialTypes = new MapCredentialTypes().register({
+      name: 'apiKeyAuth',
+      displayName: 'API Key',
+      properties: [],
+      authenticate: { type: 'generic', properties: { headers: { Authorization: '=Bearer {{$credentials.apiKey}}' } } },
+    });
+    const calls: unknown[] = [];
+    const ctx = buildExecuteFunctions(
+      baseOptions({
+        credentialTypes,
+        credentialsResolver: async () => ({ apiKey: 'sk-123' }),
+        httpClient: async (opts) => {
+          calls.push(opts);
+          return { ok: true };
+        },
+      }),
+    );
+
+    const result = await ctx.helpers.httpRequestWithAuthentication('apiKeyAuth', { url: 'http://x' });
+    expect(result).toEqual({ ok: true });
+    expect(calls).toEqual([{ url: 'http://x', headers: { Authorization: 'Bearer sk-123' }, qs: {} }]);
   });
 
   it('helpers.returnJsonArray wraps plain objects as items', () => {
