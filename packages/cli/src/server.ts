@@ -2,6 +2,7 @@ import { createDataSource, postgresConfigFromEnv, sqliteConfig } from './db/data
 import { createApp } from './app.js';
 import { createLogger } from './logging/logger.js';
 import { loadConfig } from './config.js';
+import { loadCustomNodeTypes } from './custom-nodes/load-custom-nodes.js';
 import type { Server } from 'node:http';
 import type { DataSource } from 'typeorm';
 import type { Logger } from 'pino';
@@ -31,11 +32,14 @@ export async function startServer(): Promise<IRunningServer> {
   await dataSource.initialize();
   await dataSource.runMigrations();
 
+  const customNodeTypes = config.customNodesDir ? await loadCustomNodeTypes(config.customNodesDir, logger) : [];
+
   const { app, activeWorkflowManager } = createApp({
     dataSource,
     encryptionKey: config.encryptionKey,
     jwtSecret: config.jwtSecret,
     logger,
+    customNodeTypes,
   });
 
   const server = await new Promise<Server>((resolve) => {

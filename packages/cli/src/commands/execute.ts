@@ -1,8 +1,10 @@
 import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
-import { registerAllCredentialTypes, registerAllNodeTypes } from '@n8n-clone/nodes-base';
+import { allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from '@n8n-clone/nodes-base';
 import { createDataSource, postgresConfigFromEnv, sqliteConfig } from '../db/data-source.js';
 import { loadConfig } from '../config.js';
 import { runWorkflow } from '../execution/run-workflow.js';
+import { loadCustomNodeTypes, registerCustomNodeTypes } from '../custom-nodes/load-custom-nodes.js';
+import { createLogger } from '../logging/logger.js';
 import { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';
 
@@ -26,6 +28,13 @@ export async function executeCommand(workflowId: string): Promise<number> {
 
     const nodeTypes = registerAllNodeTypes(new MapNodeTypes());
     const credentialTypes = registerAllCredentialTypes(new MapCredentialTypes());
+
+    if (config.customNodesDir) {
+      const logger = createLogger();
+      const customNodeTypes = await loadCustomNodeTypes(config.customNodesDir, logger);
+      const builtInNodeNames = new Set(allNodeTypes.map((nodeType) => nodeType.description.name));
+      registerCustomNodeTypes(customNodeTypes, nodeTypes, builtInNodeNames, logger);
+    }
 
     const { result } = await runWorkflow(
       workflow,

@@ -14,8 +14,10 @@
   "dependencies": {
     "@n8n-clone/design-system": "workspace:*",
     "@n8n-clone/workflow": "workspace:*",
+    "@vue-flow/core": "^1.41.5",
     "pinia": "^2.3.0",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-router": "^4.5.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.1",

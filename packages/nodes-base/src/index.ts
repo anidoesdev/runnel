@@ -10,12 +10,20 @@ export { codeNode } from './nodes/Code/Code.node.js';
 export { scheduleTrigger } from './nodes/ScheduleTrigger/ScheduleTrigger.node.js';
 export { webhook } from './nodes/Webhook/Webhook.node.js';
 export { pollTrigger } from './nodes/PollTrigger/PollTrigger.node.js';
+export { switchNode } from './nodes/Switch/Switch.node.js';
+export { filterNode } from './nodes/Filter/Filter.node.js';
+export { sortNode } from './nodes/Sort/Sort.node.js';
+export { limitNode } from './nodes/Limit/Limit.node.js';
+export { removeDuplicatesNode } from './nodes/RemoveDuplicates/RemoveDuplicates.node.js';
+export { renameKeysNode } from './nodes/RenameKeys/RenameKeys.node.js';
+export { postgresNode } from './nodes/Postgres/Postgres.node.js';
 
 export { httpBasicAuth } from './credentials/HttpBasicAuth.credentials.js';
 export { httpHeaderAuth } from './credentials/HttpHeaderAuth.credentials.js';
 export { httpQueryAuth } from './credentials/HttpQueryAuth.credentials.js';
 export { httpBearerAuth } from './credentials/HttpBearerAuth.credentials.js';
 export { oAuth2Api } from './credentials/OAuth2Api.credentials.js';
+export { postgresApi } from './credentials/PostgresApi.credentials.js';
 
 import type { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
 import { manualTrigger } from './nodes/ManualTrigger/ManualTrigger.node.js';
@@ -30,11 +38,19 @@ import { codeNode } from './nodes/Code/Code.node.js';
 import { scheduleTrigger } from './nodes/ScheduleTrigger/ScheduleTrigger.node.js';
 import { webhook } from './nodes/Webhook/Webhook.node.js';
 import { pollTrigger } from './nodes/PollTrigger/PollTrigger.node.js';
+import { switchNode } from './nodes/Switch/Switch.node.js';
+import { filterNode } from './nodes/Filter/Filter.node.js';
+import { sortNode } from './nodes/Sort/Sort.node.js';
+import { limitNode } from './nodes/Limit/Limit.node.js';
+import { removeDuplicatesNode } from './nodes/RemoveDuplicates/RemoveDuplicates.node.js';
+import { renameKeysNode } from './nodes/RenameKeys/RenameKeys.node.js';
+import { postgresNode } from './nodes/Postgres/Postgres.node.js';
 import { httpBasicAuth } from './credentials/HttpBasicAuth.credentials.js';
 import { httpHeaderAuth } from './credentials/HttpHeaderAuth.credentials.js';
 import { httpQueryAuth } from './credentials/HttpQueryAuth.credentials.js';
 import { httpBearerAuth } from './credentials/HttpBearerAuth.credentials.js';
 import { oAuth2Api } from './credentials/OAuth2Api.credentials.js';
+import { postgresApi } from './credentials/PostgresApi.credentials.js';
 
 /** All built-in node types, ready to register with a MapNodeTypes (or any INodeTypes) instance. */
 export const allNodeTypes = [
@@ -50,6 +66,13 @@ export const allNodeTypes = [
   scheduleTrigger,
   webhook,
   pollTrigger,
+  switchNode,
+  filterNode,
+  sortNode,
+  limitNode,
+  removeDuplicatesNode,
+  renameKeysNode,
+  postgresNode,
 ];
 
 export function registerAllNodeTypes(registry: MapNodeTypes): MapNodeTypes {
@@ -58,7 +81,7 @@ export function registerAllNodeTypes(registry: MapNodeTypes): MapNodeTypes {
 }
 
 /** All built-in credential types, ready to register with a MapCredentialTypes instance. */
-export const allCredentialTypes = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api];
+export const allCredentialTypes = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api, postgresApi];
 
 export function registerAllCredentialTypes(registry: MapCredentialTypes): MapCredentialTypes {
   for (const credentialType of allCredentialTypes) registry.register(credentialType);

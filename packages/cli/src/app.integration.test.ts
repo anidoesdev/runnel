@@ -5,6 +5,7 @@ import { createDataSource, sqliteConfig } from './db/data-source.js';
 import { createLogger } from './logging/logger.js';
 import type { DataSource } from 'typeorm';
 import type { Express } from 'express';
+import type { INodeType } from '@n8n-clone/workflow';
 
 /**
  * The M6 definition of done, exercised for real: a workflow is created, run, and inspected
@@ -43,7 +44,11 @@ describe('REST API — auth', () => {
     expect(ready.status).toBe(200);
   });
 
-  it('completes owner setup and rejects a second attempt', async () => {
+  it('reports setup status, completes owner setup, and rejects a second attempt', async () => {
+    const before = await request(app).get('/rest/auth/setup');
+    expect(before.status).toBe(200);
+    expect(before.body).toEqual({ completed: false });
+
     const agent = request.agent(app);
     const setup = await agent.post('/rest/auth/setup').send({ email: 'owner@example.com', password: 'correct-horse' });
     expect(setup.status).toBe(200);
@@ -52,6 +57,9 @@ describe('REST API — auth', () => {
     const me = await agent.get('/rest/auth/me');
     expect(me.status).toBe(200);
     expect(me.body).toMatchObject({ email: 'owner@example.com', isOwner: true });
+
+    const after = await request(app).get('/rest/auth/setup');
+    expect(after.body).toEqual({ completed: true });
 
     const secondSetup = await request(app)
       .post('/rest/auth/setup')
@@ -293,6 +301,123 @@ describe('REST API — activating a workflow starts its webhook (M7)', () => {
 
     // The webhook still routes to the first (successfully activated) workflow.
     expect((await request(app).post('/webhook/shared').send({ name: 'x' })).status).toBe(200);
+  });
+});
+
+describe('REST API — node/credential type metadata for the editor (M8)', () => {
+  let agent: ReturnType<typeof request.agent>;
+
+  beforeAll(async () => {
+    agent = request.agent(app);
+    await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });
+  });
+
+  it('lists every built-in node type description', async () => {
+    const res = await agent.get('/rest/node-types');
+    expect(res.status).toBe(200);
+    const names = (res.body as Array<{ name: string }>).map((n) => n.name);
+    expect(names).toEqual(
+      expect.arrayContaining(['manualTrigger', 'scheduleTrigger', 'webhook', 'set', 'if', 'httpRequest']),
+    );
+  });
+
+  it('lists every built-in credential type', async () => {
+    const res = await agent.get('/rest/credential-types');
+    expect(res.status).toBe(200);
+    const names = (res.body as Array<{ name: string }>).map((c) => c.name);
+    expect(names).toEqual(expect.arrayContaining(['httpBasicAuth', 'httpHeaderAuth']));
+  });
+
+  it('requires authentication', async () => {
+    expect((await request(app).get('/rest/node-types')).status).toBe(401);
+    expect((await request(app).get('/rest/credential-types')).status).toBe(401);
+  });
+});
+
+describe('REST API — custom node types (M10)', () => {
+  const echoCustomNode: INodeType = {
+    description: {
+      displayName: 'Echo Custom',
+      name: 'echoCustom',
+      group: ['transform'],
+      version: 1,
+      description: 'A fake custom node for testing CUSTOM_NODES_DIR loading',
+      defaults: { name: 'Echo Custom' },
+      inputs: [],
+      outputs: ['main'],
+      properties: [],
+    },
+    async execute() {
+      return [[{ json: { fromCustomNode: true } }]];
+    },
+  };
+
+  const collidingSetNode: INodeType = {
+    description: {
+      displayName: 'Not The Real Set',
+      name: 'set',
+      group: ['transform'],
+      version: 1,
+      description: 'Pretends to be the built-in Set node',
+      defaults: { name: 'Not The Real Set' },
+      inputs: ['main'],
+      outputs: ['main'],
+      properties: [],
+    },
+    async execute() {
+      return [[{ json: { imposter: true } }]];
+    },
+  };
+
+  let customDataSource: DataSource;
+  let customApp: Express;
+  let agent: ReturnType<typeof request.agent>;
+
+  beforeAll(async () => {
+    customDataSource = createDataSource(sqliteConfig(':memory:'));
+    await customDataSource.initialize();
+    await customDataSource.runMigrations();
+    ({ app: customApp } = createApp({
+      dataSource: customDataSource,
+      encryptionKey: 'test-encryption-key',
+      jwtSecret: new TextEncoder().encode('test-jwt-secret-at-least-32-bytes!'),
+      logger: createLogger({ level: 'silent' }),
+      customNodeTypes: [echoCustomNode, collidingSetNode],
+    }));
+
+    agent = request.agent(customApp);
+    await agent.post('/rest/auth/setup').send({ email: 'owner@example.com', password: 'correct-horse' });
+  });
+
+  afterAll(async () => {
+    await customDataSource.destroy();
+  });
+
+  it('lists the custom node alongside the built-ins', async () => {
+    const res = await agent.get('/rest/node-types');
+    const names = (res.body as Array<{ name: string }>).map((n) => n.name);
+    expect(names).toContain('echoCustom');
+  });
+
+  it('a workflow using the custom node runs successfully', async () => {
+    const created = await agent.post('/rest/workflows').send({
+      name: 'Custom node workflow',
+      nodes: [{ id: '1', name: 'Echo', type: 'echoCustom', typeVersion: 1, position: [0, 0], parameters: {} }],
+      connections: {},
+    });
+    expect(created.status).toBe(200);
+
+    const run = await agent.post(`/rest/workflows/${created.body.id}/execute`).send({});
+    expect(run.status).toBe(200);
+    expect(run.body.status).toBe('success');
+    expect(run.body.data.resultData.runData.Echo[0].data.main[0]).toEqual([{ json: { fromCustomNode: true } }]);
+  });
+
+  it('a custom node colliding with a built-in name is skipped — the built-in still wins', async () => {
+    const res = await agent.get('/rest/node-types');
+    const setEntries = (res.body as Array<{ name: string; displayName: string }>).filter((n) => n.name === 'set');
+    expect(setEntries).toHaveLength(1);
+    expect(setEntries[0]!.displayName).toBe('Edit Fields (Set)');
   });
 });
 

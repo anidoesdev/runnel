@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx tsc *)"
+      "Bash(npx tsc *)",
+      "Bash(nohup pnpm dev --port 5173 --strictPort)",
+      "Bash(echo \"started pid $!\")",
+      "Read(//tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:5173/)",
+      "Bash(curl -s http://localhost:5173/rest/auth/setup)",
+      "Bash(curl -s http://localhost:5678/rest/auth/setup)"
     ]
   }
 }

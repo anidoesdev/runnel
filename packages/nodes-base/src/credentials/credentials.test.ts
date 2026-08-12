@@ -4,9 +4,10 @@ import { httpHeaderAuth } from './HttpHeaderAuth.credentials.js';
 import { httpQueryAuth } from './HttpQueryAuth.credentials.js';
 import { httpBearerAuth } from './HttpBearerAuth.credentials.js';
 import { oAuth2Api } from './OAuth2Api.credentials.js';
+import { postgresApi } from './PostgresApi.credentials.js';
 import type { ICredentialType } from '@n8n-clone/workflow';
 
-const allTypes: ICredentialType[] = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api];
+const allTypes: ICredentialType[] = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api, postgresApi];
 
 describe('built-in credential types', () => {
   it('each has a unique name, a display name, and at least one property', () => {
@@ -38,5 +39,11 @@ describe('built-in credential types', () => {
   it('oAuth2Api declares the standard OAuth2 field set', () => {
     const names = oAuth2Api.properties.map((p) => p.name);
     expect(names).toEqual(['clientId', 'clientSecret', 'authUrl', 'accessTokenUrl', 'scope']);
+  });
+
+  it('postgresApi has no authenticate/test block — the Postgres node connects with its fields directly', () => {
+    expect(postgresApi.authenticate).toBeUndefined();
+    expect(postgresApi.test).toBeUndefined();
+    expect(postgresApi.properties.map((p) => p.name)).toEqual(['host', 'port', 'database', 'user', 'password', 'ssl']);
   });
 });

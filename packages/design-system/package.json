@@ -9,7 +9,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
-    }
+    },
+    "./style.css": "./dist/index.css"
   },
   "scripts": {
     "build": "vite build && vue-tsc -p tsconfig.json --emitDeclarationOnly",
