@@ -44,6 +44,12 @@ describe('REST API — auth', () => {
     expect(ready.status).toBe(200);
   });
 
+  it('sets helmet security headers and an access-log request id on every response', async () => {
+    const res = await request(app).get('/healthz/');
+    expect(res.headers['x-content-type-options']).toBe('nosniff');
+    expect(res.headers['x-request-id']).toEqual(expect.any(String));
+  });
+
   it('reports setup status, completes owner setup, and rejects a second attempt', async () => {
     const before = await request(app).get('/rest/auth/setup');
     expect(before.status).toBe(200);

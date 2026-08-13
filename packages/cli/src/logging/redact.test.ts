@@ -51,4 +51,29 @@ describe('redactSecrets', () => {
     expect(redactSecrets(null)).toBe(null);
     expect(redactSecrets(undefined)).toBe(undefined);
   });
+
+  it('redacts a cookie header, which can carry a session token wholesale', () => {
+    expect(redactSecrets({ headers: { cookie: 'n8n-clone-auth=abc.def.ghi' } })).toEqual({
+      headers: { cookie: '[Redacted]' },
+    });
+  });
+
+  it('leaves a non-plain object (a class instance) completely untouched rather than rebuilding it', () => {
+    class Custom {
+      statusCode = 200;
+      getSomething(): string {
+        return 'still callable';
+      }
+    }
+    const instance = new Custom();
+
+    const result = redactSecrets({ res: instance }) as { res: Custom };
+    expect(result.res).toBe(instance); // same reference — not a rebuilt plain-object copy
+    expect(result.res.getSomething()).toBe('still callable');
+  });
+
+  it('still redacts a sensitive field one level below a non-plain object, once that object is itself passed', () => {
+    // A Date (or any other builtin) is left alone; only plain nested objects get recursed into.
+    expect(redactSecrets(new Date(0))).toBeInstanceOf(Date);
+  });
 });

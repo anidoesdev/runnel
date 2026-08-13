@@ -1,0 +1,29 @@
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Same-origin from the browser's point of view — the SPA's api client just calls /rest/...
+    # and /webhook/..., identical to the vite dev-server proxy in vite.config.ts. ${CLI_UPSTREAM}
+    # is substituted at container start by nginx's built-in envsubst-on-templates entrypoint
+    # (see Dockerfile) from the CLI_UPSTREAM environment variable.
+    location /rest/ {
+        proxy_pass http://${CLI_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location /webhook/ {
+        proxy_pass http://${CLI_UPSTREAM};
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}

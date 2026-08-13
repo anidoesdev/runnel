@@ -1,5 +1,6 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
+import helmet from 'helmet';
 import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
 import { allCredentialTypes, allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from '@n8n-clone/nodes-base';
 import { requireAuth } from './auth/auth.middleware.js';
@@ -12,6 +13,8 @@ import { NodeTypesController } from './node-types/node-types.controller.js';
 import { CredentialTypesController } from './credential-types/credential-types.controller.js';
 import { buildRouterForController } from './http/router-builder.js';
 import { buildErrorMiddleware } from './http/error-middleware.js';
+import { buildAccessLogMiddleware } from './http/access-log.js';
+import { buildAuthRateLimiter } from './http/rate-limit.js';
 import { buildWebhookRouter } from './webhooks/webhook-router.js';
 import { ActiveWorkflowManager } from './active-workflows/active-workflow-manager.js';
 import { registerCustomNodeTypes } from './custom-nodes/load-custom-nodes.js';
@@ -82,8 +85,11 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
   );
 
   const app = express();
+  app.use(helmet());
+  app.use(buildAccessLogMiddleware(logger));
   app.use(express.json());
   app.use(cookieParser());
+  app.use(['/rest/auth/login', '/rest/auth/setup'], buildAuthRateLimiter());
   app.use('/webhook', buildWebhookRouter(activeWorkflowManager));
   app.use(requireAuth(jwtSecret, PUBLIC_PATHS, PUBLIC_PATH_PREFIXES));
 

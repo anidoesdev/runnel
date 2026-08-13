@@ -23,9 +23,12 @@
     "better-sqlite3": "^12.11.1",
     "cookie-parser": "^1.4.7",
     "express": "^5.0.1",
+    "express-rate-limit": "^7.4.1",
+    "helmet": "^8.0.0",
     "jose": "^5.9.6",
     "pg": "^8.13.1",
     "pino": "^9.6.0",
+    "pino-http": "^10.3.0",
     "reflect-metadata": "^0.2.2",
     "typeorm": "^0.3.20",
     "zod": "^3.24.1"

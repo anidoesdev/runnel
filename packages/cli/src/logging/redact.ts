@@ -7,14 +7,21 @@
  * serializes objects that might contain one (error payloads, etc).
  */
 const SENSITIVE_KEY_PATTERN =
-  /password|passwordhash|token|apikey|api_key|secret|authorization|clientsecret|client_secret/i;
+  /password|passwordhash|token|apikey|api_key|secret|authorization|clientsecret|client_secret|cookie/i;
 
 const REDACTED = '[Redacted]';
+
+/** Only Object.prototype (`{}`) or a null-prototype object counts as "plain" — a class instance (Error, Date, a raw Node http request/response, ...) is left completely untouched rather than rebuilt key-by-key via Object.entries, which would silently drop its prototype methods and any non-enumerable state a later consumer (e.g. pino-http's own req/res serializers, which run *after* this formatter) still needs. */
+function isPlainObject(value: object): boolean {
+  const proto = Object.getPrototypeOf(value) as object | null;
+  return proto === Object.prototype || proto === null;
+}
 
 export function redactSecrets(value: unknown, seen: WeakSet<object> = new WeakSet()): unknown {
   if (Array.isArray(value)) return value.map((entry) => redactSecrets(entry, seen));
 
   if (value !== null && typeof value === 'object') {
+    if (!isPlainObject(value)) return value;
     if (seen.has(value)) return '[Circular]';
     seen.add(value);
 
