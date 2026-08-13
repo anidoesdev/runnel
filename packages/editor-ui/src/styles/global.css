@@ -227,6 +227,75 @@ a {
   font-size: 13px;
 }
 
+.property-field__required {
+  color: #c0392b;
+}
+
+/* NDV two-panel layout (input parameters | output data) */
+.ndv {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  width: min(920px, 85vw);
+  max-height: 70vh;
+}
+
+.ndv__panel {
+  min-width: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.ndv__panel h3 {
+  font-size: 12px;
+  text-transform: uppercase;
+  color: #888;
+  margin: 0 0 12px;
+  position: sticky;
+  top: 0;
+  background: white;
+}
+
+.ndv__output-status {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.ndv__output-status--success {
+  background: #d9f4e3;
+  color: #1c7a3e;
+}
+
+.ndv__output-status--error {
+  background: #fbdcd8;
+  color: #c0392b;
+}
+
+.ndv__output-status--skipped {
+  background: #eee;
+  color: #666;
+}
+
+.ndv__output-empty {
+  color: #888;
+  font-size: 13px;
+}
+
+.ndv__output-item {
+  background: var(--color-bg);
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-family: monospace;
+  font-size: 12px;
+}
+
 .property-field__multi {
   display: flex;
   flex-direction: column;

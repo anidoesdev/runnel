@@ -59,7 +59,7 @@ function toggleMultiOption(optionValue: string | number | boolean, checked: bool
 
 <template>
   <div class="property-field">
-    <label>{{ property.displayName }}</label>
+    <label>{{ property.displayName }}<span v-if="property.required" class="property-field__required" aria-hidden="true"> *</span></label>
 
     <N8nInput
       v-if="property.type === 'string' || property.type === 'dateTime' || property.type === 'color'"

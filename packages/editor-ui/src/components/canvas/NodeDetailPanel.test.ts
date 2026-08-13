@@ -68,4 +68,106 @@ describe('NodeDetailPanel', () => {
     const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
     expect(wrapper.text()).not.toContain('Fields to Set');
   });
+
+  it('shows an Input panel and an Output panel', () => {
+    const nodeTypesStore = useNodeTypesStore();
+    nodeTypesStore.nodeTypes = [setLikeDescription];
+
+    const workflowStore = useWorkflowStore();
+    const node = workflowStore.addNode('set', 'Edit Fields', [0, 0]);
+
+    const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
+    const headings = wrapper.findAll('h3').map((h) => h.text());
+    expect(headings).toEqual(['Input', 'Output']);
+  });
+
+  it('marks a required property with an asterisk in the Input panel', () => {
+    const requiredFieldDescription: INodeTypeDescription = {
+      ...setLikeDescription,
+      name: 'requiredFieldNode',
+      properties: [{ displayName: 'URL', name: 'url', type: 'string', default: '', required: true }],
+    };
+    const nodeTypesStore = useNodeTypesStore();
+    nodeTypesStore.nodeTypes = [requiredFieldDescription];
+
+    const workflowStore = useWorkflowStore();
+    const node = workflowStore.addNode('requiredFieldNode', 'Required Field Node', [0, 0]);
+
+    const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
+    expect(wrapper.find('.property-field__required').exists()).toBe(true);
+    expect(wrapper.text()).toContain('URL *');
+  });
+
+  it('shows a placeholder in the Output panel before the workflow has been executed', () => {
+    const nodeTypesStore = useNodeTypesStore();
+    nodeTypesStore.nodeTypes = [setLikeDescription];
+
+    const workflowStore = useWorkflowStore();
+    const node = workflowStore.addNode('set', 'Edit Fields', [0, 0]);
+
+    const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
+    expect(wrapper.text()).toContain("Run the workflow to see this node's output here.");
+  });
+
+  it("shows this node's output items after a successful execution", () => {
+    const nodeTypesStore = useNodeTypesStore();
+    nodeTypesStore.nodeTypes = [setLikeDescription];
+
+    const workflowStore = useWorkflowStore();
+    const node = workflowStore.addNode('set', 'Edit Fields', [0, 0]);
+    workflowStore.lastResult = {
+      executionId: 'e1',
+      status: 'success',
+      data: {
+        resultData: {
+          runData: {
+            'Edit Fields': [
+              {
+                startTime: 0,
+                executionTime: 1,
+                executionStatus: 'success',
+                source: [],
+                data: { main: [[{ json: { greeting: 'hi Ada' } }]] },
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
+    expect(wrapper.find('.ndv__output-status--success').exists()).toBe(true);
+    expect(wrapper.text()).toContain('"greeting": "hi Ada"');
+  });
+
+  it("shows the error message when this node's last run failed", () => {
+    const nodeTypesStore = useNodeTypesStore();
+    nodeTypesStore.nodeTypes = [setLikeDescription];
+
+    const workflowStore = useWorkflowStore();
+    const node = workflowStore.addNode('set', 'Edit Fields', [0, 0]);
+    workflowStore.lastResult = {
+      executionId: 'e1',
+      status: 'error',
+      data: {
+        resultData: {
+          runData: {
+            'Edit Fields': [
+              {
+                startTime: 0,
+                executionTime: 1,
+                executionStatus: 'error',
+                source: [],
+                error: { message: 'boom', node: 'Edit Fields', timestamp: 0 },
+              },
+            ],
+          },
+        },
+      },
+    };
+
+    const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
+    expect(wrapper.find('.ndv__output-status--error').exists()).toBe(true);
+    expect(wrapper.text()).toContain('boom');
+  });
 });
