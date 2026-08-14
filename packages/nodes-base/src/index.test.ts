@@ -10,7 +10,7 @@ describe('registerAllNodeTypes', () => {
     }
   });
 
-  it('exposes the nine M5 nodes, the three M7 trigger nodes, and the seven M9 nodes', () => {
+  it('exposes the nine M5 nodes, the three M7 trigger nodes, the seven M9 nodes, and the AI Agent node family', () => {
     const names = allNodeTypes.map((n) => n.description.name).sort();
     expect(names).toEqual(
       [
@@ -33,6 +33,9 @@ describe('registerAllNodeTypes', () => {
         'removeDuplicates',
         'renameKeys',
         'postgres',
+        'aiAgent',
+        'lmChatOpenAi',
+        'toolCalculator',
       ].sort(),
     );
   });
@@ -46,10 +49,10 @@ describe('registerAllCredentialTypes', () => {
     }
   });
 
-  it('exposes the five M5 credential types plus the M9 postgresApi type', () => {
+  it('exposes the five M5 credential types plus the M9 postgresApi type and openAiApi', () => {
     const names = allCredentialTypes.map((c) => c.name).sort();
     expect(names).toEqual(
-      ['httpBasicAuth', 'httpBearerAuth', 'httpHeaderAuth', 'httpQueryAuth', 'oAuth2Api', 'postgresApi'].sort(),
+      ['httpBasicAuth', 'httpBearerAuth', 'httpHeaderAuth', 'httpQueryAuth', 'oAuth2Api', 'postgresApi', 'openAiApi'].sort(),
     );
   });
 });

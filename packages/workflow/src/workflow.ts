@@ -1,8 +1,8 @@
 import { NodeGraph } from './graph.js';
 import { WorkflowOperationError } from './interfaces/errors.js';
 import { renameNodeReferencesInParameters } from './expression-reference-rewriter.js';
-import type { INode } from './interfaces/node.interfaces.js';
-import type { IConnections, IWorkflowBase } from './interfaces/workflow.interfaces.js';
+import type { INode, NodeConnectionType } from './interfaces/node.interfaces.js';
+import type { IConnection, IConnections, IWorkflowBase } from './interfaces/workflow.interfaces.js';
 
 export interface IllegalCycle {
   nodes: string[];
@@ -43,6 +43,26 @@ export class Workflow {
   /** Direct + transitive ancestors of `name`, excluding `name` itself. `depth: -1` (default) means unlimited. */
   getParentNodes(name: string, depth = -1): string[] {
     return this.buildGraph().reachable(name, 'backward', depth);
+  }
+
+  /**
+   * Every node whose `type`-typed connection targets `nodeName` at `inputIndex` (default 0),
+   * in the order they appear in the workflow's `connections`. Unlike `main`, these connection
+   * types are never traversed by NodeGraph — a sub-node (a chat model, a tool) has no `main`
+   * edge to be reachable through, so this is a direct reverse scan of the raw connections
+   * rather than a graph walk. Used by the execution engine to resolve
+   * IExecuteFunctions.getInputConnectionData.
+   */
+  getConnectedSubNodes(nodeName: string, type: NodeConnectionType, inputIndex = 0): string[] {
+    const sources: string[] = [];
+    for (const [source, entry] of Object.entries(this.definition.connections)) {
+      for (const branch of entry[type] ?? []) {
+        for (const connection of branch) {
+          if (connection.node === nodeName && connection.index === inputIndex) sources.push(source);
+        }
+      }
+    }
+    return sources;
   }
 
   /**
@@ -182,16 +202,39 @@ export class Workflow {
     }
 
     const keep = new Set([destinationNode, ...this.getParentNodes(destinationNode)]);
-    const cloned = structuredClone(this.definition);
 
+    // Sub-node connections (ai_languageModel, ai_tool, ...) aren't part of the main graph, so
+    // getParentNodes above never sees them — a node supplying one into anything we're keeping
+    // must be kept too, or that node loses its language model/tools when the pruned workflow
+    // runs. Fixed-point since a kept sub-node could itself depend on another sub-node.
+    let grew = true;
+    while (grew) {
+      grew = false;
+      for (const [source, entry] of Object.entries(this.definition.connections)) {
+        if (keep.has(source)) continue;
+        for (const [type, branches] of Object.entries(entry)) {
+          if (type === 'main') continue;
+          const targetsKept = (branches ?? []).some((branch) => branch.some((c) => keep.has(c.node)));
+          if (targetsKept) {
+            keep.add(source);
+            grew = true;
+            break;
+          }
+        }
+      }
+    }
+
+    const cloned = structuredClone(this.definition);
     cloned.nodes = cloned.nodes.filter((node) => keep.has(node.name));
 
     const prunedConnections: IConnections = {};
     for (const [source, connection] of Object.entries(cloned.connections)) {
       if (source === destinationNode || !keep.has(source)) continue;
-      prunedConnections[source] = {
-        main: connection.main.map((branch) => branch.filter((entry) => keep.has(entry.node))),
-      };
+      const prunedEntry: IConnections[string] = {};
+      for (const [type, branches] of Object.entries(connection) as Array<[NodeConnectionType, IConnection[][]]>) {
+        prunedEntry[type] = branches.map((branch) => branch.filter((entry) => keep.has(entry.node)));
+      }
+      prunedConnections[source] = prunedEntry;
     }
     cloned.connections = prunedConnections;
 
@@ -221,11 +264,13 @@ export class Workflow {
 
     const newConnections: IConnections = {};
     for (const [source, connection] of Object.entries(cloned.connections)) {
-      newConnections[source === oldName ? newName : source] = {
-        main: connection.main.map((branch) =>
+      const renamedEntry: IConnections[string] = {};
+      for (const [type, branches] of Object.entries(connection) as Array<[NodeConnectionType, IConnection[][]]>) {
+        renamedEntry[type] = branches.map((branch) =>
           branch.map((entry) => (entry.node === oldName ? { ...entry, node: newName } : entry)),
-        ),
-      };
+        );
+      }
+      newConnections[source === oldName ? newName : source] = renamedEntry;
     }
     cloned.connections = newConnections;
 

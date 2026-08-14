@@ -212,6 +212,18 @@ a {
   border-color: #c0392b;
 }
 
+.canvas-node__handle--ai_languageModel,
+.canvas-node__handle--ai_tool {
+  background: #9b59b6;
+  border-color: #9b59b6;
+}
+
+/* ai_* sub-node connections (Chat Model/Tool -> Agent) render dashed and purple, distinct from the solid main data-flow edges. */
+.workflow-canvas__edge--sub-node .vue-flow__edge-path {
+  stroke: #9b59b6;
+  stroke-dasharray: 5 3;
+}
+
 .canvas-node__body {
   display: flex;
   align-items: center;

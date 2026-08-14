@@ -19,15 +19,34 @@ export function toWorkflowBase(entity: WorkflowEntity): IWorkflowBase {
   };
 }
 
-/** A node with no incoming connection is a plausible start node (a trigger). Falls back to the first node when every node has a parent (e.g. a pure sub-workflow). */
+/**
+ * A node with no incoming `main` connection is a plausible start node (a trigger). Falls back
+ * to the first node when every node has a parent (e.g. a pure sub-workflow).
+ *
+ * A node that only ever *supplies* an `ai_languageModel`/`ai_tool` connection (a chat model, a
+ * tool) also has no incoming `main` connection, but it's not a trigger either — it's a
+ * sub-node, never meant to run on its own. Anything that's the source of a non-`main`
+ * connection is excluded from candidacy for exactly that reason.
+ */
 export function findStartNodeName(workflow: IWorkflowBase): string | undefined {
   const targets = new Set<string>();
-  for (const connection of Object.values(workflow.connections)) {
-    for (const branch of connection.main) {
-      for (const entry of branch) targets.add(entry.node);
+  const subNodeSources = new Set<string>();
+
+  for (const [source, entry] of Object.entries(workflow.connections)) {
+    for (const [type, branches] of Object.entries(entry)) {
+      for (const branch of branches ?? []) {
+        for (const connection of branch) {
+          if (type === 'main') targets.add(connection.node);
+          else subNodeSources.add(source);
+        }
+      }
     }
   }
-  return workflow.nodes.find((node) => !targets.has(node.name))?.name ?? workflow.nodes[0]?.name;
+
+  return (
+    workflow.nodes.find((node) => !targets.has(node.name) && !subNodeSources.has(node.name))?.name ??
+    workflow.nodes[0]?.name
+  );
 }
 
 export interface IRunWorkflowDeps {

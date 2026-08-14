@@ -4,6 +4,6 @@ import { getLoadedNodeTypeNames } from './index.js';
 describe('getLoadedNodeTypeNames', () => {
   it('lists the built-in node type names', () => {
     expect(getLoadedNodeTypeNames()).toContain('httpRequest');
-    expect(getLoadedNodeTypeNames()).toHaveLength(19);
+    expect(getLoadedNodeTypeNames()).toHaveLength(22);
   });
 });

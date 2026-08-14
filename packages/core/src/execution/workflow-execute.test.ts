@@ -274,6 +274,35 @@ describe('WorkflowExecute — error handling', () => {
     expect(result.resultData.runData.After).toBeUndefined();
   });
 
+  it('a node type with no execute() (a sub-node, only supplyData()) fails clearly instead of crashing if something tries to run it directly', async () => {
+    const start = makeNode({ name: 'Start', type: 'test.noOp' });
+    const subNode = makeNode({ name: 'Sub Node', type: 'test.subNodeOnly' });
+    const workflow = makeWorkflow([start, subNode], { Start: { main: [[{ node: 'Sub Node', type: 'main', index: 0 }]] } });
+
+    const nodeTypes = registry().register({
+      description: {
+        displayName: 'Sub Node Only',
+        name: 'test.subNodeOnly',
+        group: ['ai'],
+        version: 1,
+        description: 'test',
+        defaults: { name: 'Sub Node Only' },
+        inputs: [],
+        outputs: ['ai_tool'],
+        properties: [],
+      },
+      async supplyData() {
+        return {};
+      },
+    });
+    const result = await new WorkflowExecute(nodeTypes, { mode: 'manual', sleep: async () => {} }).run(workflow, 'Start', [
+      [{ json: {} }],
+    ]);
+
+    expect(lastRun(result, 'Sub Node')!.executionStatus).toBe('error');
+    expect(result.resultData.error?.message).toContain('has no execute()');
+  });
+
   it('continueRegularOutput: tags the input items with the error and keeps going', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const boom = makeNode({ name: 'Boom', type: 'test.throwing', onError: 'continueRegularOutput' });

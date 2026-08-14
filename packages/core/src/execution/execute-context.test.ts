@@ -3,7 +3,9 @@ import { NodeOperationError } from '@n8n-clone/workflow';
 import { buildExecuteFunctions } from './execute-context.js';
 import { makeNode, makeWorkflow } from './test-utils.js';
 import { MapCredentialTypes } from '../credentials/credential-types.js';
+import { MapNodeTypes } from './node-types.js';
 import type { IExecuteFunctionsOptions } from './execute-context.js';
+import type { ISupplyDataFunctions, INodeType } from '@n8n-clone/workflow';
 
 function baseOptions(overrides: Partial<IExecuteFunctionsOptions> = {}): IExecuteFunctionsOptions {
   const node = overrides.node ?? makeNode({ name: 'Node1', parameters: {} });
@@ -215,5 +217,92 @@ describe('buildExecuteFunctions — getContext', () => {
     expect(buildExecuteFunctions(baseOptions({ node: nodeB, contextData })).getContext('flow')).toEqual({
       shared: 'x',
     });
+  });
+});
+
+describe('buildExecuteFunctions — getInputConnectionData', () => {
+  const fakeChatModel: INodeType = {
+    description: {
+      displayName: 'Fake Chat Model',
+      name: 'fakeChatModel',
+      group: ['ai'],
+      version: 1,
+      description: 'test',
+      defaults: { name: 'Fake Chat Model' },
+      inputs: [],
+      outputs: ['ai_languageModel'],
+      properties: [],
+    },
+    async supplyData(this: ISupplyDataFunctions) {
+      return { modelName: this.getNodeParameter('model', 0, 'default-model') };
+    },
+  };
+
+  const fakeTool: INodeType = {
+    description: {
+      displayName: 'Fake Tool',
+      name: 'fakeTool',
+      group: ['ai'],
+      version: 1,
+      description: 'test',
+      defaults: { name: 'Fake Tool' },
+      inputs: [],
+      outputs: ['ai_tool'],
+      properties: [],
+    },
+    async supplyData(this: ISupplyDataFunctions) {
+      return { name: this.getNode().name };
+    },
+  };
+
+  it('returns [] without a nodeTypes registry', async () => {
+    const ctx = buildExecuteFunctions(baseOptions());
+    expect(await ctx.getInputConnectionData('ai_languageModel')).toEqual([]);
+  });
+
+  it('returns [] when nothing is connected at that type', async () => {
+    const nodeTypes = new MapNodeTypes().register(fakeChatModel);
+    const ctx = buildExecuteFunctions(baseOptions({ nodeTypes }));
+    expect(await ctx.getInputConnectionData('ai_languageModel')).toEqual([]);
+  });
+
+  it("calls the connected sub-node's supplyData() and returns its result", async () => {
+    const agent = makeNode({ name: 'Agent' });
+    const chatModel = makeNode({ name: 'Chat Model', type: 'fakeChatModel', parameters: { model: 'gpt-4o-mini' } });
+    const workflow = makeWorkflow([agent, chatModel], {
+      'Chat Model': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
+    });
+    const nodeTypes = new MapNodeTypes().register(fakeChatModel);
+
+    const ctx = buildExecuteFunctions(baseOptions({ node: agent, workflow, nodeTypes }));
+    expect(await ctx.getInputConnectionData('ai_languageModel')).toEqual([{ modelName: 'gpt-4o-mini' }]);
+  });
+
+  it('resolves multiple sub-nodes connected at the same type (e.g. several tools)', async () => {
+    const agent = makeNode({ name: 'Agent' });
+    const calculator = makeNode({ name: 'Calculator', type: 'fakeTool' });
+    const weather = makeNode({ name: 'Weather', type: 'fakeTool' });
+    const workflow = makeWorkflow([agent, calculator, weather], {
+      Calculator: { ai_tool: [[{ node: 'Agent', type: 'ai_tool', index: 0 }]] },
+      Weather: { ai_tool: [[{ node: 'Agent', type: 'ai_tool', index: 0 }]] },
+    });
+    const nodeTypes = new MapNodeTypes().register(fakeTool);
+
+    const ctx = buildExecuteFunctions(baseOptions({ node: agent, workflow, nodeTypes }));
+    expect(await ctx.getInputConnectionData('ai_tool')).toEqual([{ name: 'Calculator' }, { name: 'Weather' }]);
+  });
+
+  it("throws when the connected node's type has no supplyData()", async () => {
+    const agent = makeNode({ name: 'Agent' });
+    const notASubNode = makeNode({ name: 'Not A Sub-Node', type: 'test.noOp' });
+    const workflow = makeWorkflow([agent, notASubNode], {
+      'Not A Sub-Node': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
+    });
+    const nodeTypes = new MapNodeTypes().register({
+      description: { ...fakeChatModel.description, name: 'test.noOp' },
+    });
+
+    const ctx = buildExecuteFunctions(baseOptions({ node: agent, workflow, nodeTypes }));
+    await expect(ctx.getInputConnectionData('ai_languageModel')).rejects.toThrow(NodeOperationError);
   });
 });

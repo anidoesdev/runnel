@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { workflowsApi } from '../api/workflows.js';
-import type { IConnections, IDataObject, INode } from '@n8n-clone/workflow';
+import type { IConnections, IDataObject, INode, NodeConnectionType } from '@n8n-clone/workflow';
 import type { IExecuteWorkflowResult, IWorkflowRecord } from '../api/types.js';
 
 /** Holds the workflow currently open in the editor — the canvas, the NDV, and the top bar all read/write this. */
@@ -78,7 +78,9 @@ export const useWorkflowStore = defineStore('workflow', {
       this.nodes = this.nodes.filter((n) => n.id !== nodeId);
       delete this.connections[node.name];
       for (const entry of Object.values(this.connections)) {
-        entry.main = entry.main.map((branch) => branch.filter((c) => c.node !== node.name));
+        for (const type of Object.keys(entry) as NodeConnectionType[]) {
+          entry[type] = entry[type]!.map((branch) => branch.filter((c) => c.node !== node.name));
+        }
       }
       this.dirty = true;
     },
@@ -110,24 +112,39 @@ export const useWorkflowStore = defineStore('workflow', {
         delete this.connections[oldName];
       }
       for (const entry of Object.values(this.connections)) {
-        entry.main = entry.main.map((branch) => branch.map((c) => (c.node === oldName ? { ...c, node: name } : c)));
+        for (const type of Object.keys(entry) as NodeConnectionType[]) {
+          entry[type] = entry[type]!.map((branch) => branch.map((c) => (c.node === oldName ? { ...c, node: name } : c)));
+        }
       }
       this.dirty = true;
     },
 
-    addConnection(sourceName: string, targetName: string, sourceOutputIndex = 0, targetInputIndex = 0): void {
-      const entry = (this.connections[sourceName] ??= { main: [] });
-      while (entry.main.length <= sourceOutputIndex) entry.main.push([]);
-      const branch = entry.main[sourceOutputIndex]!;
+    addConnection(
+      sourceName: string,
+      targetName: string,
+      sourceOutputIndex = 0,
+      targetInputIndex = 0,
+      type: NodeConnectionType = 'main',
+    ): void {
+      const entry = (this.connections[sourceName] ??= {});
+      const branches = (entry[type] ??= []);
+      while (branches.length <= sourceOutputIndex) branches.push([]);
+      const branch = branches[sourceOutputIndex]!;
       if (branch.some((c) => c.node === targetName && c.index === targetInputIndex)) return;
-      branch.push({ node: targetName, type: 'main', index: targetInputIndex });
+      branch.push({ node: targetName, type, index: targetInputIndex });
       this.dirty = true;
     },
 
-    removeConnection(sourceName: string, targetName: string, sourceOutputIndex: number, targetInputIndex: number): void {
-      const branch = this.connections[sourceName]?.main[sourceOutputIndex];
+    removeConnection(
+      sourceName: string,
+      targetName: string,
+      sourceOutputIndex: number,
+      targetInputIndex: number,
+      type: NodeConnectionType = 'main',
+    ): void {
+      const branch = this.connections[sourceName]?.[type]?.[sourceOutputIndex];
       if (!branch) return;
-      this.connections[sourceName]!.main[sourceOutputIndex] = branch.filter(
+      this.connections[sourceName]![type]![sourceOutputIndex] = branch.filter(
         (c) => !(c.node === targetName && c.index === targetInputIndex),
       );
       this.dirty = true;

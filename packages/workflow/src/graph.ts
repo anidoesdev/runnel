@@ -12,7 +12,7 @@ export class NodeGraph {
     }
 
     for (const [source, connection] of Object.entries(connections)) {
-      for (const branch of connection.main) {
+      for (const branch of connection.main ?? []) {
         for (const target of branch) {
           if (!this.forward.has(source)) this.forward.set(source, new Set());
           if (!this.backward.has(target.node)) this.backward.set(target.node, new Set());

@@ -41,11 +41,12 @@ const nodeSchema = z
   })
   .passthrough();
 
-const connectionEntrySchema = z.object({ node: z.string(), type: z.literal('main'), index: z.number() });
+const connectionTypeSchema = z.enum(['main', 'ai_languageModel', 'ai_tool']);
+const connectionEntrySchema = z.object({ node: z.string(), type: connectionTypeSchema, index: z.number() });
 
 const connectionsSchema = z.record(
   z.string(),
-  z.object({ main: z.array(z.array(connectionEntrySchema)) }),
+  z.record(connectionTypeSchema, z.array(z.array(connectionEntrySchema))),
 );
 
 export const createWorkflowSchema = z.object({

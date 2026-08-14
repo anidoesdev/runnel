@@ -77,8 +77,8 @@ describe('Workflow.pruneToDestination', () => {
 
     expect(pruned.nodes.map((n) => n.name).sort()).toEqual(['A', 'B', 'C']);
     expect(pruned.connections.C).toBeUndefined(); // C's own outgoing edge (to D) is dropped
-    expect(pruned.connections.A?.main[0]).toEqual([{ node: 'B', type: 'main', index: 0 }]);
-    expect(pruned.connections.B?.main[0]).toEqual([{ node: 'C', type: 'main', index: 0 }]);
+    expect(pruned.connections.A?.main![0]).toEqual([{ node: 'B', type: 'main', index: 0 }]);
+    expect(pruned.connections.B?.main![0]).toEqual([{ node: 'C', type: 'main', index: 0 }]);
   });
 
   it('drops a sibling branch that never reaches the destination', () => {
@@ -100,8 +100,8 @@ describe('Workflow.pruneToDestination', () => {
     const pruned = workflow.pruneToDestination('True');
 
     expect(pruned.nodes.map((n) => n.name).sort()).toEqual(['If', 'True']);
-    expect(pruned.connections.If?.main[0]).toEqual([{ node: 'True', type: 'main', index: 0 }]);
-    expect(pruned.connections.If?.main[1]).toEqual([]); // the False branch is pruned out
+    expect(pruned.connections.If?.main![0]).toEqual([{ node: 'True', type: 'main', index: 0 }]);
+    expect(pruned.connections.If?.main![1]).toEqual([]); // the False branch is pruned out
   });
 
   it('a destination with no ancestors (e.g. the trigger itself) prunes to just that one node', () => {
@@ -126,5 +126,55 @@ describe('Workflow.pruneToDestination', () => {
 
     workflow.pruneToDestination('B');
     expect(definition.nodes.map((n) => n.name)).toEqual(['A', 'B', 'C']);
+  });
+
+  it('keeps a sub-node (e.g. a connected Chat Model) even though it has no main-graph edge to the destination', () => {
+    const nodes = ['Trigger', 'Agent', 'Chat Model'].map((name) => makeNode({ name }));
+    const workflow = new Workflow(
+      makeWorkflow(nodes, {
+        ...chain(['Trigger', 'Agent']),
+        'Chat Model': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
+      }),
+    );
+
+    const pruned = workflow.pruneToDestination('Agent');
+
+    expect(pruned.nodes.map((n) => n.name).sort()).toEqual(['Agent', 'Chat Model', 'Trigger']);
+    expect(pruned.connections['Chat Model']?.ai_languageModel).toEqual([
+      [{ node: 'Agent', type: 'ai_languageModel', index: 0 }],
+    ]);
+  });
+});
+
+describe('Workflow.getConnectedSubNodes', () => {
+  it('finds every source node connected to a given input type and index, in connections order', () => {
+    const nodes = ['Agent', 'Calculator', 'Weather'].map((name) => makeNode({ name }));
+    const workflow = new Workflow(
+      makeWorkflow(nodes, {
+        Calculator: { ai_tool: [[{ node: 'Agent', type: 'ai_tool', index: 0 }]] },
+        Weather: { ai_tool: [[{ node: 'Agent', type: 'ai_tool', index: 0 }]] },
+      }),
+    );
+
+    expect(workflow.getConnectedSubNodes('Agent', 'ai_tool')).toEqual(['Calculator', 'Weather']);
+  });
+
+  it('returns an empty list when nothing is connected at that type', () => {
+    const nodes = [makeNode({ name: 'Agent' })];
+    const workflow = new Workflow(makeWorkflow(nodes, {}));
+    expect(workflow.getConnectedSubNodes('Agent', 'ai_languageModel')).toEqual([]);
+  });
+
+  it('ignores connections of a different type or a different input index', () => {
+    const nodes = ['Agent', 'Chat Model', 'Other'].map((name) => makeNode({ name }));
+    const workflow = new Workflow(
+      makeWorkflow(nodes, {
+        'Chat Model': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
+        Other: { ai_tool: [[{ node: 'Agent', type: 'ai_tool', index: 1 }]] },
+      }),
+    );
+
+    expect(workflow.getConnectedSubNodes('Agent', 'ai_languageModel', 0)).toEqual(['Chat Model']);
+    expect(workflow.getConnectedSubNodes('Agent', 'ai_tool', 0)).toEqual([]);
   });
 });

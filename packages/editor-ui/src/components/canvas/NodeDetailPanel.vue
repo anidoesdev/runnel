@@ -18,6 +18,9 @@ const nodeTypesStore = useNodeTypesStore();
 const node = computed(() => workflowStore.nodes.find((n) => n.id === props.nodeId) ?? null);
 const description = computed(() => (node.value ? nodeTypesStore.byName(node.value.type) : undefined));
 
+/** A sub-node (e.g. a Chat Model or Tool feeding an AI Agent) has no `main` output — it's never run on its own, only resolved on demand by whatever it's connected to. "Run to Here" targets the main queue, so it's meaningless (and would fail server-side) for these. */
+const isSubNode = computed(() => description.value !== undefined && !description.value.outputs.includes('main'));
+
 /**
  * A freshly-added node's `parameters` is `{}` — nothing has materialized each property's
  * `default` into it yet (only PropertyField applies defaults, and only for display). But
@@ -117,14 +120,17 @@ async function runToHere(): Promise<void> {
       <section class="ndv__panel">
         <div class="ndv__output-header">
           <h3>Output</h3>
-          <N8nButton :disabled="!workflowStore.id || workflowStore.executing" @click="runToHere">
+          <N8nButton v-if="!isSubNode" :disabled="!workflowStore.id || workflowStore.executing" @click="runToHere">
             {{ workflowStore.executing ? 'Running…' : 'Run to Here' }}
           </N8nButton>
         </div>
 
         <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
 
-        <p v-if="!lastTask" class="ndv__output-empty">Run the workflow to see this node's output here.</p>
+        <p v-if="isSubNode" class="ndv__output-empty">
+          This node has no output of its own — it supplies {{ description?.outputs.join(', ') }} to whatever it's connected to.
+        </p>
+        <p v-else-if="!lastTask" class="ndv__output-empty">Run the workflow to see this node's output here.</p>
         <template v-else>
           <span :class="['ndv__output-status', `ndv__output-status--${lastTask.executionStatus}`]">
             {{ lastTask.executionStatus }}

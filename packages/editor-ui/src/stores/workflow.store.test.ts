@@ -46,7 +46,7 @@ describe('workflow store', () => {
 
     store.removeNode(b.id);
     expect(store.nodes.map((n) => n.id)).toEqual([a.id]);
-    expect(store.connections.Trigger?.main[0]).toEqual([]);
+    expect(store.connections.Trigger?.main![0]).toEqual([]);
   });
 
   it('renameNode updates both the node and any connections referencing its old name', () => {
@@ -57,7 +57,7 @@ describe('workflow store', () => {
 
     store.renameNode(trigger.id, 'Start Here');
     expect(store.nodes.find((n) => n.id === trigger.id)?.name).toBe('Start Here');
-    expect(store.connections['Start Here']?.main[0]).toEqual([{ node: 'Done', type: 'main', index: 0 }]);
+    expect(store.connections['Start Here']?.main![0]).toEqual([{ node: 'Done', type: 'main', index: 0 }]);
     expect(store.connections.Trigger).toBeUndefined();
   });
 
@@ -68,10 +68,44 @@ describe('workflow store', () => {
 
     store.addConnection('Trigger', 'Done');
     store.addConnection('Trigger', 'Done');
-    expect(store.connections.Trigger?.main[0]).toHaveLength(1);
+    expect(store.connections.Trigger?.main![0]).toHaveLength(1);
 
     store.removeConnection('Trigger', 'Done', 0, 0);
-    expect(store.connections.Trigger?.main[0]).toEqual([]);
+    expect(store.connections.Trigger?.main![0]).toEqual([]);
+  });
+
+  it('addConnection defaults to "main" but accepts an ai_* type for sub-node connections', () => {
+    const store = useWorkflowStore();
+    store.addNode('aiAgent', 'Agent', [0, 0]);
+    store.addNode('lmChatOpenAi', 'Chat Model', [0, 100]);
+
+    store.addConnection('Chat Model', 'Agent', 0, 0, 'ai_languageModel');
+
+    expect(store.connections['Chat Model']?.ai_languageModel).toEqual([[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]]);
+    expect(store.connections['Chat Model']?.main).toBeUndefined();
+  });
+
+  it('removeConnection only removes the matching type, leaving a different-typed connection between the same two nodes untouched', () => {
+    const store = useWorkflowStore();
+    store.addNode('aiAgent', 'Agent', [0, 0]);
+    store.addNode('lmChatOpenAi', 'Chat Model', [0, 100]);
+    store.addConnection('Chat Model', 'Agent', 0, 0, 'ai_languageModel');
+
+    store.removeConnection('Chat Model', 'Agent', 0, 0, 'main');
+    expect(store.connections['Chat Model']?.ai_languageModel![0]).toEqual([{ node: 'Agent', type: 'ai_languageModel', index: 0 }]);
+
+    store.removeConnection('Chat Model', 'Agent', 0, 0, 'ai_languageModel');
+    expect(store.connections['Chat Model']?.ai_languageModel![0]).toEqual([]);
+  });
+
+  it('removeNode cleans up ai_* connections referencing it, not just main ones', () => {
+    const store = useWorkflowStore();
+    const agent = store.addNode('aiAgent', 'Agent', [0, 0]);
+    store.addNode('lmChatOpenAi', 'Chat Model', [0, 100]);
+    store.addConnection('Chat Model', 'Agent', 0, 0, 'ai_languageModel');
+
+    store.removeNode(agent.id);
+    expect(store.connections['Chat Model']?.ai_languageModel![0]).toEqual([]);
   });
 
   it('updateNodeParameters sets a node\'s parameters and marks dirty', () => {

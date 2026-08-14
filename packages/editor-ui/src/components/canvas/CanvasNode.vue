@@ -2,17 +2,44 @@
 import { Handle, Position } from '@vue-flow/core';
 import { computed } from 'vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
-import type { INode } from '@n8n-clone/workflow';
+import type { INode, NodeConnectionType } from '@n8n-clone/workflow';
 
 const props = defineProps<{ id: string; data: { node: INode } }>();
 const emit = defineEmits<{ delete: [] }>();
 
 const nodeTypesStore = useNodeTypesStore();
 const description = computed(() => nodeTypesStore.byName(props.data.node.type));
-const inputCount = computed(() => Math.max(description.value?.inputs.length ?? 1, 1));
-const outputCount = computed(() => Math.max(description.value?.outputs.length ?? 1, 1));
 
-function handleOffset(index: number, total: number): string {
+interface Port {
+  type: NodeConnectionType;
+  /** Index within its own type — Merge's two `main` inputs are 0 and 1; a single `ai_languageModel` input is always 0, even though nothing else shares that type on this node. */
+  index: number;
+}
+
+/** Falls back to a single `main` port only while the node type description hasn't loaded yet — an actually-empty `inputs: []` (every sub-node: Chat Model, Tool) must stay empty, not be forced to 1. */
+function indexedPorts(ports: NodeConnectionType[] | undefined): Port[] {
+  if (!ports) return [{ type: 'main', index: 0 }];
+  const seen: Partial<Record<NodeConnectionType, number>> = {};
+  return ports.map((type) => {
+    const index = seen[type] ?? 0;
+    seen[type] = index + 1;
+    return { type, index };
+  });
+}
+
+const inputPorts = computed(() => indexedPorts(description.value?.inputs));
+const outputPorts = computed(() => indexedPorts(description.value?.outputs));
+
+const mainInputs = computed(() => inputPorts.value.filter((p) => p.type === 'main'));
+const subInputs = computed(() => inputPorts.value.filter((p) => p.type !== 'main'));
+const mainOutputs = computed(() => outputPorts.value.filter((p) => p.type === 'main'));
+const subOutputs = computed(() => outputPorts.value.filter((p) => p.type !== 'main'));
+
+function handleId(prefix: 'input' | 'output', port: Port): string {
+  return `${prefix}-${port.type}-${port.index}`;
+}
+
+function offset(index: number, total: number): string {
   return `${((index + 1) / (total + 1)) * 100}%`;
 }
 
@@ -35,12 +62,22 @@ function onDeleteClick(event: MouseEvent): void {
     </button>
 
     <Handle
-      v-for="i in inputCount"
-      :key="`in-${i}`"
-      :id="`input-${i - 1}`"
+      v-for="(port, i) in mainInputs"
+      :key="handleId('input', port)"
+      :id="handleId('input', port)"
       type="target"
       :position="Position.Left"
-      :style="{ top: handleOffset(i - 1, inputCount) }"
+      :style="{ top: offset(i, mainInputs.length) }"
+    />
+
+    <Handle
+      v-for="(port, i) in subInputs"
+      :key="handleId('input', port)"
+      :id="handleId('input', port)"
+      type="target"
+      :position="Position.Bottom"
+      :class="`canvas-node__handle--${port.type}`"
+      :style="{ left: offset(i, subInputs.length) }"
     />
 
     <div class="canvas-node__body">
@@ -49,12 +86,22 @@ function onDeleteClick(event: MouseEvent): void {
     </div>
 
     <Handle
-      v-for="i in outputCount"
-      :key="`out-${i}`"
-      :id="`output-${i - 1}`"
+      v-for="(port, i) in mainOutputs"
+      :key="handleId('output', port)"
+      :id="handleId('output', port)"
       type="source"
       :position="Position.Right"
-      :style="{ top: handleOffset(i - 1, outputCount) }"
+      :style="{ top: offset(i, mainOutputs.length) }"
+    />
+
+    <Handle
+      v-for="(port, i) in subOutputs"
+      :key="handleId('output', port)"
+      :id="handleId('output', port)"
+      type="source"
+      :position="Position.Top"
+      :class="`canvas-node__handle--${port.type}`"
+      :style="{ left: offset(i, subOutputs.length) }"
     />
   </div>
 </template>

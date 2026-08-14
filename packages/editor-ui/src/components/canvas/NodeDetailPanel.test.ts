@@ -267,6 +267,29 @@ describe('NodeDetailPanel', () => {
     expect(workflowsApi.execute).toHaveBeenCalledWith('wf-1', undefined, 'Edit Fields');
   });
 
+  it('hides "Run to Here" for a sub-node (no `main` output) and explains what it supplies instead', () => {
+    const chatModelDescription: INodeTypeDescription = {
+      displayName: 'OpenAI Chat Model',
+      name: 'lmChatOpenAi',
+      group: ['ai'],
+      version: 1,
+      description: 'test',
+      defaults: { name: 'Chat Model' },
+      inputs: [],
+      outputs: ['ai_languageModel'],
+      properties: [],
+    };
+    const nodeTypesStore = useNodeTypesStore();
+    nodeTypesStore.nodeTypes = [chatModelDescription];
+
+    const workflowStore = useWorkflowStore();
+    const node = workflowStore.addNode('lmChatOpenAi', 'Chat Model', [0, 0]);
+
+    const wrapper = mount(NodeDetailPanel, { props: { nodeId: node.id } });
+    expect(wrapper.findAll('button').find((b) => b.text().includes('Run to Here'))).toBeUndefined();
+    expect(wrapper.text()).toContain('supplies ai_languageModel');
+  });
+
   it('shows the workflow store error inside the popup (e.g. from a failed "Run to Here")', async () => {
     const nodeTypesStore = useNodeTypesStore();
     nodeTypesStore.nodeTypes = [setLikeDescription];

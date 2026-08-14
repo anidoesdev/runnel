@@ -1,5 +1,13 @@
 import type { IDataObject, INodeExecutionData, NodeOutput } from './common.interfaces.js';
 
+/**
+ * `main` is the regular item-flow connection every node has used until now. The `ai_*` types
+ * carry no items — they let one node (a chat model, a tool) offer a capability that another
+ * node (an agent) resolves and calls directly at execution time, rather than being scheduled
+ * through the main queue. See IConnections and IExecuteFunctions.getInputConnectionData.
+ */
+export type NodeConnectionType = 'main' | 'ai_languageModel' | 'ai_tool';
+
 export type NodePropertyTypes =
   | 'string'
   | 'number'
@@ -91,8 +99,8 @@ export interface INodeTypeDescription {
   defaultVersion?: number;
   description: string;
   defaults: { name: string; color?: string };
-  inputs: string[];
-  outputs: string[];
+  inputs: NodeConnectionType[];
+  outputs: NodeConnectionType[];
   credentials?: INodeCredentialDescription[];
   properties: INodeProperties[];
   /** Marks node types allowed to form a legal cycle (SplitInBatches, Loop Over Items). */
@@ -159,6 +167,14 @@ export interface IExecuteFunctions {
   continueOnFail(): boolean;
   /** A persistent object scoped to this node ('node') or the whole run ('flow'), surviving across loop re-entries (runIndex increments). Backed by IRunExecutionData.executionData.contextData. */
   getContext(type: 'node' | 'flow'): IDataObject;
+  /**
+   * Resolves every node connected to this node's `type` input at `index` (default 0) and
+   * calls each one's `supplyData()`, returning their results in connection order. Always an
+   * array — a required, single-connection input like `ai_languageModel` still comes back as
+   * a 0-or-1-element array; the caller (e.g. the AI Agent node) decides what "missing" means
+   * for its own input. `ai_tool` naturally returns 0..N elements, one per connected tool.
+   */
+  getInputConnectionData(type: NodeConnectionType, index?: number): Promise<unknown[]>;
   helpers: {
     httpRequest(options: IHttpRequestOptions): Promise<unknown>;
     /** Resolves the named credential, applies its declarative `authenticate` block to `options`, and performs the request. */
@@ -191,6 +207,12 @@ export type ILoadOptionsFunctions = Pick<
   'getNodeParameter' | 'getCredentials' | 'getNode' | 'helpers'
 >;
 
+/** Context passed to a sub-node's `supplyData()` — a chat model or tool node has no `main` input, so there's no `getInputData`/item loop here, just its own parameters and credentials. */
+export type ISupplyDataFunctions = Pick<
+  IExecuteFunctions,
+  'getNodeParameter' | 'getCredentials' | 'getNode' | 'getWorkflow' | 'helpers'
+>;
+
 export type ICredentialTestFunction = (
   credential: IDataObject,
 ) => Promise<{ status: 'OK' | 'Error'; message: string }>;
@@ -218,6 +240,8 @@ export interface INodeType {
   poll?(this: IPollFunctions): Promise<NodeOutput | null>;
   trigger?(this: ITriggerFunctions): Promise<ITriggerResponse>;
   webhook?(this: IWebhookFunctions): Promise<IWebhookResponseData>;
+  /** For a sub-node offering an `ai_*` output (a chat model, a tool) — returns whatever shape that connection type's consumer expects, e.g. `{ chat(...) }` for `ai_languageModel` or `{ name, description, schema, invoke(...) }` for `ai_tool`. Never scheduled through the main queue; called directly by the consuming node via getInputConnectionData. */
+  supplyData?(this: ISupplyDataFunctions): Promise<unknown>;
   methods?: {
     loadOptions?: Record<string, (this: ILoadOptionsFunctions) => Promise<INodePropertyOptions[]>>;
     credentialTest?: Record<string, ICredentialTestFunction>;

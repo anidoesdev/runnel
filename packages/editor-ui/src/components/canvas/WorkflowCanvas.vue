@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import CanvasNode from './CanvasNode.vue';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 import type { Connection, Edge, EdgeChange, Node as FlowNode, NodeChange, NodeDragEvent } from '@vue-flow/core';
+import type { IConnection, NodeConnectionType } from '@n8n-clone/workflow';
 
 const emit = defineEmits<{
   'select-node': [nodeId: string];
@@ -25,41 +26,63 @@ const flowNodes = computed<FlowNode[]>(() =>
   })),
 );
 
+/**
+ * Handle ids encode both the connection type and its per-type index — `output-main-0`,
+ * `input-ai_languageModel-0` — since a node can have several *kinds* of port (main, plus any
+ * ai_* sub-node ports), not just several main ones. `type` and `index` are always parts[1]/[2]
+ * since neither `input`/`output` nor any NodeConnectionType value contains a `-`.
+ */
+function handlePort(handleId: string | null | undefined): { type: NodeConnectionType; index: number } {
+  const parts = (handleId ?? '').split('-');
+  return { type: (parts[1] as NodeConnectionType) ?? 'main', index: Number(parts[2] ?? 0) };
+}
+
+function portHandleId(prefix: 'input' | 'output', type: NodeConnectionType, index: number): string {
+  return `${prefix}-${type}-${index}`;
+}
+
 const flowEdges = computed<Edge[]>(() => {
   const edges: Edge[] = [];
   for (const [sourceName, entry] of Object.entries(store.connections)) {
     const sourceId = idByName.value.get(sourceName);
     if (!sourceId) continue;
-    entry.main.forEach((branch, outputIndex) => {
-      for (const connection of branch) {
-        const targetId = idByName.value.get(connection.node);
-        if (!targetId) continue;
-        edges.push({
-          id: `${sourceId}:${outputIndex}->${targetId}:${connection.index}`,
-          source: sourceId,
-          target: targetId,
-          sourceHandle: `output-${outputIndex}`,
-          targetHandle: `input-${connection.index}`,
-        });
-      }
-    });
+    for (const [type, branches] of Object.entries(entry) as Array<[NodeConnectionType, IConnection[][]]>) {
+      branches.forEach((branch, outputIndex) => {
+        for (const connection of branch) {
+          const targetId = idByName.value.get(connection.node);
+          if (!targetId) continue;
+          edges.push({
+            id: `${sourceId}:${type}:${outputIndex}->${targetId}:${connection.index}`,
+            source: sourceId,
+            target: targetId,
+            sourceHandle: portHandleId('output', type, outputIndex),
+            targetHandle: portHandleId('input', type, connection.index),
+            class: type === 'main' ? undefined : `workflow-canvas__edge--sub-node`,
+          });
+        }
+      });
+    }
   }
   return edges;
 });
 
-function handleIndex(handleId: string | null | undefined): number {
-  return Number(handleId?.split('-')[1] ?? 0);
-}
-
 function onNodeDragStop({ node }: NodeDragEvent): void {
   store.moveNode(node.id, [node.position.x, node.position.y]);
+}
+
+/** A `main` output may only connect to a `main` input, an `ai_languageModel` output only to an `ai_languageModel` input, etc. — dragging a wire between mismatched port kinds is rejected before it's ever created. */
+function isValidConnection(connection: Connection): boolean {
+  return handlePort(connection.sourceHandle).type === handlePort(connection.targetHandle).type;
 }
 
 function onConnect(connection: Connection): void {
   const sourceName = nameById.value.get(connection.source);
   const targetName = nameById.value.get(connection.target);
   if (!sourceName || !targetName) return;
-  store.addConnection(sourceName, targetName, handleIndex(connection.sourceHandle), handleIndex(connection.targetHandle));
+  const source = handlePort(connection.sourceHandle);
+  const target = handlePort(connection.targetHandle);
+  if (source.type !== target.type) return;
+  store.addConnection(sourceName, targetName, source.index, target.index, source.type);
 }
 
 function onEdgesChange(changes: EdgeChange[]): void {
@@ -70,7 +93,9 @@ function onEdgesChange(changes: EdgeChange[]): void {
     const sourceName = nameById.value.get(edge.source);
     const targetName = nameById.value.get(edge.target);
     if (!sourceName || !targetName) continue;
-    store.removeConnection(sourceName, targetName, handleIndex(edge.sourceHandle), handleIndex(edge.targetHandle));
+    const source = handlePort(edge.sourceHandle);
+    const target = handlePort(edge.targetHandle);
+    store.removeConnection(sourceName, targetName, source.index, target.index, source.type);
   }
 }
 
@@ -105,6 +130,7 @@ function onDrop(event: DragEvent): void {
       :nodes="flowNodes"
       :edges="flowEdges"
       :nodes-connectable="true"
+      :is-valid-connection="isValidConnection"
       @node-drag-stop="onNodeDragStop"
       @connect="onConnect"
       @edges-change="onEdgesChange"

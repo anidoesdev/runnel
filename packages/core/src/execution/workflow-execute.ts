@@ -30,8 +30,13 @@ const defaultSleep = (ms: number): Promise<void> => new Promise((resolve) => set
 
 function hasIncomingConnection(workflow: IWorkflowBase, nodeName: string): boolean {
   return Object.values(workflow.connections).some((connection) =>
-    connection.main.some((branch) => branch.some((entry) => entry.node === nodeName)),
+    (connection.main ?? []).some((branch) => branch.some((entry) => entry.node === nodeName)),
   );
+}
+
+/** `description.inputs`/`outputs` can list non-`main` sub-node ports (ai_languageModel, ai_tool) alongside `main` — only `main` entries participate in the queued execution flow (item branches, multi-input waiting), so every count here must be main-only. */
+function mainPortCount(ports: readonly string[]): number {
+  return ports.filter((port) => port === 'main').length;
 }
 
 function totalItemCount(data: NodeOutput): number {
@@ -130,7 +135,7 @@ export class WorkflowExecute {
 
     const hasParents = hasIncomingConnection(workflow, node.name);
     if (hasParents && totalItemCount(executionData.data.main) === 0) {
-      const emptyOutput: NodeOutput = nodeType.description.outputs.map(() => []);
+      const emptyOutput: NodeOutput = Array.from({ length: mainPortCount(nodeType.description.outputs) }, () => []);
       recordTask({ executionStatus: 'skipped', source: executionData.source?.main ?? [], data: { main: emptyOutput } });
       this.propagate(workflow, runExecutionData, node, runIndex, emptyOutput);
       return;
@@ -141,6 +146,12 @@ export class WorkflowExecute {
 
     for (let attempt = 1; attempt <= maxTries; attempt++) {
       try {
+        if (!nodeType.execute) {
+          throw new NodeOperationError(node, `Node type "${node.type}" has no execute() and can't be run directly`, {
+            description: 'This is a sub-node (it only supplies data via supplyData()) — connect it to another node instead of running it on its own.',
+          });
+        }
+
         const context = buildExecuteFunctions({
           node,
           inputData: executionData.data.main,
@@ -153,9 +164,10 @@ export class WorkflowExecute {
           credentialsResolver: this.options.credentialsResolver,
           credentialTypes: this.options.credentialTypes,
           httpClient: this.options.httpClient,
+          nodeTypes: this.nodeTypes,
         });
 
-        let output = await nodeType.execute!.call(context);
+        let output = await nodeType.execute.call(context);
 
         if (node.alwaysOutputData && output.every((branch) => branch.length === 0)) {
           output = [[{ json: {} }], ...output.slice(1)];
@@ -169,7 +181,7 @@ export class WorkflowExecute {
           await sleep(node.waitBetweenTries ?? 0);
           continue;
         }
-        this.handleFailure(workflow, runExecutionData, executionData, node, runIndex, err, nodeType.description.outputs.length, recordTask);
+        this.handleFailure(workflow, runExecutionData, executionData, node, runIndex, err, mainPortCount(nodeType.description.outputs), recordTask);
         return;
       }
     }
@@ -221,14 +233,14 @@ export class WorkflowExecute {
     if (!connectionsFromNode) return;
 
     output.forEach((items, outputIndex) => {
-      const branchConnections = connectionsFromNode.main[outputIndex] ?? [];
+      const branchConnections = (connectionsFromNode.main ?? [])[outputIndex] ?? [];
 
       for (const connection of branchConnections) {
         const targetNode = workflow.nodes.find((candidate) => candidate.name === connection.node);
         if (!targetNode) continue;
 
         const targetNodeType = this.nodeTypes.getByNameAndVersion(targetNode.type, targetNode.typeVersion);
-        const requiredInputs = targetNodeType.description.inputs.length;
+        const requiredInputs = mainPortCount(targetNodeType.description.inputs);
         const source: ISourceData = { previousNode: node.name, previousNodeOutput: outputIndex, previousNodeRun: runIndex };
 
         if (requiredInputs <= 1) {

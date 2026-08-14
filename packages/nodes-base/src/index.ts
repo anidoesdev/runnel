@@ -17,6 +17,9 @@ export { limitNode } from './nodes/Limit/Limit.node.js';
 export { removeDuplicatesNode } from './nodes/RemoveDuplicates/RemoveDuplicates.node.js';
 export { renameKeysNode } from './nodes/RenameKeys/RenameKeys.node.js';
 export { postgresNode } from './nodes/Postgres/Postgres.node.js';
+export { aiAgent } from './nodes/AiAgent/AiAgent.node.js';
+export { languageModelOpenAi } from './nodes/LanguageModelOpenAi/LanguageModelOpenAi.node.js';
+export { toolCalculator } from './nodes/ToolCalculator/ToolCalculator.node.js';
 
 export { httpBasicAuth } from './credentials/HttpBasicAuth.credentials.js';
 export { httpHeaderAuth } from './credentials/HttpHeaderAuth.credentials.js';
@@ -24,6 +27,7 @@ export { httpQueryAuth } from './credentials/HttpQueryAuth.credentials.js';
 export { httpBearerAuth } from './credentials/HttpBearerAuth.credentials.js';
 export { oAuth2Api } from './credentials/OAuth2Api.credentials.js';
 export { postgresApi } from './credentials/PostgresApi.credentials.js';
+export { openAiApi } from './credentials/OpenAiApi.credentials.js';
 
 import type { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
 import { manualTrigger } from './nodes/ManualTrigger/ManualTrigger.node.js';
@@ -45,12 +49,16 @@ import { limitNode } from './nodes/Limit/Limit.node.js';
 import { removeDuplicatesNode } from './nodes/RemoveDuplicates/RemoveDuplicates.node.js';
 import { renameKeysNode } from './nodes/RenameKeys/RenameKeys.node.js';
 import { postgresNode } from './nodes/Postgres/Postgres.node.js';
+import { aiAgent } from './nodes/AiAgent/AiAgent.node.js';
+import { languageModelOpenAi } from './nodes/LanguageModelOpenAi/LanguageModelOpenAi.node.js';
+import { toolCalculator } from './nodes/ToolCalculator/ToolCalculator.node.js';
 import { httpBasicAuth } from './credentials/HttpBasicAuth.credentials.js';
 import { httpHeaderAuth } from './credentials/HttpHeaderAuth.credentials.js';
 import { httpQueryAuth } from './credentials/HttpQueryAuth.credentials.js';
 import { httpBearerAuth } from './credentials/HttpBearerAuth.credentials.js';
 import { oAuth2Api } from './credentials/OAuth2Api.credentials.js';
 import { postgresApi } from './credentials/PostgresApi.credentials.js';
+import { openAiApi } from './credentials/OpenAiApi.credentials.js';
 
 /** All built-in node types, ready to register with a MapNodeTypes (or any INodeTypes) instance. */
 export const allNodeTypes = [
@@ -73,6 +81,9 @@ export const allNodeTypes = [
   removeDuplicatesNode,
   renameKeysNode,
   postgresNode,
+  aiAgent,
+  languageModelOpenAi,
+  toolCalculator,
 ];
 
 export function registerAllNodeTypes(registry: MapNodeTypes): MapNodeTypes {
@@ -81,7 +92,7 @@ export function registerAllNodeTypes(registry: MapNodeTypes): MapNodeTypes {
 }
 
 /** All built-in credential types, ready to register with a MapCredentialTypes instance. */
-export const allCredentialTypes = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api, postgresApi];
+export const allCredentialTypes = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api, postgresApi, openAiApi];
 
 export function registerAllCredentialTypes(registry: MapCredentialTypes): MapCredentialTypes {
   for (const credentialType of allCredentialTypes) registry.register(credentialType);

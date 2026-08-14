@@ -1,8 +1,11 @@
 import request from 'supertest';
+import { createServer } from 'node:http';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp } from './app.js';
 import { createDataSource, sqliteConfig } from './db/data-source.js';
 import { createLogger } from './logging/logger.js';
+import type { Server } from 'node:http';
+import type { AddressInfo } from 'node:net';
 import type { DataSource } from 'typeorm';
 import type { Express } from 'express';
 import type { INodeType } from '@n8n-clone/workflow';
@@ -240,6 +243,90 @@ describe('REST API — credentials never expose their values', () => {
     const res = await agent.delete(`/rest/credentials/${credentialId}`);
     expect(res.status).toBe(204);
     expect((await agent.get(`/rest/credentials/${credentialId}`)).status).toBe(404);
+  });
+});
+
+/**
+ * Proves the ai_languageModel/ai_tool sub-node connection types are accepted end to end over
+ * the real REST API — the one layer the nodes-base package's own AI Agent integration test
+ * (which drives WorkflowExecute directly) never touches: the zod connections schema in
+ * workflow.dto.ts, and the credential lookup path from a real stored+encrypted credential.
+ */
+describe('REST API — AI Agent workflow (ai_languageModel / ai_tool sub-node connections)', () => {
+  let agent: ReturnType<typeof request.agent>;
+  let fakeOpenAiServer: Server;
+  let fakeOpenAiUrl: string;
+  let callCount: number;
+
+  beforeAll(async () => {
+    agent = request.agent(app);
+    await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });
+
+    callCount = 0;
+    fakeOpenAiServer = createServer((_req, res) => {
+      callCount++;
+      res.writeHead(200, { 'content-type': 'application/json' });
+      res.end(JSON.stringify({ choices: [{ message: { role: 'assistant', content: 'The answer is 42.' } }] }));
+    });
+    await new Promise<void>((resolve) => fakeOpenAiServer.listen(0, '127.0.0.1', resolve));
+    const { port } = fakeOpenAiServer.address() as AddressInfo;
+    fakeOpenAiUrl = `http://127.0.0.1:${port}`;
+  });
+
+  afterAll(async () => {
+    await new Promise<void>((resolve) => fakeOpenAiServer.close(() => resolve()));
+  });
+
+  it('creates, saves, and executes a workflow wiring an AI Agent to a Chat Model and a Tool sub-node', async () => {
+    const credentialRes = await agent.post('/rest/credentials').send({
+      name: 'My OpenAI account',
+      type: 'openAiApi',
+      data: { apiKey: 'test-api-key', baseUrl: fakeOpenAiUrl },
+    });
+    expect(credentialRes.status).toBe(200);
+    const credentialId = credentialRes.body.id as string;
+
+    const workflowRes = await agent.post('/rest/workflows').send({
+      name: 'AI Agent workflow',
+      nodes: [
+        { id: '1', name: 'Trigger', type: 'manualTrigger', typeVersion: 1, position: [0, 0], parameters: {} },
+        {
+          id: '2',
+          name: 'Agent',
+          type: 'aiAgent',
+          typeVersion: 1,
+          position: [1, 0],
+          parameters: { prompt: 'What is 6 times 7?' },
+        },
+        {
+          id: '3',
+          name: 'Chat Model',
+          type: 'lmChatOpenAi',
+          typeVersion: 1,
+          position: [1, 1],
+          parameters: {},
+          credentials: { openAiApi: { id: credentialId, name: 'My OpenAI account' } },
+        },
+        { id: '4', name: 'Calculator', type: 'toolCalculator', typeVersion: 1, position: [1, 2], parameters: {} },
+      ],
+      connections: {
+        Trigger: { main: [[{ node: 'Agent', type: 'main', index: 0 }]] },
+        'Chat Model': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
+        Calculator: { ai_tool: [[{ node: 'Agent', type: 'ai_tool', index: 0 }]] },
+      },
+    });
+
+    expect(workflowRes.status).toBe(200);
+    const workflowId = workflowRes.body.id as string;
+
+    const executeRes = await agent.post(`/rest/workflows/${workflowId}/execute`).send({ data: [{}] });
+
+    expect(executeRes.status).toBe(200);
+    expect(executeRes.body.status).toBe('success');
+    expect(callCount).toBe(1);
+
+    const agentRuns = executeRes.body.data.resultData.runData.Agent as Array<{ data: { main: Array<Array<{ json: { output: string } }>> } }>;
+    expect(agentRuns[0]!.data.main[0]![0]!.json.output).toBe('The answer is 42.');
   });
 });
 
