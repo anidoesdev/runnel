@@ -169,6 +169,36 @@ export class Workflow {
   }
 
   /**
+   * A workflow definition containing only `destinationNode` and its transitive ancestors,
+   * with `destinationNode`'s own outgoing connections dropped. Running this through the
+   * normal execution engine naturally stops once `destinationNode` has executed, since
+   * there's nothing left downstream of it to propagate into — that's what makes "run up to
+   * this node" (the editor's per-node test button) possible without any change to the
+   * engine itself: prune first, then run the pruned definition exactly like any other.
+   */
+  pruneToDestination(destinationNode: string): IWorkflowBase {
+    if (!this.getNode(destinationNode)) {
+      throw new WorkflowOperationError(`Node "${destinationNode}" not found.`);
+    }
+
+    const keep = new Set([destinationNode, ...this.getParentNodes(destinationNode)]);
+    const cloned = structuredClone(this.definition);
+
+    cloned.nodes = cloned.nodes.filter((node) => keep.has(node.name));
+
+    const prunedConnections: IConnections = {};
+    for (const [source, connection] of Object.entries(cloned.connections)) {
+      if (source === destinationNode || !keep.has(source)) continue;
+      prunedConnections[source] = {
+        main: connection.main.map((branch) => branch.filter((entry) => keep.has(entry.node))),
+      };
+    }
+    cloned.connections = prunedConnections;
+
+    return cloned;
+  }
+
+  /**
    * Renames a node atomically: the node itself, every connection that references it (as
    * source key or as a target), its pinData entry, and every `$node["Old"]` / `$("Old")`
    * reference inside every other node's expression-enabled parameters. Returns a new

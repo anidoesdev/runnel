@@ -1,7 +1,13 @@
 #!/usr/bin/env node
 import 'reflect-metadata';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { loadEnvFile } from './env-file.js';
 import { startCommand } from './commands/start.js';
 import { executeCommand } from './commands/execute.js';
+
+// Must run before config.js reads process.env (inside startCommand/executeCommand below).
+loadEnvFile(dirname(fileURLToPath(import.meta.url)));
 
 async function main(): Promise<void> {
   const [, , command, ...rest] = process.argv;

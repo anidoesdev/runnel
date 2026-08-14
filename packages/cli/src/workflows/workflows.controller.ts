@@ -94,6 +94,7 @@ export class WorkflowsController {
           mode: 'manual',
           startNodeName: parsed.startNodeName,
           startData: parsed.data?.map((json) => ({ json })),
+          destinationNode: parsed.destinationNode,
         },
       );
     } catch (err) {

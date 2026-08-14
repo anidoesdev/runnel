@@ -112,7 +112,7 @@ function onDrop(event: DragEvent): void {
       @node-click="onNodeClick"
     >
       <template #node-custom="nodeProps">
-        <CanvasNode v-bind="nodeProps" />
+        <CanvasNode v-bind="nodeProps" @delete="store.removeNode(nodeProps.id)" />
       </template>
     </VueFlow>
   </div>

@@ -1,4 +1,5 @@
 import { decryptCredentialData, WorkflowExecute } from '@n8n-clone/core';
+import { Workflow } from '@n8n-clone/workflow';
 import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
 import type { INodeExecutionData, IRunExecutionData, IWorkflowBase, WorkflowExecuteMode } from '@n8n-clone/workflow';
 import type { Repository } from 'typeorm';
@@ -40,6 +41,8 @@ export interface IRunWorkflowOptions {
   mode: WorkflowExecuteMode;
   startNodeName?: string;
   startData?: INodeExecutionData[];
+  /** Runs only the minimal subgraph needed to reach this node (it + its ancestors) and stops there — see Workflow.pruneToDestination. Powers the editor's per-node "run to here" button. */
+  destinationNode?: string;
 }
 
 export interface IRunWorkflowResult {
@@ -62,7 +65,9 @@ export async function runWorkflow(
   deps: IRunWorkflowDeps,
   options: IRunWorkflowOptions,
 ): Promise<IRunWorkflowResult> {
-  const workflowDef = toWorkflowBase(workflowEntity);
+  const workflowDef = options.destinationNode
+    ? new Workflow(toWorkflowBase(workflowEntity)).pruneToDestination(options.destinationNode)
+    : toWorkflowBase(workflowEntity);
   const startNodeName = options.startNodeName ?? findStartNodeName(workflowDef);
   if (!startNodeName) {
     throw new Error(`Workflow "${workflowEntity.id}" has no nodes to start from`);

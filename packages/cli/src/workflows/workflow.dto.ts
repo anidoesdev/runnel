@@ -61,4 +61,5 @@ export const updateWorkflowSchema = createWorkflowSchema.partial();
 export const executeWorkflowSchema = z.object({
   startNodeName: z.string().optional(),
   data: z.array(dataObjectSchema).optional(),
+  destinationNode: z.string().optional(),
 });

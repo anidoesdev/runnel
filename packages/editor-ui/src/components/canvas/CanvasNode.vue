@@ -5,6 +5,7 @@ import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
 import type { INode } from '@n8n-clone/workflow';
 
 const props = defineProps<{ id: string; data: { node: INode } }>();
+const emit = defineEmits<{ delete: [] }>();
 
 const nodeTypesStore = useNodeTypesStore();
 const description = computed(() => nodeTypesStore.byName(props.data.node.type));
@@ -14,10 +15,25 @@ const outputCount = computed(() => Math.max(description.value?.outputs.length ??
 function handleOffset(index: number, total: number): string {
   return `${((index + 1) / (total + 1)) * 100}%`;
 }
+
+function onDeleteClick(event: MouseEvent): void {
+  event.stopPropagation();
+  emit('delete');
+}
 </script>
 
 <template>
   <div class="canvas-node">
+    <button
+      class="canvas-node__delete nodrag"
+      type="button"
+      :aria-label="`Delete ${data.node.name}`"
+      title="Delete node"
+      @click="onDeleteClick"
+    >
+      ×
+    </button>
+
     <Handle
       v-for="i in inputCount"
       :key="`in-${i}`"

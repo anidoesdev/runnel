@@ -16,5 +16,6 @@ export const workflowsApi = {
   create: (payload: IWorkflowPayload): Promise<IWorkflowRecord> => api.post('/workflows', payload),
   update: (id: string, payload: Partial<IWorkflowPayload>): Promise<IWorkflowRecord> => api.patch(`/workflows/${id}`, payload),
   remove: (id: string): Promise<void> => api.delete(`/workflows/${id}`),
-  execute: (id: string, data?: IDataObject[]): Promise<IExecuteWorkflowResult> => api.post(`/workflows/${id}/execute`, { data }),
+  execute: (id: string, data?: IDataObject[], destinationNode?: string): Promise<IExecuteWorkflowResult> =>
+    api.post(`/workflows/${id}/execute`, { data, destinationNode }),
 };

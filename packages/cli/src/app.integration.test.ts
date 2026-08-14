@@ -166,6 +166,18 @@ describe('REST API — a workflow created, run, and inspected entirely over the 
     expect(res.body.data.resultData.runData.Set).toHaveLength(1);
   });
 
+  it('runs only up to a given destinationNode, leaving anything downstream of it un-run (the NDV "run to here" button)', async () => {
+    const res = await agent
+      .post(`/rest/workflows/${workflowId}/execute`)
+      .send({ data: [{ name: 'Ada' }], destinationNode: 'Set' });
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe('success');
+    expect(res.body.data.resultData.runData.Trigger).toHaveLength(1);
+    expect(res.body.data.resultData.runData.Set).toHaveLength(1);
+    expect(res.body.data.resultData.runData.Done).toBeUndefined();
+  });
+
   it('lists executions filtered by workflowId', async () => {
     const res = await agent.get('/rest/executions').query({ workflowId });
     expect(res.status).toBe(200);

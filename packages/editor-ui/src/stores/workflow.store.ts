@@ -154,12 +154,13 @@ export const useWorkflowStore = defineStore('workflow', {
       this.applyRecord(record);
     },
 
-    async execute(): Promise<void> {
+    /** With `destinationNode` set, runs only that node and its ancestors and stops there — the NDV's "Run to Here" button. */
+    async execute(destinationNode?: string): Promise<void> {
       if (!this.id) throw new Error('Save the workflow before running it');
       this.executing = true;
       this.error = null;
       try {
-        this.lastResult = await workflowsApi.execute(this.id);
+        this.lastResult = await workflowsApi.execute(this.id, undefined, destinationNode);
       } catch (err) {
         this.error = err instanceof Error ? err.message : String(err);
         throw err;

@@ -152,4 +152,14 @@ describe('workflow store', () => {
     expect(store.lastResult).toEqual(result);
     expect(store.executing).toBe(false);
   });
+
+  it('execute forwards an optional destinationNode to the API ("run to here")', async () => {
+    const result = { executionId: 'e1', status: 'success' as const, data: { resultData: { runData: {} } } };
+    vi.mocked(workflowsApi.execute).mockResolvedValue(result);
+    const store = useWorkflowStore();
+    store.id = 'wf-1';
+
+    await store.execute('Edit Fields');
+    expect(workflowsApi.execute).toHaveBeenCalledWith('wf-1', undefined, 'Edit Fields');
+  });
 });
