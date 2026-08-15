@@ -43,6 +43,12 @@ export const useWorkflowStore = defineStore('workflow', {
       this.dirty = false;
     },
 
+    setName(name: string): void {
+      if (name === this.name) return;
+      this.name = name;
+      this.dirty = true;
+    },
+
     uniqueNodeName(base: string): string {
       const existing = new Set(this.nodes.map((n) => n.name));
       if (!existing.has(base)) return base;
@@ -178,6 +184,38 @@ export const useWorkflowStore = defineStore('workflow', {
       this.error = null;
       try {
         this.lastResult = await workflowsApi.execute(this.id, undefined, destinationNode);
+      } catch (err) {
+        this.error = err instanceof Error ? err.message : String(err);
+        throw err;
+      } finally {
+        this.executing = false;
+      }
+    },
+
+    /**
+     * Runs just the AI Agent node identified by `nodeName`, with `message` injected as its
+     * `chatInput` — like "Run to Here" (`execute(destinationNode)`), but the agent is *also*
+     * the start node, so its main input is the given message rather than whatever its real
+     * upstream nodes would have produced. That's what lets the agent's Prompt field resolve
+     * `{{ $json.chatInput }}` to what the user just typed in the chat panel.
+     */
+    async runChat(nodeName: string, message: string): Promise<{ output: string; toolCalls: IDataObject[] }> {
+      if (!this.id) throw new Error('Save the workflow before chatting with it');
+      this.executing = true;
+      this.error = null;
+      try {
+        const result = await workflowsApi.execute(this.id, [{ chatInput: message }], nodeName, nodeName);
+        this.lastResult = result;
+
+        const lastTask = result.data.resultData.runData[nodeName]?.at(-1);
+        if (lastTask?.error) throw new Error(lastTask.error.message);
+        if (result.data.resultData.error) throw new Error(result.data.resultData.error.message);
+
+        const item = lastTask?.data?.main[0]?.[0]?.json;
+        return {
+          output: typeof item?.output === 'string' ? item.output : '',
+          toolCalls: Array.isArray(item?.toolCalls) ? (item.toolCalls as IDataObject[]) : [],
+        };
       } catch (err) {
         this.error = err instanceof Error ? err.message : String(err);
         throw err;

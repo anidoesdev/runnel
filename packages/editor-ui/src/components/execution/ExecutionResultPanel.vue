@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import type { IExecuteWorkflowResult } from '../../api/types.js';
 
-const props = defineProps<{ result: IExecuteWorkflowResult | null }>();
+const props = withDefaults(defineProps<{ result: IExecuteWorkflowResult | null; title?: string }>(), { title: 'Execution' });
 const showRaw = ref(false);
 
 const nodeSummaries = computed(() => {
@@ -17,7 +17,7 @@ const nodeSummaries = computed(() => {
 
 <template>
   <aside class="execution-panel">
-    <h2>Execution</h2>
+    <h2>{{ title }}</h2>
     <p v-if="!result">Run the workflow to see results here.</p>
     <template v-else>
       <p>

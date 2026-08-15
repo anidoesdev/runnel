@@ -31,6 +31,17 @@ describe('workflow store', () => {
     expect(store.dirty).toBe(true);
   });
 
+  it('setName updates the workflow name and marks it dirty, but is a no-op for the same name', () => {
+    const store = useWorkflowStore();
+    store.setName('My New Name');
+    expect(store.name).toBe('My New Name');
+    expect(store.dirty).toBe(true);
+
+    store.dirty = false;
+    store.setName('My New Name');
+    expect(store.dirty).toBe(false);
+  });
+
   it('moveNode updates the node position', () => {
     const store = useWorkflowStore();
     const node = store.addNode('noOp', 'Done', [0, 0]);
@@ -195,5 +206,69 @@ describe('workflow store', () => {
 
     await store.execute('Edit Fields');
     expect(workflowsApi.execute).toHaveBeenCalledWith('wf-1', undefined, 'Edit Fields');
+  });
+
+  it('runChat throws when the workflow has never been saved', async () => {
+    const store = useWorkflowStore();
+    await expect(store.runChat('Agent', 'hi')).rejects.toThrow(/Save the workflow/);
+  });
+
+  it('runChat sends the message as chatInput, starting and stopping at the agent node', async () => {
+    const result = {
+      executionId: 'e1',
+      status: 'success' as const,
+      data: {
+        resultData: {
+          runData: {
+            Agent: [
+              {
+                startTime: 0,
+                executionTime: 1,
+                executionStatus: 'success' as const,
+                source: [],
+                data: { main: [[{ json: { output: '6 times 7 is 42.', toolCalls: [{ tool: 'calculator' }] } }]] },
+              },
+            ],
+          },
+        },
+      },
+    };
+    vi.mocked(workflowsApi.execute).mockResolvedValue(result);
+    const store = useWorkflowStore();
+    store.id = 'wf-1';
+
+    const answer = await store.runChat('Agent', 'What is 6 times 7?');
+    expect(workflowsApi.execute).toHaveBeenCalledWith('wf-1', [{ chatInput: 'What is 6 times 7?' }], 'Agent', 'Agent');
+    expect(answer).toEqual({ output: '6 times 7 is 42.', toolCalls: [{ tool: 'calculator' }] });
+    expect(store.lastResult).toEqual(result);
+    expect(store.executing).toBe(false);
+  });
+
+  it('runChat rejects and records the error when the agent run fails', async () => {
+    const result = {
+      executionId: 'e1',
+      status: 'error' as const,
+      data: {
+        resultData: {
+          runData: {
+            Agent: [
+              {
+                startTime: 0,
+                executionTime: 1,
+                executionStatus: 'error' as const,
+                source: [],
+                error: { message: 'No Chat Model connected', node: 'Agent', timestamp: 0 },
+              },
+            ],
+          },
+        },
+      },
+    };
+    vi.mocked(workflowsApi.execute).mockResolvedValue(result);
+    const store = useWorkflowStore();
+    store.id = 'wf-1';
+
+    await expect(store.runChat('Agent', 'hi')).rejects.toThrow('No Chat Model connected');
+    expect(store.error).toBe('No Chat Model connected');
   });
 });
