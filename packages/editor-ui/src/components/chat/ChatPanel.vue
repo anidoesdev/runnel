@@ -3,7 +3,7 @@ import { nextTick, ref } from 'vue';
 import { N8nButton, N8nInput } from '@n8n-clone/design-system';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 
-const props = defineProps<{ agentNodeName: string }>();
+const props = defineProps<{ agentNodeName: string; chatTriggerNodeName: string }>();
 defineEmits<{ close: [] }>();
 
 const workflowStore = useWorkflowStore();
@@ -31,7 +31,7 @@ async function onSend(): Promise<void> {
   await scrollToBottom();
 
   try {
-    const { output } = await workflowStore.runChat(props.agentNodeName, text);
+    const { output } = await workflowStore.runChat(props.chatTriggerNodeName, props.agentNodeName, text);
     messages.value.push({ role: 'assistant', content: output || '(No answer returned.)' });
   } catch (err) {
     messages.value.push({ role: 'error', content: err instanceof Error ? err.message : String(err) });

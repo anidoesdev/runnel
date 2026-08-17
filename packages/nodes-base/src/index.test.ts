@@ -34,6 +34,7 @@ describe('registerAllNodeTypes', () => {
         'renameKeys',
         'postgres',
         'aiAgent',
+        'chatTrigger',
         'lmChatOpenAi',
         'toolCalculator',
       ].sort(),

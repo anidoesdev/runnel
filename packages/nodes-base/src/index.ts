@@ -1,4 +1,5 @@
 export { manualTrigger } from './nodes/ManualTrigger/ManualTrigger.node.js';
+export { chatTrigger } from './nodes/ChatTrigger/ChatTrigger.node.js';
 export { start } from './nodes/Start/Start.node.js';
 export { noOp } from './nodes/NoOp/NoOp.node.js';
 export { setNode } from './nodes/Set/Set.node.js';
@@ -31,6 +32,7 @@ export { openAiApi } from './credentials/OpenAiApi.credentials.js';
 
 import type { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
 import { manualTrigger } from './nodes/ManualTrigger/ManualTrigger.node.js';
+import { chatTrigger } from './nodes/ChatTrigger/ChatTrigger.node.js';
 import { start } from './nodes/Start/Start.node.js';
 import { noOp } from './nodes/NoOp/NoOp.node.js';
 import { setNode } from './nodes/Set/Set.node.js';
@@ -63,6 +65,7 @@ import { openAiApi } from './credentials/OpenAiApi.credentials.js';
 /** All built-in node types, ready to register with a MapNodeTypes (or any INodeTypes) instance. */
 export const allNodeTypes = [
   manualTrigger,
+  chatTrigger,
   start,
   noOp,
   setNode,

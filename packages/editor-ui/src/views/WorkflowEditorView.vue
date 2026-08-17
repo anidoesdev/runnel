@@ -9,7 +9,7 @@ import ExecutionResultPanel from '../components/execution/ExecutionResultPanel.v
 import ChatPanel from '../components/chat/ChatPanel.vue';
 import { useNodeTypesStore } from '../stores/nodeTypes.store.js';
 import { useWorkflowStore } from '../stores/workflow.store.js';
-import { findChatAgentNode } from '../utils/chatAgent.js';
+import { findChatReadyAgents, findChatTriggerNode, hasMainInput } from '../utils/chatAgent.js';
 
 const route = useRoute();
 const router = useRouter();
@@ -19,21 +19,36 @@ const nodeTypesStore = useNodeTypesStore();
 const selectedNodeId = ref<string | null>(null);
 const activateError = ref<string | null>(null);
 
-/** The AI Agent node driving the bottom chat dock, once some node feeds it a chat model. */
-const chatAgentNode = computed(() => findChatAgentNode(workflowStore.nodes, workflowStore.connections));
+/** Every AI Agent node that already has a Chat trigger wired into its main input — each is a valid target for the bottom chat dock. */
+const chatReadyAgents = computed(() => findChatReadyAgents(workflowStore.nodes, workflowStore.connections));
+/** Explicitly pinned dock target, set whenever some agent newly becomes chat-ready (see watch below) — "most recently wired" wins over whatever was open before. */
+const chatDockAgentId = ref<string | null>(null);
+const chatAgentNode = computed(() => chatReadyAgents.value.find((node) => node.id === chatDockAgentId.value));
+const chatTriggerNode = computed(() =>
+  chatAgentNode.value ? findChatTriggerNode(chatAgentNode.value, workflowStore.nodes, workflowStore.connections) : undefined,
+);
 const chatPanelOpen = ref(false);
+const chatDockVisible = computed(() => chatPanelOpen.value && !!chatAgentNode.value && !!chatTriggerNode.value);
 
 /**
- * Opens the chat dock the moment an agent goes from "no chat model" to "chat model connected" —
- * on load (once loading fills in nodes/connections) and on wiring one up live on the canvas.
- * `immediate` is needed so a workflow that's *already* configured when this view mounts also
- * auto-opens, not just live reconnects; the `!previous` guard then keeps it from popping back
- * open every time the user closes it while nothing about the agent's wiring actually changed.
+ * Pins the dock to whichever agent just became chat-ready and opens it — covers three cases
+ * with one watcher: a workflow that's already wired when this view mounts (`immediate: true`
+ * fires with `previousAgents` undefined, so every ready agent counts as "new"), an AI Agent
+ * node dropped on the canvas (its Chat trigger is auto-attached synchronously in `onDropNode`,
+ * so the pair shows up "newly ready" the next time this computed re-runs), and a Chat node
+ * wired up by hand. Deleting the *targeted* agent's Chat trigger drops it out of
+ * `chatReadyAgents`, so `chatAgentNode` goes undefined and `chatDockVisible` follows — no extra
+ * logic needed to close the dock automatically.
  */
 watch(
-  chatAgentNode,
-  (node, previous) => {
-    if (node && !previous) chatPanelOpen.value = true;
+  chatReadyAgents,
+  (agents, previousAgents) => {
+    const previousIds = new Set((previousAgents ?? []).map((node) => node.id));
+    const justBecameReady = agents.find((node) => !previousIds.has(node.id));
+    if (justBecameReady) {
+      chatDockAgentId.value = justBecameReady.id;
+      chatPanelOpen.value = true;
+    }
   },
   { immediate: true },
 );
@@ -82,10 +97,20 @@ onUnmounted(() => {
   if (autosaveTimer) clearTimeout(autosaveTimer);
 });
 
+/** Dropping an AI Agent node auto-attaches a Chat trigger to its main input, unless something else is already wired in there. */
+function attachChatTrigger(agentNode: { id: string; name: string }, position: { x: number; y: number }): void {
+  if (hasMainInput(agentNode.name, workflowStore.connections)) return;
+  const chatDescription = nodeTypesStore.byName('chatTrigger');
+  const chatNode = workflowStore.addNode('chatTrigger', chatDescription?.defaults.name ?? 'Chat', [position.x - 260, position.y]);
+  workflowStore.addConnection(chatNode.name, agentNode.name, 0, 0, 'main');
+}
+
 function onDropNode(nodeType: string, position: { x: number; y: number }): void {
   const description = nodeTypesStore.byName(nodeType);
   const node = workflowStore.addNode(nodeType, description?.defaults.name ?? nodeType, [position.x, position.y]);
   selectedNodeId.value = node.id;
+
+  if (nodeType === 'aiAgent') attachChatTrigger(node, position);
 }
 
 async function onSave(): Promise<void> {
@@ -142,14 +167,18 @@ async function onExecute(): Promise<void> {
     <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
     <p v-if="activateError" class="auth-error">{{ activateError }}</p>
 
-    <div class="workflow-editor__body" :class="{ 'workflow-editor__body--chat-open': chatPanelOpen && chatAgentNode }">
+    <div class="workflow-editor__body" :class="{ 'workflow-editor__body--chat-open': chatDockVisible }">
       <NodePalette />
       <WorkflowCanvas @select-node="selectedNodeId = $event" @drop="onDropNode" />
-      <ExecutionResultPanel v-if="!(chatPanelOpen && chatAgentNode)" :result="workflowStore.lastResult" />
+      <ExecutionResultPanel v-if="!chatDockVisible" :result="workflowStore.lastResult" />
     </div>
 
-    <div v-if="chatPanelOpen && chatAgentNode" class="workflow-editor__chat-dock">
-      <ChatPanel :agent-node-name="chatAgentNode.name" @close="chatPanelOpen = false" />
+    <div v-if="chatDockVisible" class="workflow-editor__chat-dock">
+      <ChatPanel
+        :agent-node-name="chatAgentNode!.name"
+        :chat-trigger-node-name="chatTriggerNode!.name"
+        @close="chatPanelOpen = false"
+      />
       <ExecutionResultPanel title="Logs" :result="workflowStore.lastResult" />
     </div>
 

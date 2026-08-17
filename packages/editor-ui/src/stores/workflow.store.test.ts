@@ -210,10 +210,10 @@ describe('workflow store', () => {
 
   it('runChat throws when the workflow has never been saved', async () => {
     const store = useWorkflowStore();
-    await expect(store.runChat('Agent', 'hi')).rejects.toThrow(/Save the workflow/);
+    await expect(store.runChat('Chat', 'Agent', 'hi')).rejects.toThrow(/Save the workflow/);
   });
 
-  it('runChat sends the message as chatInput, starting and stopping at the agent node', async () => {
+  it('runChat sends the message as chatInput, starting at the chat trigger and stopping at the agent node', async () => {
     const result = {
       executionId: 'e1',
       status: 'success' as const,
@@ -237,8 +237,8 @@ describe('workflow store', () => {
     const store = useWorkflowStore();
     store.id = 'wf-1';
 
-    const answer = await store.runChat('Agent', 'What is 6 times 7?');
-    expect(workflowsApi.execute).toHaveBeenCalledWith('wf-1', [{ chatInput: 'What is 6 times 7?' }], 'Agent', 'Agent');
+    const answer = await store.runChat('Chat', 'Agent', 'What is 6 times 7?');
+    expect(workflowsApi.execute).toHaveBeenCalledWith('wf-1', [{ chatInput: 'What is 6 times 7?' }], 'Agent', 'Chat');
     expect(answer).toEqual({ output: '6 times 7 is 42.', toolCalls: [{ tool: 'calculator' }] });
     expect(store.lastResult).toEqual(result);
     expect(store.executing).toBe(false);
@@ -268,7 +268,7 @@ describe('workflow store', () => {
     const store = useWorkflowStore();
     store.id = 'wf-1';
 
-    await expect(store.runChat('Agent', 'hi')).rejects.toThrow('No Chat Model connected');
+    await expect(store.runChat('Chat', 'Agent', 'hi')).rejects.toThrow('No Chat Model connected');
     expect(store.error).toBe('No Chat Model connected');
   });
 });

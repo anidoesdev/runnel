@@ -193,21 +193,20 @@ export const useWorkflowStore = defineStore('workflow', {
     },
 
     /**
-     * Runs just the AI Agent node identified by `nodeName`, with `message` injected as its
-     * `chatInput` — like "Run to Here" (`execute(destinationNode)`), but the agent is *also*
-     * the start node, so its main input is the given message rather than whatever its real
-     * upstream nodes would have produced. That's what lets the agent's Prompt field resolve
-     * `{{ $json.chatInput }}` to what the user just typed in the chat panel.
+     * Runs the chain from `chatTriggerName` (fed `message` as its `chatInput` output, exactly
+     * like a Manual Trigger seeds a manual run) through to `agentName`, and stops there — same
+     * pruning as "Run to Here" (`execute(destinationNode)`), just started at the Chat node
+     * instead of wherever `findStartNodeName` would otherwise pick.
      */
-    async runChat(nodeName: string, message: string): Promise<{ output: string; toolCalls: IDataObject[] }> {
+    async runChat(chatTriggerName: string, agentName: string, message: string): Promise<{ output: string; toolCalls: IDataObject[] }> {
       if (!this.id) throw new Error('Save the workflow before chatting with it');
       this.executing = true;
       this.error = null;
       try {
-        const result = await workflowsApi.execute(this.id, [{ chatInput: message }], nodeName, nodeName);
+        const result = await workflowsApi.execute(this.id, [{ chatInput: message }], agentName, chatTriggerName);
         this.lastResult = result;
 
-        const lastTask = result.data.resultData.runData[nodeName]?.at(-1);
+        const lastTask = result.data.resultData.runData[agentName]?.at(-1);
         if (lastTask?.error) throw new Error(lastTask.error.message);
         if (result.data.resultData.error) throw new Error(result.data.resultData.error.message);
 

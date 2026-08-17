@@ -1,36 +1,55 @@
 import { describe, expect, it } from 'vitest';
-import { findChatAgentNode } from './chatAgent.js';
+import { findChatReadyAgents, findChatTriggerNode, hasMainInput } from './chatAgent.js';
 import type { IConnections, INode } from '@n8n-clone/workflow';
 
-function agentNode(name: string): INode {
-  return { id: name, name, type: 'aiAgent', typeVersion: 1, position: [0, 0], parameters: {} };
+function node(name: string, type: string): INode {
+  return { id: name, name, type, typeVersion: 1, position: [0, 0], parameters: {} };
 }
 
-describe('findChatAgentNode', () => {
-  it('returns undefined when there is no AI Agent node', () => {
-    const nodes: INode[] = [{ id: '1', name: 'Set', type: 'set', typeVersion: 1, position: [0, 0], parameters: {} }];
-    expect(findChatAgentNode(nodes, {})).toBeUndefined();
+describe('hasMainInput', () => {
+  it('is false when nothing targets the node', () => {
+    expect(hasMainInput('Agent', {})).toBe(false);
   });
 
-  it('returns undefined when an AI Agent node has no chat model connected', () => {
-    const nodes = [agentNode('Agent')];
+  it('is true once some node has a main connection into it', () => {
+    const connections: IConnections = { Chat: { main: [[{ node: 'Agent', type: 'main', index: 0 }]] } };
+    expect(hasMainInput('Agent', connections)).toBe(true);
+  });
+});
+
+describe('findChatTriggerNode', () => {
+  it('returns undefined when no Chat node feeds the agent', () => {
+    const agent = node('Agent', 'aiAgent');
+    const nodes = [agent, node('Trigger', 'manualTrigger')];
     const connections: IConnections = { Trigger: { main: [[{ node: 'Agent', type: 'main', index: 0 }]] } };
-    expect(findChatAgentNode(nodes, connections)).toBeUndefined();
+    expect(findChatTriggerNode(agent, nodes, connections)).toBeUndefined();
   });
 
-  it('finds the AI Agent node once a chat model feeds its ai_languageModel input', () => {
-    const nodes = [agentNode('Agent')];
-    const connections: IConnections = {
-      'Chat Model': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
-    };
-    expect(findChatAgentNode(nodes, connections)?.name).toBe('Agent');
+  it('finds the Chat node wired into the agent\'s main input', () => {
+    const agent = node('Agent', 'aiAgent');
+    const chat = node('Chat', 'chatTrigger');
+    const nodes = [agent, chat];
+    const connections: IConnections = { Chat: { main: [[{ node: 'Agent', type: 'main', index: 0 }]] } };
+    expect(findChatTriggerNode(agent, nodes, connections)).toBe(chat);
+  });
+});
+
+describe('findChatReadyAgents', () => {
+  it('returns only AI Agent nodes that have a Chat trigger attached', () => {
+    const readyAgent = node('Ready Agent', 'aiAgent');
+    const bareAgent = node('Bare Agent', 'aiAgent');
+    const chat = node('Chat', 'chatTrigger');
+    const nodes = [readyAgent, bareAgent, chat];
+    const connections: IConnections = { Chat: { main: [[{ node: 'Ready Agent', type: 'main', index: 0 }]] } };
+
+    expect(findChatReadyAgents(nodes, connections)).toEqual([readyAgent]);
   });
 
-  it('ignores a chat model connected to something other than an AI Agent node', () => {
-    const nodes: INode[] = [{ id: '1', name: 'Other', type: 'noOp', typeVersion: 1, position: [0, 0], parameters: {} }];
-    const connections: IConnections = {
-      'Chat Model': { ai_languageModel: [[{ node: 'Other', type: 'ai_languageModel', index: 0 }]] },
-    };
-    expect(findChatAgentNode(nodes, connections)).toBeUndefined();
+  it('ignores a Chat trigger connected to a non-agent node', () => {
+    const other = node('Other', 'noOp');
+    const chat = node('Chat', 'chatTrigger');
+    const connections: IConnections = { Chat: { main: [[{ node: 'Other', type: 'main', index: 0 }]] } };
+
+    expect(findChatReadyAgents([other, chat], connections)).toEqual([]);
   });
 });
