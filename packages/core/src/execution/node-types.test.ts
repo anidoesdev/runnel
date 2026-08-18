@@ -38,4 +38,22 @@ describe('MapNodeTypes', () => {
       expect(() => registry.getByNameAndVersion('test.noOp', 99)).toThrow(/Unknown version 99/);
     });
   });
+
+  describe('list', () => {
+    it('returns the top-level description of every registered type, unversioned or not', () => {
+      const other: INodeType = { ...testNoOpNode, description: { ...testNoOpNode.description, name: 'test.other' } };
+      const versioned: VersionedNodeType = {
+        nodeVersions: { 1: testNoOpNode },
+        currentVersion: 1,
+        description: { ...testNoOpNode.description, name: 'test.versioned', version: [1], defaultVersion: 1 },
+      };
+      const registry = new MapNodeTypes().register(testNoOpNode).register(other).register(versioned);
+
+      expect(registry.list().map((d) => d.name).sort()).toEqual(['test.noOp', 'test.other', 'test.versioned']);
+    });
+
+    it('returns an empty list for an empty registry', () => {
+      expect(new MapNodeTypes().list()).toEqual([]);
+    });
+  });
 });

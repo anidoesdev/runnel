@@ -1,4 +1,4 @@
-import type { INodeType, VersionedNodeType } from '@n8n-clone/workflow';
+import type { INodeType, INodeTypeDescription, VersionedNodeType } from '@n8n-clone/workflow';
 
 /**
  * Decouples WorkflowExecute from how node types are actually loaded/versioned. The real
@@ -10,6 +10,8 @@ import type { INodeType, VersionedNodeType } from '@n8n-clone/workflow';
  */
 export interface INodeTypes {
   getByNameAndVersion(type: string, version?: number): INodeType;
+  /** Every registered type's description, one entry per type name (its current/default version) — the catalog search_nodes/get_workflow_outline read from. */
+  list(): INodeTypeDescription[];
 }
 
 export type RegisterableNodeType = INodeType | VersionedNodeType;
@@ -39,5 +41,9 @@ export class MapNodeTypes implements INodeTypes {
       throw new Error(`Unknown version ${resolvedVersion} of node type "${type}"`);
     }
     return nodeType;
+  }
+
+  list(): INodeTypeDescription[] {
+    return [...this.types.values()].map((entry) => entry.description);
   }
 }

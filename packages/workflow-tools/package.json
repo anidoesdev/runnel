@@ -21,9 +21,11 @@
   "dependencies": {
     "@n8n-clone/core": "workspace:*",
     "@n8n-clone/workflow": "workspace:*",
+    "gpt-tokenizer": "^4.0.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@n8n-clone/nodes-base": "workspace:*",
     "@vitest/coverage-v8": "^2.1.8",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

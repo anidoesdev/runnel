@@ -10,6 +10,7 @@ import {
   setNodeParameters as coreSetNodeParameters,
 } from '@n8n-clone/core';
 import { dataObjectSchema } from '../json-schema.js';
+import { createCatalogTools } from './catalog-tools.js';
 import type { AnyTool, IToolContext, ITool } from './tool.js';
 import type { IWorkflowOutline } from '@n8n-clone/core';
 import type { IDataObject } from '@n8n-clone/workflow';
@@ -140,8 +141,8 @@ const getWorkflowOutlineTool: ITool<Record<string, never>, IWorkflowOutline> = {
   handler: (_params, ctx) => coreGetWorkflowOutline(currentWorkflow(ctx), ctx.nodeTypes),
 };
 
-/** Every Milestone 1 tool, in the order the system prompt's working-order policy expects them to be reached for (build first, configure second). Later milestones (search_nodes, get_node_schema, validate_workflow, execute_until, ask_user, credential tools) are deliberately absent — adding stubs for them here would violate "never stub and continue". */
-export function createMilestone1Tools(): AnyTool[] {
+/** The read/mutate tool set that operates on a draft's graph directly (Milestone 1). Node-catalog discovery (search_nodes, get_node_schema, get_node_options — Milestone 2) lives in catalog-tools.ts; validate_workflow, execute_until, ask_user, and the credential-listing tools remain deliberately absent — adding stubs for them here would violate "never stub and continue". */
+export function createWorkflowTools(): AnyTool[] {
   return [
     getWorkflowOutlineTool,
     addNodeTool,
@@ -154,7 +155,11 @@ export function createMilestone1Tools(): AnyTool[] {
   ] as AnyTool[];
 }
 
-export function createToolRegistry(tools: AnyTool[] = createMilestone1Tools()): Map<string, AnyTool> {
+function createAllTools(): AnyTool[] {
+  return [...createWorkflowTools(), ...createCatalogTools()];
+}
+
+export function createToolRegistry(tools: AnyTool[] = createAllTools()): Map<string, AnyTool> {
   const registry = new Map<string, AnyTool>();
   for (const tool of tools) registry.set(tool.name, tool);
   return registry;

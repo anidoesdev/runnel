@@ -10,7 +10,8 @@
       "Bash(curl -s http://localhost:5678/rest/auth/setup)",
       "Bash(docker compose *)",
       "Bash(curl -s -c /tmp/compose-cookies2.txt -X POST http://localhost:8080/rest/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"owner@example.com\",\"password\":\"correct-horse-battery\"}')",
-      "Bash(curl -s -b /tmp/compose-cookies2.txt http://localhost:8080/rest/workflows)"
+      "Bash(curl -s -b /tmp/compose-cookies2.txt http://localhost:8080/rest/workflows)",
+      "Bash(npx vitest *)"
     ]
   }
 }
