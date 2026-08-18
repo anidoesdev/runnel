@@ -1,0 +1,35 @@
+{
+  "name": "@n8n-clone/assistant",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b && node -e \"require('fs').cpSync('src/prompts','dist/prompts',{recursive:true,filter:(p)=>!p.endsWith('.ts')})\"",
+    "typecheck": "tsc -b",
+    "lint": "eslint src",
+    "test": "vitest run --coverage",
+    "clean": "rimraf dist *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@n8n-clone/core": "workspace:*",
+    "@n8n-clone/workflow": "workspace:*",
+    "@n8n-clone/workflow-tools": "workspace:*",
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.25.2"
+  },
+  "devDependencies": {
+    "@n8n-clone/nodes-base": "workspace:*",
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}
