@@ -25,3 +25,29 @@ export type { IBinaryDataMetadata } from './binary-data/binary-data-manager.js';
 
 export { runCode } from './code/sandbox.js';
 export type { CodeExecutionMode, IRunCodeOptions } from './code/sandbox.js';
+
+export {
+  addNode,
+  connectNodes,
+  disconnectNodes,
+  setNodeParameters,
+  renameNode,
+  removeNode,
+  setNodeCredential,
+  getWorkflowOutline,
+  NodeNotFoundError,
+  UnknownNodeTypeError,
+  IncompatibleConnectionError,
+  UnknownCredentialTypeError,
+} from './mutation/workflow-mutation.js';
+export type {
+  IAddNodeParams,
+  IAddNodeResult,
+  IConnectNodesParams,
+  IDisconnectNodesParams,
+  ISetNodeParametersParams,
+  ISetNodeCredentialParams,
+  IWorkflowOutline,
+  IWorkflowOutlineNode,
+  IWorkflowOutlineConnection,
+} from './mutation/workflow-mutation.js';
