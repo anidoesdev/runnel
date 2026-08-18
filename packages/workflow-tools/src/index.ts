@@ -6,10 +6,12 @@ export { dataObjectSchema } from './json-schema.js';
 export { WorkflowDraftStore } from './draft/workflow-draft.store.js';
 export type { IWorkflowDraft, IWorkflowDraftDiff, IWorkflowDraftDiffConnection } from './draft/workflow-draft.store.js';
 export type { IWorkflowRepositoryPort } from './draft/workflow-repository.port.js';
+export type { ICredentialRepositoryPort, ICredentialSummary } from './draft/credential-repository.port.js';
 
 export { invokeTool } from './registry/invoke-tool.js';
 export { createWorkflowTools, createToolRegistry } from './registry/tools.js';
 export { createCatalogTools } from './registry/catalog-tools.js';
+export { createCredentialTools } from './registry/credential-tools.js';
 export type { AnyTool, ITool, IToolContext } from './registry/tool.js';
 
 export { Bm25Index, tokenize } from './catalog/bm25.js';

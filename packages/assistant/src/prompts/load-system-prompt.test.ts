@@ -16,5 +16,14 @@ describe('SYSTEM_PROMPT', () => {
     expect(SYSTEM_PROMPT).toContain('add_node');
     expect(SYSTEM_PROMPT).toContain('connect_nodes');
     expect(SYSTEM_PROMPT).toContain('get_workflow_outline');
+    expect(SYSTEM_PROMPT).toContain('ask_user');
+    expect(SYSTEM_PROMPT).toContain('list_credentials');
+    expect(SYSTEM_PROMPT).toContain('request_credential');
+  });
+
+  it('documents the approval gates on remove_node and rename_node', () => {
+    expect(SYSTEM_PROMPT).toContain('## Approval gates');
+    expect(SYSTEM_PROMPT).toContain('remove_node');
+    expect(SYSTEM_PROMPT).toContain('rename_node');
   });
 });

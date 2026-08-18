@@ -1,4 +1,17 @@
-import type { IModelMessage } from './model-provider.js';
+import type { IModelMessage, IModelToolCallRef } from './model-provider.js';
+
+export interface IAskUserQuestionOption {
+  label: string;
+  value: string;
+  description?: string;
+}
+
+export interface IAskUserQuestion {
+  id: string;
+  question: string;
+  options?: IAskUserQuestionOption[];
+  allowFreeText?: boolean;
+}
 
 export interface IAssistantActor {
   userId: string;
@@ -21,8 +34,15 @@ export interface IAssistantSession {
   messages: IModelMessage[];
   actor: IAssistantActor;
   tokenBudget: IAssistantTokenBudget;
-  /** Set when the loop pauses on an approval gate (remove_node, rename_node, live execution, applying a draft) or an ask_user question — not produced by the Milestone 3 loop yet, but the field exists now so a persisted session doesn't need a schema migration when Milestone 4 adds it. */
-  pendingApproval?: { toolName: string; args: unknown };
+  /**
+   * Set when the loop pauses on an approval gate (remove_node, rename_node — see ITool.requiresApproval).
+   * `remainingCalls` are the rest of that model turn's tool-call batch, not yet executed —
+   * resumeApproval (agent-loop.ts) processes them in order once this one is decided, so a
+   * multi-tool-call turn doesn't lose calls that came after the gated one.
+   */
+  pendingApproval?: { toolCallId: string; toolName: string; args: unknown; remainingCalls: IModelToolCallRef[] };
+  /** Set when the loop pauses on an ask_user call — same "rest of the batch" contract as pendingApproval. Answers come back keyed by question id (see resumeAskUser). */
+  pendingQuestions?: { toolCallId: string; questions: IAskUserQuestion[]; remainingCalls: IModelToolCallRef[] };
   status: AssistantSessionStatus;
   createdAt: string;
   updatedAt: string;

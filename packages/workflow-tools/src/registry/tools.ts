@@ -11,6 +11,7 @@ import {
 } from '@n8n-clone/core';
 import { dataObjectSchema } from '../json-schema.js';
 import { createCatalogTools } from './catalog-tools.js';
+import { createCredentialTools } from './credential-tools.js';
 import type { AnyTool, IToolContext, ITool } from './tool.js';
 import type { IWorkflowOutline } from '@n8n-clone/core';
 import type { IDataObject } from '@n8n-clone/workflow';
@@ -97,6 +98,7 @@ const renameNodeTool: ITool<{ oldName: string; newName: string }, { renamed: tru
   name: 'rename_node',
   description: 'Rename a node. Connections and every expression referencing it elsewhere in the workflow are rewritten automatically.',
   parameters: z.object({ oldName: z.string(), newName: z.string() }),
+  requiresApproval: true,
   handler: (params, ctx) => {
     const workflow = coreRenameNode(currentWorkflow(ctx), params);
     ctx.draftStore.mutate(ctx.draftId, () => workflow);
@@ -108,6 +110,7 @@ const removeNodeTool: ITool<{ name: string }, { removed: true }> = {
   name: 'remove_node',
   description: 'Remove a node and every connection referencing it.',
   parameters: z.object({ name: z.string() }),
+  requiresApproval: true,
   handler: (params, ctx) => {
     const workflow = coreRemoveNode(currentWorkflow(ctx), params);
     ctx.draftStore.mutate(ctx.draftId, () => workflow);
@@ -156,7 +159,7 @@ export function createWorkflowTools(): AnyTool[] {
 }
 
 function createAllTools(): AnyTool[] {
-  return [...createWorkflowTools(), ...createCatalogTools()];
+  return [...createWorkflowTools(), ...createCatalogTools(), ...createCredentialTools()];
 }
 
 export function createToolRegistry(tools: AnyTool[] = createAllTools()): Map<string, AnyTool> {
