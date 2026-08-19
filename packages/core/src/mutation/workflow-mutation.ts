@@ -73,6 +73,11 @@ function resolveVersion(description: INodeTypeDescription, requested?: number): 
   return Array.isArray(description.version) ? Math.max(...description.version) : description.version;
 }
 
+/** A model-driven add_node call rarely bothers with `position` — cascading by node count keeps a run of agent-added nodes from stacking exactly on top of each other at [0,0], without needing real layout logic. */
+function defaultPosition(existingNodeCount: number): [number, number] {
+  return [existingNodeCount * 260, 100];
+}
+
 export interface IAddNodeParams {
   type: string;
   typeVersion?: number;
@@ -97,7 +102,7 @@ export function addNode(workflow: IWorkflowBase, nodeTypes: INodeTypes, params: 
     name,
     type: params.type,
     typeVersion: resolveVersion(description, params.typeVersion),
-    position: params.position ?? [0, 0],
+    position: params.position ?? defaultPosition(cloned.nodes.length),
     parameters: params.parameters ?? {},
   };
   cloned.nodes.push(node);

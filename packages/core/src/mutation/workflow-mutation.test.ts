@@ -66,6 +66,19 @@ describe('addNode', () => {
     expect(wf.nodes).toHaveLength(0);
   });
 
+  it('uses the given position verbatim when provided', () => {
+    const { workflow } = addNode(baseWorkflow(), registry(), { type: 'test.noOp', position: [500, 500] });
+    expect(workflow.nodes[0]!.position).toEqual([500, 500]);
+  });
+
+  it('cascades a default position by node count when none is given, so agent-added nodes do not stack at [0,0]', () => {
+    const nodeTypes = registry();
+    let wf = baseWorkflow();
+    wf = addNode(wf, nodeTypes, { type: 'test.noOp', name: 'A' }).workflow;
+    wf = addNode(wf, nodeTypes, { type: 'test.noOp', name: 'B' }).workflow;
+    expect(wf.nodes[0]!.position).not.toEqual(wf.nodes[1]!.position);
+  });
+
   it('de-duplicates a requested name that already exists', () => {
     const nodeTypes = registry();
     let wf = baseWorkflow();

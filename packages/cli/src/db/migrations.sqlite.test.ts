@@ -27,14 +27,18 @@ describe('SQLite migrations', () => {
 
     await dataSource.runMigrations();
     const afterUp = (await tableNames(dataSource)).sort();
-    expect(afterUp).toEqual(['credential', 'execution', 'migrations', 'user', 'workflow']);
+    expect(afterUp).toEqual(['assistant_session', 'credential', 'execution', 'migrations', 'user', 'workflow']);
 
+    // Two migrations now (InitialSchema, AddAssistantSession) — undoLastMigration only reverts
+    // the most recently applied one, so a full teardown needs one call per migration.
+    await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
     const afterDown = await tableNames(dataSource);
     expect(afterDown).not.toContain('workflow');
     expect(afterDown).not.toContain('user');
     expect(afterDown).not.toContain('credential');
     expect(afterDown).not.toContain('execution');
+    expect(afterDown).not.toContain('assistant_session');
   });
 
   it('round-trips a real row through each table after migrating up', async () => {
@@ -78,9 +82,10 @@ describe('SQLite migrations', () => {
 
     await dataSource.runMigrations();
     await dataSource.undoLastMigration();
+    await dataSource.undoLastMigration();
     await dataSource.runMigrations();
 
     const names = (await tableNames(dataSource)).sort();
-    expect(names).toEqual(['credential', 'execution', 'migrations', 'user', 'workflow']);
+    expect(names).toEqual(['assistant_session', 'credential', 'execution', 'migrations', 'user', 'workflow']);
   });
 });

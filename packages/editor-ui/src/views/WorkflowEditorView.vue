@@ -7,14 +7,35 @@ import NodePalette from '../components/canvas/NodePalette.vue';
 import NodeDetailPanel from '../components/canvas/NodeDetailPanel.vue';
 import ExecutionResultPanel from '../components/execution/ExecutionResultPanel.vue';
 import ChatPanel from '../components/chat/ChatPanel.vue';
+import AssistantPanel from '../components/assistant/AssistantPanel.vue';
 import { useNodeTypesStore } from '../stores/nodeTypes.store.js';
 import { useWorkflowStore } from '../stores/workflow.store.js';
+import { useAssistantStore } from '../stores/assistant.store.js';
 import { findChatReadyAgents, findChatTriggerNode, hasMainInput } from '../utils/chatAgent.js';
 
 const route = useRoute();
 const router = useRouter();
 const workflowStore = useWorkflowStore();
 const nodeTypesStore = useNodeTypesStore();
+const assistantStore = useAssistantStore();
+
+/**
+ * Undefined (not just falsy) whenever the assistant panel is closed or has no draft yet, so
+ * WorkflowCanvas falls back to the live, fully-interactive workflow store — both while the
+ * panel is opening (no flash of an empty preview) and after it closes (closing must exit
+ * preview/readonly mode, not leave the canvas locked with a stale draft forever).
+ */
+const previewNodes = computed(() => (assistantStore.panelOpen ? assistantStore.draft?.nodes : undefined));
+const previewConnections = computed(() => (assistantStore.panelOpen ? assistantStore.draft?.connections : undefined));
+
+async function onToggleAssistant(): Promise<void> {
+  if (assistantStore.panelOpen) {
+    assistantStore.close();
+    return;
+  }
+  if (!workflowStore.id) return;
+  await assistantStore.open(workflowStore.id);
+}
 
 const selectedNodeId = ref<string | null>(null);
 const activateError = ref<string | null>(null);
@@ -163,14 +184,28 @@ async function onExecute(): Promise<void> {
       <N8nButton v-if="chatAgentNode" variant="secondary" @click="chatPanelOpen = !chatPanelOpen">
         {{ chatPanelOpen ? 'Hide Chat' : 'Show Chat' }}
       </N8nButton>
+      <N8nButton variant="secondary" :disabled="!workflowStore.id" :title="!workflowStore.id ? 'Save the workflow first' : ''" @click="onToggleAssistant">
+        {{ assistantStore.panelOpen ? 'Hide Assistant' : 'Ask Assistant' }}
+      </N8nButton>
     </header>
     <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
     <p v-if="activateError" class="auth-error">{{ activateError }}</p>
 
-    <div class="workflow-editor__body" :class="{ 'workflow-editor__body--chat-open': chatDockVisible }">
+    <div
+      class="workflow-editor__body"
+      :class="{ 'workflow-editor__body--assistant-open': assistantStore.panelOpen, 'workflow-editor__body--chat-open': !assistantStore.panelOpen && chatDockVisible }"
+    >
       <NodePalette />
-      <WorkflowCanvas @select-node="selectedNodeId = $event" @drop="onDropNode" />
-      <ExecutionResultPanel v-if="!chatDockVisible" :result="workflowStore.lastResult" />
+      <WorkflowCanvas
+        :preview-nodes="previewNodes"
+        :preview-connections="previewConnections"
+        :pulse-node-names="assistantStore.pulseNodeNames"
+        :pulse-connection-keys="assistantStore.pulseConnectionKeys"
+        @select-node="selectedNodeId = $event"
+        @drop="onDropNode"
+      />
+      <AssistantPanel v-if="assistantStore.panelOpen" />
+      <ExecutionResultPanel v-else-if="!chatDockVisible" :result="workflowStore.lastResult" />
     </div>
 
     <div v-if="chatDockVisible" class="workflow-editor__chat-dock">

@@ -11,7 +11,9 @@
       "Bash(docker compose *)",
       "Bash(curl -s -c /tmp/compose-cookies2.txt -X POST http://localhost:8080/rest/auth/login -H \"Content-Type: application/json\" -d '{\"email\":\"owner@example.com\",\"password\":\"correct-horse-battery\"}')",
       "Bash(curl -s -b /tmp/compose-cookies2.txt http://localhost:8080/rest/workflows)",
-      "Bash(npx vitest *)"
+      "Bash(npx vitest *)",
+      "Bash(node dist/bin.js start)",
+      "Bash(npx turbo *)"
     ]
   }
 }

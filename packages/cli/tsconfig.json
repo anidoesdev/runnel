@@ -9,5 +9,11 @@
     "emitDecoratorMetadata": true
   },
   "include": ["src"],
-  "references": [{ "path": "../workflow" }, { "path": "../core" }, { "path": "../nodes-base" }]
+  "references": [
+    { "path": "../workflow" },
+    { "path": "../core" },
+    { "path": "../nodes-base" },
+    { "path": "../workflow-tools" },
+    { "path": "../assistant" }
+  ]
 }

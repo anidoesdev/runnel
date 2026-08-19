@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
 import type { INode, NodeConnectionType } from '@n8n-clone/workflow';
 
-const props = defineProps<{ id: string; data: { node: INode } }>();
+const props = defineProps<{ id: string; data: { node: INode; pulse?: boolean }; readonly?: boolean }>();
 const emit = defineEmits<{ delete: [] }>();
 
 const nodeTypesStore = useNodeTypesStore();
@@ -50,8 +50,9 @@ function onDeleteClick(event: MouseEvent): void {
 </script>
 
 <template>
-  <div class="canvas-node">
+  <div class="canvas-node" :class="{ 'canvas-node--pulse': data.pulse }">
     <button
+      v-if="!readonly"
       class="canvas-node__delete nodrag"
       type="button"
       :aria-label="`Delete ${data.node.name}`"

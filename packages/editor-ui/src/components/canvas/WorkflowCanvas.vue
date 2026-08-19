@@ -4,7 +4,15 @@ import { computed } from 'vue';
 import CanvasNode from './CanvasNode.vue';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 import type { Connection, Edge, EdgeChange, Node as FlowNode, NodeChange, NodeDragEvent } from '@vue-flow/core';
-import type { IConnection, NodeConnectionType } from '@n8n-clone/workflow';
+import type { IConnection, IConnections, INode, NodeConnectionType } from '@n8n-clone/workflow';
+
+const props = defineProps<{
+  /** When given, the canvas renders this instead of the live workflow store — a read-only preview of the assistant's in-progress draft (Part 6: "highlight on the canvas in real time"). Drag/connect/delete are no-ops while previewing; edit via chat, not the canvas, until the draft is applied. */
+  previewNodes?: INode[];
+  previewConnections?: IConnections;
+  pulseNodeNames?: string[];
+  pulseConnectionKeys?: string[];
+}>();
 
 const emit = defineEmits<{
   'select-node': [nodeId: string];
@@ -14,15 +22,19 @@ const emit = defineEmits<{
 const store = useWorkflowStore();
 const { project } = useVueFlow();
 
-const idByName = computed(() => new Map(store.nodes.map((n) => [n.name, n.id])));
-const nameById = computed(() => new Map(store.nodes.map((n) => [n.id, n.name])));
+const readonly = computed(() => props.previewNodes !== undefined);
+const displayNodes = computed(() => props.previewNodes ?? store.nodes);
+const displayConnections = computed(() => props.previewConnections ?? store.connections);
+
+const idByName = computed(() => new Map(displayNodes.value.map((n) => [n.name, n.id])));
+const nameById = computed(() => new Map(displayNodes.value.map((n) => [n.id, n.name])));
 
 const flowNodes = computed<FlowNode[]>(() =>
-  store.nodes.map((node) => ({
+  displayNodes.value.map((node) => ({
     id: node.id,
     type: 'custom',
     position: { x: node.position[0], y: node.position[1] },
-    data: { node },
+    data: { node, pulse: (props.pulseNodeNames ?? []).includes(node.name) },
   })),
 );
 
@@ -42,8 +54,9 @@ function portHandleId(prefix: 'input' | 'output', type: NodeConnectionType, inde
 }
 
 const flowEdges = computed<Edge[]>(() => {
+  const pulseKeys = new Set(props.pulseConnectionKeys ?? []);
   const edges: Edge[] = [];
-  for (const [sourceName, entry] of Object.entries(store.connections)) {
+  for (const [sourceName, entry] of Object.entries(displayConnections.value)) {
     const sourceId = idByName.value.get(sourceName);
     if (!sourceId) continue;
     for (const [type, branches] of Object.entries(entry) as Array<[NodeConnectionType, IConnection[][]]>) {
@@ -51,13 +64,15 @@ const flowEdges = computed<Edge[]>(() => {
         for (const connection of branch) {
           const targetId = idByName.value.get(connection.node);
           if (!targetId) continue;
+          const classes = [type === 'main' ? undefined : 'workflow-canvas__edge--sub-node'];
+          if (pulseKeys.has(`${sourceName}->${connection.node}`)) classes.push('workflow-canvas__edge--pulse');
           edges.push({
             id: `${sourceId}:${type}:${outputIndex}->${targetId}:${connection.index}`,
             source: sourceId,
             target: targetId,
             sourceHandle: portHandleId('output', type, outputIndex),
             targetHandle: portHandleId('input', type, connection.index),
-            class: type === 'main' ? undefined : `workflow-canvas__edge--sub-node`,
+            class: classes.filter(Boolean).join(' ') || undefined,
           });
         }
       });
@@ -67,15 +82,17 @@ const flowEdges = computed<Edge[]>(() => {
 });
 
 function onNodeDragStop({ node }: NodeDragEvent): void {
+  if (readonly.value) return;
   store.moveNode(node.id, [node.position.x, node.position.y]);
 }
 
 /** A `main` output may only connect to a `main` input, an `ai_languageModel` output only to an `ai_languageModel` input, etc. — dragging a wire between mismatched port kinds is rejected before it's ever created. */
 function isValidConnection(connection: Connection): boolean {
-  return handlePort(connection.sourceHandle).type === handlePort(connection.targetHandle).type;
+  return !readonly.value && handlePort(connection.sourceHandle).type === handlePort(connection.targetHandle).type;
 }
 
 function onConnect(connection: Connection): void {
+  if (readonly.value) return;
   const sourceName = nameById.value.get(connection.source);
   const targetName = nameById.value.get(connection.target);
   if (!sourceName || !targetName) return;
@@ -86,6 +103,7 @@ function onConnect(connection: Connection): void {
 }
 
 function onEdgesChange(changes: EdgeChange[]): void {
+  if (readonly.value) return;
   for (const change of changes) {
     if (change.type !== 'remove') continue;
     const edge = flowEdges.value.find((e) => e.id === change.id);
@@ -100,6 +118,7 @@ function onEdgesChange(changes: EdgeChange[]): void {
 }
 
 function onNodesChange(changes: NodeChange[]): void {
+  if (readonly.value) return;
   for (const change of changes) {
     if (change.type === 'remove') store.removeNode(change.id);
   }
@@ -116,20 +135,27 @@ function onDragOver(event: DragEvent): void {
 
 function onDrop(event: DragEvent): void {
   event.preventDefault();
+  if (readonly.value) return;
   const nodeType = event.dataTransfer?.getData('application/n8n-node-type');
   if (!nodeType) return;
   const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
   const position = project({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });
   emit('drop', nodeType, position);
 }
+
+function onDeleteNode(nodeId: string): void {
+  if (readonly.value) return;
+  store.removeNode(nodeId);
+}
 </script>
 
 <template>
-  <div class="workflow-canvas" @dragover="onDragOver" @drop="onDrop">
+  <div class="workflow-canvas" :class="{ 'workflow-canvas--readonly': readonly }" @dragover="onDragOver" @drop="onDrop">
     <VueFlow
       :nodes="flowNodes"
       :edges="flowEdges"
-      :nodes-connectable="true"
+      :nodes-connectable="!readonly"
+      :nodes-draggable="!readonly"
       :is-valid-connection="isValidConnection"
       @node-drag-stop="onNodeDragStop"
       @connect="onConnect"
@@ -138,7 +164,7 @@ function onDrop(event: DragEvent): void {
       @node-click="onNodeClick"
     >
       <template #node-custom="nodeProps">
-        <CanvasNode v-bind="nodeProps" @delete="store.removeNode(nodeProps.id)" />
+        <CanvasNode v-bind="nodeProps" :readonly="readonly" @delete="onDeleteNode(nodeProps.id)" />
       </template>
     </VueFlow>
   </div>
@@ -149,5 +175,9 @@ function onDrop(event: DragEvent): void {
   width: 100%;
   height: 100%;
   min-height: 0;
+}
+
+.workflow-canvas--readonly {
+  background: repeating-linear-gradient(45deg, var(--color-bg), var(--color-bg) 12px, #eee 12px, #eee 13px);
 }
 </style>

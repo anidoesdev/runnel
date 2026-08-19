@@ -75,6 +75,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@n8n-clone/assistant':
+        specifier: workspace:*
+        version: link:../assistant
       '@n8n-clone/core':
         specifier: workspace:*
         version: link:../core
@@ -84,6 +87,9 @@ importers:
       '@n8n-clone/workflow':
         specifier: workspace:*
         version: link:../workflow
+      '@n8n-clone/workflow-tools':
+        specifier: workspace:*
+        version: link:../workflow-tools
       argon2:
         specifier: ^0.41.1
         version: 0.41.1

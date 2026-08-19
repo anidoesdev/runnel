@@ -16,9 +16,11 @@
     "clean": "rimraf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@n8n-clone/assistant": "workspace:*",
     "@n8n-clone/core": "workspace:*",
     "@n8n-clone/nodes-base": "workspace:*",
     "@n8n-clone/workflow": "workspace:*",
+    "@n8n-clone/workflow-tools": "workspace:*",
     "argon2": "^0.41.1",
     "better-sqlite3": "^12.11.1",
     "cookie-parser": "^1.4.7",
