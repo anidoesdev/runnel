@@ -1,7 +1,5 @@
-import type { IDataObject, IDataObjectValue, INodeExecutionData } from '@n8n-clone/workflow';
-
-/** Field names get_node_output's sample redacts (case-insensitive substring match) — the last line of defense per Part 5 Safety's "credential values never enter the transcript", for the case where a real response happens to echo one back (e.g. an API returning the Authorization header it received). */
-const SECRET_KEY_PATTERN = /password|secret|token|apikey|api_key|authorization|credential/i;
+import { redactDeep } from '../redact.js';
+import type { IDataObject, INodeExecutionData } from '@n8n-clone/workflow';
 
 function coarseType(value: unknown): string {
   if (value === null) return 'null';
@@ -18,21 +16,9 @@ export function inferItemSchema(json: IDataObject): Record<string, string> {
   return schema;
 }
 
-function redactValue(key: string, value: IDataObjectValue): IDataObjectValue {
-  if (SECRET_KEY_PATTERN.test(key)) return '[redacted]';
-  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
-    return redactSample(value as IDataObject);
-  }
-  return value;
-}
-
-/** Replaces any secret-shaped field (by key name, recursively) with a fixed placeholder — never the real value, so the agent can still see *that* a field exists without it entering the transcript. */
+/** get_node_output's sample redaction — see redactDeep for the general-purpose version every tool result also goes through. */
 export function redactSample(json: IDataObject): IDataObject {
-  const redacted: IDataObject = {};
-  for (const [key, value] of Object.entries(json)) {
-    redacted[key] = redactValue(key, value);
-  }
-  return redacted;
+  return redactDeep(json);
 }
 
 export function firstItem(output: INodeExecutionData[] | undefined): INodeExecutionData | undefined {

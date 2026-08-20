@@ -86,9 +86,17 @@ function onNodeDragStop({ node }: NodeDragEvent): void {
   store.moveNode(node.id, [node.position.x, node.position.y]);
 }
 
-/** A `main` output may only connect to a `main` input, an `ai_languageModel` output only to an `ai_languageModel` input, etc. — dragging a wire between mismatched port kinds is rejected before it's ever created. */
+/**
+ * A `main` output may only connect to a `main` input, an `ai_languageModel` output only to an
+ * `ai_languageModel` input, etc. — dragging a wire between mismatched port kinds is rejected
+ * before it's ever created. Deliberately NOT gated on `readonly`: Vue Flow calls this same
+ * callback to validate every *existing* edge it renders from the `:edges` prop, not just a
+ * new user-drawn one — returning false here whenever readonly is true silently drops every
+ * already-valid connection instead of just blocking new ones. `:nodes-connectable="!readonly"`
+ * is what actually stops the user from starting a new drag in preview mode.
+ */
 function isValidConnection(connection: Connection): boolean {
-  return !readonly.value && handlePort(connection.sourceHandle).type === handlePort(connection.targetHandle).type;
+  return handlePort(connection.sourceHandle).type === handlePort(connection.targetHandle).type;
 }
 
 function onConnect(connection: Connection): void {

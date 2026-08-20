@@ -15,6 +15,9 @@
 | `DB_POSTGRES_PASSWORD` | `postgres` | |
 | `DB_POSTGRES_DATABASE` | `n8n_clone` | |
 | `CUSTOM_NODES_DIR` | unset (loads none) | Absolute path to a directory of built custom node packages — see `packages/node-dev`'s README. Each immediate subdirectory with a `dist/index.js` is loaded and registered; a custom node whose name collides with a built-in one is skipped (the built-in wins), logged as a warning. |
+| `OPENAI_API_KEY` | unset | The Workflow Assistant's own model credential — set this to skip creating an `openAiApi` credential through the editor UI just to get the assistant working locally. Takes priority over any stored credential when set; unset falls back to "the first stored `openAiApi` credential", same as before. Never commit a real key — set it in `.env` (gitignored) or your shell, not in code. |
+| `OPENAI_BASE_URL` | unset (real OpenAI) | Only read when `OPENAI_API_KEY` is set. Point the assistant at an OpenAI-compatible endpoint other than `api.openai.com` (Azure OpenAI, a local server, ...). |
+| `OPENAI_MODEL` | `gpt-4o-mini` | Only read when `OPENAI_API_KEY` is set. |
 
 Nothing here configures webhook URLs specially — a workflow's webhook is always reachable at
 `/webhook/<path>` on whatever host/port the server itself is reachable at.
@@ -32,7 +35,7 @@ the built SPA itself doesn't read environment variables at runtime (it's static 
 ## Docker Compose
 
 `docker-compose.yml` wires `N8N_ENCRYPTION_KEY`/`N8N_JWT_SECRET` (and the optional
-`DB_POSTGRES_*` overrides) through from a `.env` file at the repo root — copy `.env.example` to
-`.env` and fill in real values before `docker compose up`. It fails fast with a clear message if
-either required variable is missing, rather than silently starting with the insecure dev
-defaults.
+`DB_POSTGRES_*`/`OPENAI_API_KEY`/`OPENAI_BASE_URL`/`OPENAI_MODEL` overrides) through from a `.env`
+file at the repo root — copy `.env.example` to `.env` and fill in real values before
+`docker compose up`. It fails fast with a clear message if either required variable is missing,
+rather than silently starting with the insecure dev defaults.

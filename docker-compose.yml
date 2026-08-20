@@ -34,6 +34,9 @@ services:
       DB_POSTGRES_PASSWORD: ${DB_POSTGRES_PASSWORD:-postgres}
       DB_POSTGRES_DATABASE: ${DB_POSTGRES_DATABASE:-n8n_clone}
       CUSTOM_NODES_DIR: ${CUSTOM_NODES_DIR:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-}
     ports:
       - '5679:5679'
     healthcheck:

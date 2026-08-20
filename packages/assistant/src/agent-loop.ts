@@ -1,4 +1,4 @@
-import { invokeTool, ToolError } from '@n8n-clone/workflow-tools';
+import { invokeTool, redactDeep, ToolError } from '@n8n-clone/workflow-tools';
 import { ASK_USER_TOOL_DEFINITION, ASK_USER_TOOL_NAME, parseAskUserArguments } from './ask-user.js';
 import { SYSTEM_PROMPT } from './prompts/load-system-prompt.js';
 import { toModelToolDefinitions } from './tool-definitions.js';
@@ -199,7 +199,8 @@ async function processToolCallBatch(
     options.onEvent?.({ type: 'tool_call', id: call.id, name: call.name, args });
 
     try {
-      const result = await invokeTool(deps.tools, call.name, args, deps.toolContext);
+      const rawResult = await invokeTool(deps.tools, call.name, args, deps.toolContext);
+      const result = redactDeep(rawResult);
       session.messages.push({ role: 'tool', toolCallId: call.id, content: JSON.stringify(result) });
       options.onEvent?.({ type: 'tool_result', id: call.id, name: call.name, result });
     } catch (err) {
@@ -310,7 +311,8 @@ export async function resumeApproval(
 
   if (decision === 'approve') {
     try {
-      const result = await invokeTool(deps.tools, pending.toolName, pending.args, deps.toolContext);
+      const rawResult = await invokeTool(deps.tools, pending.toolName, pending.args, deps.toolContext);
+      const result = redactDeep(rawResult);
       session.messages.push({ role: 'tool', toolCallId: pending.toolCallId, content: JSON.stringify(result) });
       options.onEvent?.({ type: 'tool_result', id: pending.toolCallId, name: pending.toolName, result });
     } catch (err) {
