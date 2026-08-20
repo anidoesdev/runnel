@@ -40,6 +40,7 @@ export const sortNode: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const field = this.getNodeParameter('field', 0, '') as string;

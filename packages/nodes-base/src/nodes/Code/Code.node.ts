@@ -47,6 +47,7 @@ export const codeNode: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const mode = this.getNodeParameter('mode', 0, 'runOnceForAllItems') as CodeExecutionMode;

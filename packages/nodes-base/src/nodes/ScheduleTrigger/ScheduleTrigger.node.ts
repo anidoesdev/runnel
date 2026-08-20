@@ -37,6 +37,7 @@ export const scheduleTrigger: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   /**
    * ActiveWorkflowManager runs the rest of the workflow via WorkflowExecute.run(workflow,
    * node.name, emittedData) — which executes the *start* node too, feeding it the emitted

@@ -32,6 +32,7 @@ export const removeDuplicatesNode: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const compare = this.getNodeParameter('compare', 0, 'allFields') as string;

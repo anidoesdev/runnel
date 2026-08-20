@@ -68,6 +68,7 @@ export const setNode: INodeType = {
       { displayName: 'Keep Only Set Fields', name: 'keepOnlySet', type: 'boolean', default: false },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
 

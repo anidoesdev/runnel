@@ -3,6 +3,8 @@ import { WorkflowExecute } from './workflow-execute.js';
 import { MapNodeTypes } from './node-types.js';
 import { makeNode, makeWorkflow } from './test-utils.js';
 import {
+  testDryRunSafeNode,
+  testDryRunUnsafeNode,
   testFlakyNode,
   testIfNode,
   testLoopNode,
@@ -23,7 +25,9 @@ function registry(): MapNodeTypes {
     .register(testLoopNode)
     .register(testThrowingNode)
     .register(testFlakyNode)
-    .register(testNoOutputNode);
+    .register(testNoOutputNode)
+    .register(testDryRunSafeNode)
+    .register(testDryRunUnsafeNode);
 }
 
 function engine(): WorkflowExecute {
@@ -480,6 +484,62 @@ describe('WorkflowExecute — run() validation', () => {
   it('throws if the start node does not exist', async () => {
     const workflow = makeWorkflow([], {});
     await expect(engine().run(workflow, 'Missing')).rejects.toThrow(/not found/);
+  });
+});
+
+describe('WorkflowExecute — dry run', () => {
+  function dryRunEngine(): WorkflowExecute {
+    return new WorkflowExecute(registry(), { mode: 'manual', sleep: async () => {}, dryRun: true });
+  }
+
+  it('actually calls execute() for a node classified dryRunSafety => "safe"', async () => {
+    const start = makeNode({ name: 'Start', type: 'test.noOp' });
+    const safe = makeNode({ name: 'Safe', type: 'test.dryRunSafe' });
+    const workflow = makeWorkflow([start, safe], { Start: { main: [[{ node: 'Safe', type: 'main', index: 0 }]] } });
+
+    const result = await dryRunEngine().run(workflow, 'Start', [[{ json: { x: 1 } }]]);
+
+    expect(lastRun(result, 'Safe')!.data!.main[0]).toEqual([{ json: { x: 1, ranReal: true } }]);
+    expect(lastRun(result, 'Safe')!.mocked).toBeFalsy();
+  });
+
+  it('never calls execute() for a node with no dryRunSafety (defaults to "mock"), recording a passthrough instead', async () => {
+    const start = makeNode({ name: 'Start', type: 'test.noOp' });
+    const unsafe = makeNode({ name: 'Unsafe', type: 'test.dryRunUnsafe' });
+    const workflow = makeWorkflow([start, unsafe], { Start: { main: [[{ node: 'Unsafe', type: 'main', index: 0 }]] } });
+
+    const result = await dryRunEngine().run(workflow, 'Start', [[{ json: { x: 1 } }]]);
+
+    // No `ranReal` field — the real execute() (which would have added it) never ran.
+    expect(lastRun(result, 'Unsafe')!.data!.main[0]).toEqual([{ json: { x: 1 } }]);
+    expect(lastRun(result, 'Unsafe')!.mocked).toBe(true);
+    expect(lastRun(result, 'Unsafe')!.executionStatus).toBe('success');
+  });
+
+  it('propagates a mocked node\'s passthrough onward so the rest of the graph still runs', async () => {
+    const start = makeNode({ name: 'Start', type: 'test.noOp' });
+    const unsafe = makeNode({ name: 'Unsafe', type: 'test.dryRunUnsafe' });
+    const after = makeNode({ name: 'After', type: 'test.noOp' });
+    const workflow = makeWorkflow([start, unsafe, after], {
+      Start: { main: [[{ node: 'Unsafe', type: 'main', index: 0 }]] },
+      Unsafe: { main: [[{ node: 'After', type: 'main', index: 0 }]] },
+    });
+
+    const result = await dryRunEngine().run(workflow, 'Start', [[{ json: { x: 1 } }]]);
+
+    expect(lastRun(result, 'After')!.executionStatus).toBe('success');
+    expect(lastRun(result, 'After')!.data!.main[0]).toEqual([{ json: { x: 1 } }]);
+  });
+
+  it('without dryRun: true, the same "mock" node runs for real as normal', async () => {
+    const start = makeNode({ name: 'Start', type: 'test.noOp' });
+    const unsafe = makeNode({ name: 'Unsafe', type: 'test.dryRunUnsafe' });
+    const workflow = makeWorkflow([start, unsafe], { Start: { main: [[{ node: 'Unsafe', type: 'main', index: 0 }]] } });
+
+    const result = await engine().run(workflow, 'Start', [[{ json: { x: 1 } }]]);
+
+    expect(lastRun(result, 'Unsafe')!.data!.main[0]).toEqual([{ json: { x: 1, ranReal: true } }]);
+    expect(lastRun(result, 'Unsafe')!.mocked).toBeFalsy();
   });
 });
 

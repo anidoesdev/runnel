@@ -585,6 +585,18 @@ a {
   color: #999;
 }
 
+.execution-panel__error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.execution-panel__error .auth-error {
+  margin: 0;
+}
+
 .execution-panel__raw {
   margin-top: 12px;
   white-space: pre-wrap;

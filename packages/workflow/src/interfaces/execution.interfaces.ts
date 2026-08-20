@@ -39,6 +39,8 @@ export interface ITaskData {
   source: Array<ISourceData | null>;
   data?: { main: NodeOutput };
   error?: ITaskDataError;
+  /** True when a dry run skipped this node's real `execute()` (see INodeType.dryRunSafety) and recorded a passthrough of its input instead — the data here is not real output and must not be treated as observed. */
+  mocked?: boolean;
 }
 
 /**

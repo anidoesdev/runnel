@@ -24,6 +24,14 @@ export interface IWorkflowExecuteOptions {
   credentialsResolver?: (credentialTypeName: string) => Promise<IDataObject>;
   credentialTypes?: ICredentialTypes;
   httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
+  /**
+   * Grounding's "dry run" (see the assistant's execute_dry_run tool): nodes whose
+   * `dryRunSafety(parameters)` isn't 'safe' never have their real `execute()` called — instead
+   * their input is recorded as a passthrough output, tagged `mocked: true`, and propagated
+   * onward so the rest of the graph still runs. Lets the agent observe real upstream data
+   * (an HTTP GET's actual response shape, say) without ever performing a write.
+   */
+  dryRun?: boolean;
 }
 
 const defaultSleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
@@ -138,6 +146,16 @@ export class WorkflowExecute {
       const emptyOutput: NodeOutput = Array.from({ length: mainPortCount(nodeType.description.outputs) }, () => []);
       recordTask({ executionStatus: 'skipped', source: executionData.source?.main ?? [], data: { main: emptyOutput } });
       this.propagate(workflow, runExecutionData, node, runIndex, emptyOutput);
+      return;
+    }
+
+    if (this.options.dryRun && (nodeType.dryRunSafety?.(node.parameters) ?? 'mock') === 'mock') {
+      const passthroughItems = executionData.data.main[0] ?? [];
+      const output: NodeOutput = Array.from({ length: mainPortCount(nodeType.description.outputs) }, (_, i) =>
+        i === 0 ? passthroughItems : [],
+      );
+      recordTask({ executionStatus: 'success', source: executionData.source?.main ?? [], data: { main: output }, mocked: true });
+      this.propagate(workflow, runExecutionData, node, runIndex, output);
       return;
     }
 

@@ -33,6 +33,7 @@ export const splitInBatches: INodeType = {
       { displayName: 'Batch Size', name: 'batchSize', type: 'number', default: 1, typeOptions: { minValue: 1 } },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const context = this.getContext('node') as ILoopState;
     if (context.items === undefined) {

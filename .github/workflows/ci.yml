@@ -56,3 +56,20 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: Assistant evals
+        id: evals
+        if: ${{ secrets.OPENAI_API_KEY != '' }}
+        working-directory: packages/assistant
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          EVAL_REPORT_PATH: eval-report.json
+        run: pnpm run evals
+
+      - name: Upload eval report
+        if: ${{ always() && steps.evals.outcome != 'skipped' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: assistant-eval-report
+          path: packages/assistant/eval-report.json
+          if-no-files-found: ignore

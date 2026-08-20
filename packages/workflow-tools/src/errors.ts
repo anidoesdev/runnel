@@ -7,6 +7,7 @@ export type ToolErrorCode =
   | 'UNKNOWN_NODE_TYPE'
   | 'INCOMPATIBLE_CONNECTION'
   | 'UNKNOWN_CREDENTIAL_TYPE'
+  | 'NO_EXECUTION_RESULT'
   | 'INTERNAL';
 
 export interface IToolErrorInfo {

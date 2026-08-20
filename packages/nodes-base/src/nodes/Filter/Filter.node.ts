@@ -16,6 +16,7 @@ export const filterNode: INodeType = {
     outputs: ['main'],
     properties: [combinatorProperty, conditionsProperty],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const kept: INodeExecutionData[] = [];

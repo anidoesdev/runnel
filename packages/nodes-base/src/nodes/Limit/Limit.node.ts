@@ -26,6 +26,7 @@ export const limitNode: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const maxItems = Math.max(1, this.getNodeParameter('maxItems', 0, 1) as number);

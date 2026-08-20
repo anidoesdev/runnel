@@ -1,18 +1,41 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { getNodeInputData } from '@n8n-clone/workflow';
+import { N8nButton } from '@n8n-clone/design-system';
+import { useAssistantStore } from '../../stores/assistant.store.js';
 import type { IExecuteWorkflowResult } from '../../api/types.js';
 
-const props = withDefaults(defineProps<{ result: IExecuteWorkflowResult | null; title?: string }>(), { title: 'Execution' });
+const props = withDefaults(defineProps<{ result: IExecuteWorkflowResult | null; workflowId?: string; title?: string }>(), {
+  title: 'Execution',
+});
 const showRaw = ref(false);
+const assistantStore = useAssistantStore();
 
 const nodeSummaries = computed(() => {
   const runData = props.result?.data.resultData.runData ?? {};
   return Object.entries(runData).map(([nodeName, tasks]) => {
     const last = tasks.at(-1);
     const itemCount = last?.data?.main.reduce((sum, branch) => sum + (branch?.length ?? 0), 0) ?? 0;
-    return { nodeName, status: last?.executionStatus ?? 'unknown', itemCount, error: last?.error?.message };
+    return {
+      nodeName,
+      status: last?.executionStatus ?? 'unknown',
+      itemCount,
+      error: last?.error?.message,
+      errorDescription: last?.error?.description,
+    };
   });
 });
+
+function onFixThis(summary: { nodeName: string; error?: string; errorDescription?: string }): void {
+  if (!props.workflowId || !props.result || !summary.error) return;
+  const inputData = getNodeInputData(props.result.data.resultData.runData, summary.nodeName) ?? [];
+  void assistantStore.fixExecutionError(
+    props.workflowId,
+    summary.nodeName,
+    { message: summary.error, description: summary.errorDescription },
+    inputData,
+  );
+}
 </script>
 
 <template>
@@ -30,9 +53,17 @@ const nodeSummaries = computed(() => {
           {{ summary.status }}<template v-if="summary.status === 'success'"> ({{ summary.itemCount }} items)</template>
         </span>
       </div>
-      <p v-for="summary in nodeSummaries.filter((s) => s.error)" :key="`${summary.nodeName}-error`" class="auth-error">
-        {{ summary.nodeName }}: {{ summary.error }}
-      </p>
+      <div v-for="summary in nodeSummaries.filter((s) => s.error)" :key="`${summary.nodeName}-error`" class="execution-panel__error">
+        <p class="auth-error">{{ summary.nodeName }}: {{ summary.error }}</p>
+        <N8nButton
+          v-if="workflowId"
+          variant="secondary"
+          :disabled="assistantStore.sending"
+          @click="onFixThis(summary)"
+        >
+          Fix this
+        </N8nButton>
+      </div>
 
       <button type="button" class="link-button" @click="showRaw = !showRaw">
         {{ showRaw ? 'Hide' : 'Show' }} raw result

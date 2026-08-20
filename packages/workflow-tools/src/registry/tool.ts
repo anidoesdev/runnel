@@ -1,14 +1,17 @@
 import type { INodeTypes } from '@n8n-clone/core';
 import type { z } from 'zod';
 import type { ICredentialRepositoryPort } from '../draft/credential-repository.port.js';
+import type { IWorkflowExecutorPort } from '../draft/execution.port.js';
 import type { WorkflowDraftStore } from '../draft/workflow-draft.store.js';
 
-/** Everything a tool handler is allowed to touch — never the raw repository, never anything outside the current draft. `credentials` is optional: a caller that never wires credential access simply can't use list_credentials/request_credential, and gets a clear error instead of a crash if it tries. */
+/** Everything a tool handler is allowed to touch — never the raw repository, never anything outside the current draft. `credentials`/`executor` are optional: a caller that never wires one simply can't use the tools that need it, and gets a clear error instead of a crash if it tries. */
 export interface IToolContext {
   draftId: string;
   nodeTypes: INodeTypes;
   draftStore: WorkflowDraftStore;
   credentials?: ICredentialRepositoryPort;
+  /** Grounding's execution seam (execute_dry_run/execute_live/get_node_output) — see IWorkflowExecutorPort. */
+  executor?: IWorkflowExecutorPort;
 }
 
 /**

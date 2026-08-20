@@ -62,6 +62,7 @@ export const webhook: INodeType = {
       { displayName: 'Response Code', name: 'responseCode', type: 'number', default: 200 },
     ],
   },
+  dryRunSafety: () => 'safe',
   /** See ScheduleTrigger.node.ts — WorkflowExecute always calls execute() on the node it starts from. */
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     return [this.getInputData()];

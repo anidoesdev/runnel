@@ -12,6 +12,7 @@ import {
 import { dataObjectSchema } from '../json-schema.js';
 import { createCatalogTools } from './catalog-tools.js';
 import { createCredentialTools } from './credential-tools.js';
+import { createExecutionTools } from './execution-tools.js';
 import type { AnyTool, IToolContext, ITool } from './tool.js';
 import type { IWorkflowOutline } from '@n8n-clone/core';
 import type { IDataObject } from '@n8n-clone/workflow';
@@ -159,7 +160,7 @@ export function createWorkflowTools(): AnyTool[] {
 }
 
 function createAllTools(): AnyTool[] {
-  return [...createWorkflowTools(), ...createCatalogTools(), ...createCredentialTools()];
+  return [...createWorkflowTools(), ...createCatalogTools(), ...createCredentialTools(), ...createExecutionTools()];
 }
 
 export function createToolRegistry(tools: AnyTool[] = createAllTools()): Map<string, AnyTool> {

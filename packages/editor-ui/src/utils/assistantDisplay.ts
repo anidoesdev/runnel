@@ -36,6 +36,12 @@ export function humanizeToolCall(name: string, args: unknown, result: unknown, r
       return `Requested a new ${String(a.type ?? '')} credential`;
     case 'get_workflow_outline':
       return 'Reviewed the current workflow';
+    case 'execute_dry_run':
+      return running ? `Test-running up to "${String(a.nodeName ?? '')}"…` : `Test-ran up to "${String(a.nodeName ?? '')}" (writes skipped)`;
+    case 'execute_live':
+      return running ? `Actually running up to "${String(a.nodeName ?? '')}"…` : `Ran "${String(a.nodeName ?? '')}" for real`;
+    case 'get_node_output':
+      return `Looked at "${String(a.nodeName ?? '')}"'s real output`;
     default:
       return name;
   }

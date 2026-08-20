@@ -15,6 +15,13 @@ describe('humanizeToolCall', () => {
     expect(humanizeToolCall('search_nodes', { query: 'send a slack message' }, [], false)).toBe('Searched for "send a slack message"');
   });
 
+  it('humanizes the grounding tools differently while running vs once finished', () => {
+    expect(humanizeToolCall('execute_dry_run', { nodeName: 'Fetch Orders' }, undefined, true)).toBe('Test-running up to "Fetch Orders"…');
+    expect(humanizeToolCall('execute_dry_run', { nodeName: 'Fetch Orders' }, {}, false)).toBe('Test-ran up to "Fetch Orders" (writes skipped)');
+    expect(humanizeToolCall('execute_live', { nodeName: 'Post Update' }, {}, false)).toBe('Ran "Post Update" for real');
+    expect(humanizeToolCall('get_node_output', { nodeName: 'Fetch Orders' }, {}, false)).toBe('Looked at "Fetch Orders"\'s real output');
+  });
+
   it('falls back to the raw tool name for anything unrecognized', () => {
     expect(humanizeToolCall('some_future_tool', {}, {}, false)).toBe('some_future_tool');
   });

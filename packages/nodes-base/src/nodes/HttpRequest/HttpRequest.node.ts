@@ -151,6 +151,11 @@ export const httpRequestNode: INodeType = {
       { displayName: 'Retry Delay (ms)', name: 'retryDelayMs', type: 'number', default: 0 },
     ],
   },
+  /** GET/HEAD have no server-side write in the general case — safe for a grounding dry run to actually send. Every other method is mocked; there's no static way to know whether a given POST/PUT/PATCH/DELETE endpoint is idempotent. */
+  dryRunSafety: (parameters) => {
+    const method = typeof parameters.method === 'string' ? parameters.method : 'GET';
+    return method === 'GET' || method === 'HEAD' ? 'safe' : 'mock';
+  },
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const output: INodeExecutionData[] = [];

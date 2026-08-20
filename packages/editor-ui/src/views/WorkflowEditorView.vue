@@ -205,7 +205,7 @@ async function onExecute(): Promise<void> {
         @drop="onDropNode"
       />
       <AssistantPanel v-if="assistantStore.panelOpen" />
-      <ExecutionResultPanel v-else-if="!chatDockVisible" :result="workflowStore.lastResult" />
+      <ExecutionResultPanel v-else-if="!chatDockVisible" :result="workflowStore.lastResult" :workflow-id="workflowStore.id ?? undefined" />
     </div>
 
     <div v-if="chatDockVisible" class="workflow-editor__chat-dock">
@@ -214,7 +214,7 @@ async function onExecute(): Promise<void> {
         :chat-trigger-node-name="chatTriggerNode!.name"
         @close="chatPanelOpen = false"
       />
-      <ExecutionResultPanel title="Logs" :result="workflowStore.lastResult" />
+      <ExecutionResultPanel title="Logs" :result="workflowStore.lastResult" :workflow-id="workflowStore.id ?? undefined" />
     </div>
 
     <NodeDetailPanel :node-id="selectedNodeId" @close="selectedNodeId = null" />

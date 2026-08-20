@@ -14,6 +14,7 @@ export const noOp: INodeType = {
     outputs: ['main'],
     properties: [],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     return [this.getInputData()];
   },

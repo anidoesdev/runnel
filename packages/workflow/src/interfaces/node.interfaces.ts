@@ -236,6 +236,15 @@ export interface IWebhookResponseData {
 
 export interface INodeType {
   description: INodeTypeDescription;
+  /**
+   * Classifies whether `execute()` is safe to run for real during a grounding dry run (see
+   * packages/core's WorkflowExecute `dryRun` option) — 'safe' for a node with no externally
+   * observable side effect (a pure transform, or a trigger's execute() pass-through), 'mock' for
+   * anything that writes to (or spends money calling) something outside the process. Unset
+   * defaults to 'mock': a node must opt in to being trusted, never the reverse, so a future node
+   * type that forgets to classify itself is mocked rather than silently run for real.
+   */
+  dryRunSafety?(parameters: IDataObject): 'safe' | 'mock';
   execute?(this: IExecuteFunctions): Promise<NodeOutput>;
   poll?(this: IPollFunctions): Promise<NodeOutput | null>;
   trigger?(this: ITriggerFunctions): Promise<ITriggerResponse>;

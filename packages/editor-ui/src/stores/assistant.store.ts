@@ -232,6 +232,35 @@ export const useAssistantStore = defineStore('assistant', {
       this.sending = false;
     },
 
+    /**
+     * The "Fix this" entry point (build prompt Milestone 8): opens/reuses the session for this
+     * workflow, then sends a single composed message carrying the real failure — the node name,
+     * the engine's own error text, and the actual input data that node received (reconstructed
+     * from the execution's runData, not re-guessed) — so the agent's very first turn is grounded
+     * in what really happened instead of the user re-typing the error by hand.
+     */
+    async fixExecutionError(
+      workflowId: string,
+      nodeName: string,
+      error: { message: string; description?: string },
+      inputData: unknown,
+    ): Promise<void> {
+      await this.open(workflowId);
+      const lines = [
+        `The "${nodeName}" node failed when I ran this workflow.`,
+        `Error: ${error.message}`,
+        ...(error.description ? [error.description] : []),
+        '',
+        `Here is the real input data "${nodeName}" received:`,
+        '```json',
+        JSON.stringify(inputData, null, 2),
+        '```',
+        '',
+        'Please diagnose what went wrong and fix it.',
+      ];
+      await this.send(lines.join('\n'));
+    },
+
     async send(message: string): Promise<void> {
       if (!this.session || this.sending) return;
       this.sending = true;

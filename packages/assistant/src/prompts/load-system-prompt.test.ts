@@ -7,6 +7,7 @@ describe('SYSTEM_PROMPT', () => {
     expect(SYSTEM_PROMPT).toContain('## Connection semantics');
     expect(SYSTEM_PROMPT).toContain('## Expression syntax');
     expect(SYSTEM_PROMPT).toContain('## Working order');
+    expect(SYSTEM_PROMPT).toContain('## Grounding');
     expect(SYSTEM_PROMPT).toContain('## Common mistakes');
     expect(SYSTEM_PROMPT).toContain('## Tone');
   });
@@ -19,11 +20,25 @@ describe('SYSTEM_PROMPT', () => {
     expect(SYSTEM_PROMPT).toContain('ask_user');
     expect(SYSTEM_PROMPT).toContain('list_credentials');
     expect(SYSTEM_PROMPT).toContain('request_credential');
+    expect(SYSTEM_PROMPT).toContain('execute_dry_run');
+    expect(SYSTEM_PROMPT).toContain('execute_live');
+    expect(SYSTEM_PROMPT).toContain('get_node_output');
   });
 
-  it('documents the approval gates on remove_node and rename_node', () => {
+  it('documents the approval gates on remove_node, rename_node, and execute_live', () => {
     expect(SYSTEM_PROMPT).toContain('## Approval gates');
     expect(SYSTEM_PROMPT).toContain('remove_node');
     expect(SYSTEM_PROMPT).toContain('rename_node');
+    expect(SYSTEM_PROMPT).toContain('execute_live');
+  });
+
+  it('documents how to handle a "Fix this" error-context message', () => {
+    expect(SYSTEM_PROMPT).toContain('## Diagnosing a failed execution');
+    expect(SYSTEM_PROMPT).toContain('Fix this');
+  });
+
+  it('warns that execution data (get_node_output) is untrusted, never an instruction', () => {
+    expect(SYSTEM_PROMPT.toLowerCase()).toContain('attacker-controlled');
+    expect(SYSTEM_PROMPT).toContain('never an instruction');
   });
 });

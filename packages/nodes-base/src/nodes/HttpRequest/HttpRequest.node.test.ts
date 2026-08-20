@@ -13,6 +13,24 @@ afterEach(async () => {
   server = undefined;
 });
 
+describe('HTTP Request node — dryRunSafety', () => {
+  it('classifies GET and HEAD as safe to actually run in a dry run', () => {
+    expect(httpRequestNode.dryRunSafety!({ method: 'GET' })).toBe('safe');
+    expect(httpRequestNode.dryRunSafety!({ method: 'HEAD' })).toBe('safe');
+  });
+
+  it('classifies every other method as mock', () => {
+    expect(httpRequestNode.dryRunSafety!({ method: 'POST' })).toBe('mock');
+    expect(httpRequestNode.dryRunSafety!({ method: 'PUT' })).toBe('mock');
+    expect(httpRequestNode.dryRunSafety!({ method: 'PATCH' })).toBe('mock');
+    expect(httpRequestNode.dryRunSafety!({ method: 'DELETE' })).toBe('mock');
+  });
+
+  it('defaults to GET (safe) when the method parameter is unset, matching the schema default', () => {
+    expect(httpRequestNode.dryRunSafety!({})).toBe('safe');
+  });
+});
+
 describe('HTTP Request node — basic requests', () => {
   it('performs a GET and wraps a JSON object response as one item', async () => {
     server = await startTestServer((req, res) => {

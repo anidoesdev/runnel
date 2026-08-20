@@ -5,11 +5,12 @@ import { NotFoundError } from '../http/http-errors.js';
 import { generateId } from '../db/id.js';
 import { createAssistantSessionSchema, resumeApprovalSchema, resumeAskUserSchema, sendAssistantMessageSchema } from './assistant.dto.js';
 import { CredentialRepositoryAdapter } from './credential-repository.adapter.js';
+import { ExecutionAdapter } from './execution-adapter.js';
 import { createModelProviderForSession } from './model-provider.factory.js';
 import { startSseResponse, writeSseEvent } from './sse.js';
 import type { AuthenticatedRequest } from '../auth/auth.middleware.js';
 import type { IAssistantSession, IAssistantSessionRepositoryPort, IRunTurnDeps, IRunTurnOptions } from '@n8n-clone/assistant';
-import type { INodeTypes } from '@n8n-clone/core';
+import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
 import type { Request, Response } from 'express';
 import type { Repository } from 'typeorm';
 import type { Logger } from 'pino';
@@ -33,6 +34,7 @@ export class AssistantController {
     private readonly draftStore: WorkflowDraftStore,
     private readonly credentials: Repository<CredentialEntity>,
     private readonly nodeTypes: INodeTypes,
+    private readonly credentialTypes: ICredentialTypes,
     private readonly encryptionKey: string,
     private readonly logger: Logger,
   ) {}
@@ -126,6 +128,14 @@ export class AssistantController {
         nodeTypes: this.nodeTypes,
         draftStore: this.draftStore,
         credentials: new CredentialRepositoryAdapter(this.credentials, this.encryptionKey),
+        executor: new ExecutionAdapter(
+          this.draftStore,
+          session.draftId,
+          this.nodeTypes,
+          this.credentialTypes,
+          this.credentials,
+          this.encryptionKey,
+        ),
       },
     };
 

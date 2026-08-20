@@ -236,6 +236,41 @@ describe('assistant store', () => {
     });
   });
 
+  describe('fixExecutionError', () => {
+    it('opens the session for the workflow and sends a message carrying the real error and input data', async () => {
+      vi.mocked(assistantApi.createSession).mockResolvedValue(baseSession());
+      vi.mocked(assistantApi.getDraft).mockResolvedValue({ id: 'wf-1', name: 'Test', active: false, nodes: [], connections: {} });
+      vi.mocked(assistantApi.getSession).mockResolvedValue(baseSession());
+      vi.mocked(assistantApi.getDiff).mockResolvedValue({ addedNodes: [], removedNodes: [], changedNodes: [], addedConnections: [], removedConnections: [] });
+      vi.mocked(assistantApi.sendMessage).mockResolvedValue(undefined);
+
+      const store = useAssistantStore();
+      await store.fixExecutionError('wf-1', 'Fetch Orders', { message: '404 Not Found', description: 'The requested resource was not found.' }, [{ json: { id: 1 } }]);
+
+      expect(assistantApi.createSession).toHaveBeenCalledWith('wf-1');
+      expect(assistantApi.sendMessage).toHaveBeenCalledTimes(1);
+      const [, message] = vi.mocked(assistantApi.sendMessage).mock.calls[0]!;
+      expect(message).toContain('The "Fetch Orders" node failed');
+      expect(message).toContain('404 Not Found');
+      expect(message).toContain('The requested resource was not found.');
+      expect(message).toContain('"id": 1');
+    });
+
+    it('reuses the existing session when one is already open for that workflow', async () => {
+      vi.mocked(assistantApi.createSession).mockResolvedValue(baseSession());
+      vi.mocked(assistantApi.getDraft).mockResolvedValue({ id: 'wf-1', name: 'Test', active: false, nodes: [], connections: {} });
+      vi.mocked(assistantApi.getSession).mockResolvedValue(baseSession());
+      vi.mocked(assistantApi.getDiff).mockResolvedValue({ addedNodes: [], removedNodes: [], changedNodes: [], addedConnections: [], removedConnections: [] });
+      vi.mocked(assistantApi.sendMessage).mockResolvedValue(undefined);
+
+      const store = useAssistantStore();
+      await store.open('wf-1');
+      await store.fixExecutionError('wf-1', 'Fetch Orders', { message: '404 Not Found' }, []);
+
+      expect(assistantApi.createSession).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe('applyDraft', () => {
     it('applies the draft and reloads the live workflow store', async () => {
       vi.mocked(assistantApi.createSession).mockResolvedValue(baseSession());

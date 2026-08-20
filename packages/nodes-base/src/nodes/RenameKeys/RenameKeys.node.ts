@@ -31,6 +31,7 @@ export const renameKeysNode: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
 

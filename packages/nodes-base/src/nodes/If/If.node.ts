@@ -16,6 +16,7 @@ export const ifNode: INodeType = {
     outputs: ['main', 'main'],
     properties: [combinatorProperty, conditionsProperty],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const trueItems: INodeExecutionData[] = [];

@@ -62,6 +62,8 @@ export interface IRunWorkflowOptions {
   startData?: INodeExecutionData[];
   /** Runs only the minimal subgraph needed to reach this node (it + its ancestors) and stops there — see Workflow.pruneToDestination. Powers the editor's per-node "run to here" button. */
   destinationNode?: string;
+  /** See WorkflowExecute's own dryRun option — nodes not classified dryRunSafety => 'safe' are mocked rather than actually run. Used by the assistant's grounding tools (execute_dry_run), never by a user-facing "Execute Workflow"/"Run to Here" click. */
+  dryRun?: boolean;
 }
 
 export interface IRunWorkflowResult {
@@ -70,30 +72,23 @@ export interface IRunWorkflowResult {
   result: IRunExecutionData;
 }
 
-/**
- * Shared by the REST "execute workflow" endpoint and the `n8n-clone execute` CLI command —
- * both need the same "resolve start node, build a credentials-aware engine, run it" logic.
- *
- * Credential resolution is deliberately simple: "the first stored credential of the
- * requested type". Proper per-node credential *assignment* (a node picking a specific
- * credential id out of several of the same type, via `node.credentials[type].id`) is an
- * editor concern — M8 is what actually lets a user make that choice.
- */
-export async function runWorkflow(
-  workflowEntity: WorkflowEntity,
+/** The "resolve start node, build a credentials-aware engine, run it" logic shared by runWorkflow (a persisted WorkflowEntity) and the assistant's grounding executor (an in-memory draft, never persisted). */
+export async function runWorkflowDefinition(
+  workflowBase: IWorkflowBase,
   deps: IRunWorkflowDeps,
   options: IRunWorkflowOptions,
 ): Promise<IRunWorkflowResult> {
   const workflowDef = options.destinationNode
-    ? new Workflow(toWorkflowBase(workflowEntity)).pruneToDestination(options.destinationNode)
-    : toWorkflowBase(workflowEntity);
+    ? new Workflow(workflowBase).pruneToDestination(options.destinationNode)
+    : workflowBase;
   const startNodeName = options.startNodeName ?? findStartNodeName(workflowDef);
   if (!startNodeName) {
-    throw new Error(`Workflow "${workflowEntity.id}" has no nodes to start from`);
+    throw new Error(`Workflow "${workflowBase.id}" has no nodes to start from`);
   }
 
   const engine = new WorkflowExecute(deps.nodeTypes, {
     mode: options.mode,
+    dryRun: options.dryRun,
     credentialTypes: deps.credentialTypes,
     credentialsResolver: async (credentialTypeName: string) => {
       const credential = await deps.credentials.findOneBy({ type: credentialTypeName });
@@ -110,4 +105,21 @@ export async function runWorkflow(
     : await engine.run(workflowDef, startNodeName);
 
   return { workflowDef, startNodeName, result };
+}
+
+/**
+ * Shared by the REST "execute workflow" endpoint and the `n8n-clone execute` CLI command —
+ * both need the same "resolve start node, build a credentials-aware engine, run it" logic.
+ *
+ * Credential resolution is deliberately simple: "the first stored credential of the
+ * requested type". Proper per-node credential *assignment* (a node picking a specific
+ * credential id out of several of the same type, via `node.credentials[type].id`) is an
+ * editor concern — M8 is what actually lets a user make that choice.
+ */
+export async function runWorkflow(
+  workflowEntity: WorkflowEntity,
+  deps: IRunWorkflowDeps,
+  options: IRunWorkflowOptions,
+): Promise<IRunWorkflowResult> {
+  return runWorkflowDefinition(toWorkflowBase(workflowEntity), deps, options);
 }

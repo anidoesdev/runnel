@@ -65,6 +65,7 @@ export const merge: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const input0 = this.getInputData(0);
     const input1 = this.getInputData(1);

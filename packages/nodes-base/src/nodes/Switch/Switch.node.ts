@@ -45,6 +45,7 @@ export const switchNode: INodeType = {
       },
     ],
   },
+  dryRunSafety: () => 'safe',
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     const items = this.getInputData();
     const outputs: INodeExecutionData[][] = [[], [], [], []];

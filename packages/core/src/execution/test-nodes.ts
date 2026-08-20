@@ -123,3 +123,20 @@ export const testNoOutputNode: INodeType = {
     return [[]];
   },
 };
+
+/** Tags every item with `ranReal: true` and declares itself dry-run safe — used to prove a dry run actually calls execute() for a node classified 'safe'. */
+export const testDryRunSafeNode: INodeType = {
+  description: description({ name: 'test.dryRunSafe' }),
+  dryRunSafety: () => 'safe',
+  async execute(this: IExecuteFunctions): Promise<NodeOutput> {
+    return [this.getInputData().map((item) => ({ json: { ...item.json, ranReal: true } }))];
+  },
+};
+
+/** Same body as testDryRunSafeNode but declares no dryRunSafety (defaults to 'mock') — used to prove a dry run never calls this execute() at all, instead recording a passthrough. */
+export const testDryRunUnsafeNode: INodeType = {
+  description: description({ name: 'test.dryRunUnsafe' }),
+  async execute(this: IExecuteFunctions): Promise<NodeOutput> {
+    return [this.getInputData().map((item) => ({ json: { ...item.json, ranReal: true } }))];
+  },
+};

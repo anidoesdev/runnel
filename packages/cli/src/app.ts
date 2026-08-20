@@ -125,6 +125,7 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
       workflowDraftStore,
       credentialRepo,
       nodeTypes,
+      credentialTypes,
       encryptionKey,
       logger,
     ),
