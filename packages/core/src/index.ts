@@ -40,6 +40,7 @@ export {
   IncompatibleConnectionError,
   UnknownCredentialTypeError,
 } from './mutation/workflow-mutation.js';
+export { layoutWorkflow } from './mutation/workflow-layout.js';
 export type {
   IAddNodeParams,
   IAddNodeResult,

@@ -34,8 +34,15 @@ export interface IExecuteFunctionsOptions {
   executeOnce?: boolean;
   /** Backing store for getContext() — IRunExecutionData.executionData.contextData, shared across all nodes in the run. */
   contextData: Record<string, unknown>;
-  /** Resolves a credential *type* name (e.g. "httpBasicAuth") to that credential's decrypted values. Real storage/decryption is wired up in M6 — tests and callers supply this directly for now. */
-  credentialsResolver?: (credentialTypeName: string) => Promise<IDataObject>;
+  /**
+   * Resolves a credential to its decrypted values. `credentialId` is the id the node actually
+   * has assigned for that type (`node.credentials[credentialTypeName].id`), threaded through by
+   * `getCredentials` below — a resolver should prefer it over "any credential of this type" once
+   * more than one of the same type can exist (see run-workflow.ts's implementation). It's
+   * undefined for a node that never called set_node_credential, in which case falling back to
+   * type-only lookup is the best a resolver can do.
+   */
+  credentialsResolver?: (credentialTypeName: string, credentialId?: string) => Promise<IDataObject>;
   /** Needed alongside credentialsResolver to look up a credential type's declarative `authenticate` block. */
   credentialTypes?: ICredentialTypes;
   /** Overridable for tests; defaults to the real fetch-based client. */
@@ -88,7 +95,7 @@ function buildSupplyDataFunctions(options: {
   workflow: IWorkflowBase;
   runData: Record<string, ITaskData[]>;
   mode: WorkflowExecuteMode;
-  credentialsResolver?: (credentialTypeName: string) => Promise<IDataObject>;
+  credentialsResolver?: (credentialTypeName: string, credentialId?: string) => Promise<IDataObject>;
   credentialTypes?: ICredentialTypes;
   httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
 }): ISupplyDataFunctions {
@@ -119,7 +126,7 @@ function buildSupplyDataFunctions(options: {
         description: 'No credentialsResolver was supplied to the execution context.',
       });
     }
-    return credentialsResolver(name);
+    return credentialsResolver(name, node.credentials?.[name]?.id);
   };
 
   return {
@@ -204,7 +211,7 @@ export function buildExecuteFunctions(options: IExecuteFunctionsOptions): IExecu
         description: 'No credentialsResolver was supplied to the execution context (wired up for real in M6).',
       });
     }
-    return credentialsResolver(name);
+    return credentialsResolver(name, node.credentials?.[name]?.id);
   };
 
   return {

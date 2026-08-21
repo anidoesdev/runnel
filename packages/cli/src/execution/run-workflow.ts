@@ -90,9 +90,17 @@ export async function runWorkflowDefinition(
     mode: options.mode,
     dryRun: options.dryRun,
     credentialTypes: deps.credentialTypes,
-    credentialsResolver: async (credentialTypeName: string) => {
-      const credential = await deps.credentials.findOneBy({ type: credentialTypeName });
-      if (!credential) throw new Error(`No stored credential of type "${credentialTypeName}"`);
+    credentialsResolver: async (credentialTypeName: string, credentialId?: string) => {
+      const credential = credentialId
+        ? await deps.credentials.findOneBy({ id: credentialId })
+        : await deps.credentials.findOneBy({ type: credentialTypeName });
+      if (!credential) {
+        throw new Error(
+          credentialId
+            ? `No stored credential with id "${credentialId}"`
+            : `No stored credential of type "${credentialTypeName}"`,
+        );
+      }
       return decryptCredentialData(
         JSON.parse(credential.data) as Parameters<typeof decryptCredentialData>[0],
         deps.encryptionKey,
@@ -111,10 +119,13 @@ export async function runWorkflowDefinition(
  * Shared by the REST "execute workflow" endpoint and the `n8n-clone execute` CLI command —
  * both need the same "resolve start node, build a credentials-aware engine, run it" logic.
  *
- * Credential resolution is deliberately simple: "the first stored credential of the
- * requested type". Proper per-node credential *assignment* (a node picking a specific
- * credential id out of several of the same type, via `node.credentials[type].id`) is an
- * editor concern — M8 is what actually lets a user make that choice.
+ * Credential resolution prefers the specific id a node has assigned for that type
+ * (`node.credentials[type].id`, threaded through by execute-context's getCredentials) and only
+ * falls back to "the first stored credential of the requested type" for a node that never
+ * called set_node_credential. Without the id-based lookup, two credentials of the same type
+ * (e.g. a broken placeholder and the real one entered afterward) are ambiguous — whichever
+ * TypeORM happens to return first wins, which is exactly the failure mode that produced
+ * "Failed to parse URL from undefined/chat/completions" even after the real credential existed.
  */
 export async function runWorkflow(
   workflowEntity: WorkflowEntity,

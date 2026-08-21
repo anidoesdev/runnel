@@ -21,7 +21,7 @@ export interface IWorkflowExecuteOptions {
   mode: WorkflowExecuteMode;
   /** Injectable delay for retryOnFail's waitBetweenTries — tests pass a no-op to stay fast. */
   sleep?: (ms: number) => Promise<void>;
-  credentialsResolver?: (credentialTypeName: string) => Promise<IDataObject>;
+  credentialsResolver?: (credentialTypeName: string, credentialId?: string) => Promise<IDataObject>;
   credentialTypes?: ICredentialTypes;
   httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
   /**

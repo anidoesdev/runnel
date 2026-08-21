@@ -47,6 +47,13 @@ export function humanizeToolCall(name: string, args: unknown, result: unknown, r
   }
 }
 
+/** The credential id to link to "Configure this credential" for, when this tool row is a successful `request_credential` call — the one tool result that needs a follow-up action, not just a description. */
+export function credentialSetupId(name: string, result: unknown): string | undefined {
+  if (name !== 'request_credential') return undefined;
+  const r = (result ?? {}) as Record<string, unknown>;
+  return typeof r.credentialId === 'string' ? r.credentialId : undefined;
+}
+
 export interface IFieldDiff {
   key: string;
   before: unknown;

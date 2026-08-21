@@ -145,6 +145,54 @@ describe('Assistant REST/SSE API — end to end', () => {
     expect((finalWorkflow.body as { nodes: unknown[] }).nodes).toHaveLength(1);
   });
 
+  it('self-heals a session whose draft no longer exists instead of failing with "No open draft"', async () => {
+    fakeOpenAi = await startFakeOpenAiServer();
+
+    const agent = request.agent(app);
+    await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });
+
+    // Credential resolution picks "the first stored openAiApi credential" — remove whatever an
+    // earlier test in this file left behind (pointing at that test's now-closed fake server)
+    // before adding one that points at this test's own.
+    const existingCredentials = await agent.get('/rest/credentials');
+    for (const credential of existingCredentials.body as Array<{ id: string; type: string }>) {
+      if (credential.type === 'openAiApi') await agent.delete(`/rest/credentials/${credential.id}`);
+    }
+    await agent.post('/rest/credentials').send({ name: 'Test OpenAI', type: 'openAiApi', data: { apiKey: 'sk-test', baseUrl: fakeOpenAi.url } });
+
+    const workflowRes = await agent.post('/rest/workflows').send({ name: 'Stale Draft Workflow', nodes: [], connections: {} });
+    const workflowId = (workflowRes.body as { id: string }).id;
+
+    const sessionRes = await agent.post('/rest/assistant/sessions').send({ workflowId });
+    const session = sessionRes.body as { id: string; draftId: string };
+
+    await agent.post(`/rest/assistant/sessions/${session.id}/messages`).send({ message: 'Add a NoOp node.' });
+    // Applying deletes the draft (WorkflowDraftStore.apply) — session.draftId now points at
+    // nothing, exactly what a server restart mid-conversation also produces (an in-memory
+    // draft that no longer exists under an id a persisted session still remembers).
+    await agent.post(`/rest/assistant/sessions/${session.id}/apply`);
+
+    const secondMessageRes = await agent
+      .post(`/rest/assistant/sessions/${session.id}/messages`)
+      .send({ message: 'Add another one.' });
+
+    expect(secondMessageRes.status).toBe(200);
+    expect(secondMessageRes.headers['content-type']).toContain('text/event-stream');
+    const events = parseSseEvents(secondMessageRes.text as string);
+    expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
+    // No error event — the stale draftId was silently recovered, not surfaced as a failure.
+    expect(events.some((e) => e.type === 'error')).toBe(false);
+
+    const getSessionRes = await agent.get(`/rest/assistant/sessions/${session.id}`);
+    const persisted = getSessionRes.body as { draftId: string; messages: Array<{ role: string; content: string }> };
+    expect(persisted.draftId).not.toBe(session.draftId); // a fresh draft was opened
+    expect(persisted.messages.some((m) => m.role === 'assistant' && m.content.includes('server restarted'))).toBe(true);
+
+    // The fresh draft is a real, usable one — its own diff/apply routes still work.
+    const diffRes = await agent.get(`/rest/assistant/sessions/${session.id}/diff`);
+    expect(diffRes.status).toBe(200);
+  });
+
   it('returns a normal JSON error, not a broken stream, when no openAiApi credential exists', async () => {
     const agent = request.agent(app);
     await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });

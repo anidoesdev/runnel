@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { N8nButton, N8nInput } from '@n8n-clone/design-system';
 import { useAssistantStore } from '../../stores/assistant.store.js';
-import { diffFields, humanizeToolCall } from '../../utils/assistantDisplay.js';
+import { credentialSetupId, diffFields, humanizeToolCall } from '../../utils/assistantDisplay.js';
 
 const assistantStore = useAssistantStore();
 
@@ -86,6 +86,13 @@ async function onApply(): Promise<void> {
         <div v-else class="assistant-panel__tool-row" :class="{ 'assistant-panel__tool-row--error': item.error }">
           {{ humanizeToolCall(item.name, item.args, item.result, false) }}
           <span v-if="item.error" class="assistant-panel__tool-row-detail">{{ item.error.message }}</span>
+          <router-link
+            v-if="credentialSetupId(item.name, item.result)"
+            class="assistant-panel__tool-row-detail"
+            :to="{ name: 'credential-setup', params: { id: credentialSetupId(item.name, item.result) } }"
+          >
+            Finish setting up this credential →
+          </router-link>
         </div>
       </template>
 
@@ -98,6 +105,13 @@ async function onApply(): Promise<void> {
       >
         {{ humanizeToolCall(activity.name, activity.args, activity.result, activity.status === 'running') }}
         <span v-if="activity.error" class="assistant-panel__tool-row-detail">{{ activity.error.message }}</span>
+        <router-link
+          v-if="credentialSetupId(activity.name, activity.result)"
+          class="assistant-panel__tool-row-detail"
+          :to="{ name: 'credential-setup', params: { id: credentialSetupId(activity.name, activity.result) } }"
+        >
+          Finish setting up this credential →
+        </router-link>
       </div>
 
       <div v-if="assistantStore.sending && !assistantStore.liveText" class="assistant-panel__bubble assistant-panel__bubble--assistant assistant-panel__bubble--pending">

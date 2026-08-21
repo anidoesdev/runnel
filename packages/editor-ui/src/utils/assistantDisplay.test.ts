@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { diffFields, humanizeToolCall } from './assistantDisplay.js';
+import { credentialSetupId, diffFields, humanizeToolCall } from './assistantDisplay.js';
 
 describe('humanizeToolCall', () => {
   it('humanizes add_node differently while running vs once it has a result', () => {
@@ -29,6 +29,20 @@ describe('humanizeToolCall', () => {
   it('never throws on missing/malformed args or result', () => {
     expect(() => humanizeToolCall('add_node', undefined, undefined, false)).not.toThrow();
     expect(() => humanizeToolCall('connect_nodes', null, null, false)).not.toThrow();
+  });
+});
+
+describe('credentialSetupId', () => {
+  it('extracts the credential id from a successful request_credential result', () => {
+    expect(credentialSetupId('request_credential', { setupUrl: '/credentials/c1', credentialId: 'c1' })).toBe('c1');
+  });
+
+  it('is undefined for any other tool, even with a credentialId-shaped result', () => {
+    expect(credentialSetupId('set_node_credential', { credentialId: 'c1' })).toBeUndefined();
+  });
+
+  it('is undefined while the call is still running (no result yet)', () => {
+    expect(credentialSetupId('request_credential', undefined)).toBeUndefined();
   });
 });
 

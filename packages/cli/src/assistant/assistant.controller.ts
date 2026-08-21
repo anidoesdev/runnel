@@ -63,6 +63,7 @@ export class AssistantController {
   @Get('/sessions/:id/diff')
   async getDiff(req: Request) {
     const session = await this.findSessionOrThrow(String(req.params.id));
+    await this.ensureDraft(session);
     return this.draftStore.diff(session.draftId);
   }
 
@@ -70,6 +71,7 @@ export class AssistantController {
   @Get('/sessions/:id/draft')
   async getDraft(req: Request) {
     const session = await this.findSessionOrThrow(String(req.params.id));
+    await this.ensureDraft(session);
     return this.draftStore.get(session.draftId).current;
   }
 
@@ -77,6 +79,7 @@ export class AssistantController {
   @Post('/sessions/:id/apply')
   async applyDraft(req: Request) {
     const session = await this.findSessionOrThrow(String(req.params.id));
+    await this.ensureDraft(session);
     return this.draftStore.apply(session.draftId);
   }
 
@@ -108,6 +111,27 @@ export class AssistantController {
   }
 
   /**
+   * WorkflowDraftStore is in-memory only (see its own doc comment) — a session created before
+   * the last server restart still remembers a `draftId` that no longer exists in this fresh
+   * process. Rather than every draft-touching route failing with a raw "No open draft" error,
+   * self-heal: open a new draft against the currently saved workflow, point the session at it,
+   * and leave a note in the transcript so the conversation continues instead of dead-ending —
+   * anything that was only in the old (unapplied) draft is unrecoverable either way, so a fresh
+   * start from the live workflow is the best available outcome, not a partial one.
+   */
+  private async ensureDraft(session: IAssistantSession): Promise<void> {
+    if (this.draftStore.has(session.draftId)) return;
+    const draft = await this.draftStore.open(session.workflowId);
+    session.draftId = draft.id;
+    session.messages.push({
+      role: 'assistant',
+      content:
+        "Note: the server restarted since this conversation began, so the in-progress draft was lost. I've started a fresh one from the currently saved workflow — anything not yet applied needs to be redone.",
+    });
+    await this.sessions.save(session);
+  }
+
+  /**
    * Shared by every route that runs (or resumes) a turn. Resolving the model provider happens
    * *before* the SSE headers go out, so a missing OpenAI credential surfaces as a normal JSON
    * error response — not a stream that opens and immediately breaks. `res` closing (the client
@@ -119,6 +143,7 @@ export class AssistantController {
     session: IAssistantSession,
     run: (deps: IRunTurnDeps, options: IRunTurnOptions) => Promise<IAssistantSession>,
   ): Promise<void> {
+    await this.ensureDraft(session);
     const modelProvider = await createModelProviderForSession(this.credentials, this.encryptionKey);
     const deps: IRunTurnDeps = {
       modelProvider,
@@ -127,7 +152,7 @@ export class AssistantController {
         draftId: session.draftId,
         nodeTypes: this.nodeTypes,
         draftStore: this.draftStore,
-        credentials: new CredentialRepositoryAdapter(this.credentials, this.encryptionKey),
+        credentials: new CredentialRepositoryAdapter(this.credentials, this.encryptionKey, this.credentialTypes),
         executor: new ExecutionAdapter(
           this.draftStore,
           session.draftId,

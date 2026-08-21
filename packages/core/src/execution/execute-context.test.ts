@@ -127,6 +127,38 @@ describe('buildExecuteFunctions — misc surface', () => {
     await expect(ctx.getCredentials('httpBasicAuth')).resolves.toEqual({ resolvedFor: 'httpBasicAuth' });
   });
 
+  it("getCredentials passes the node's specifically-assigned credential id through, not just the type name — resolving 'any credential of this type' is ambiguous once more than one exists", async () => {
+    const node = makeNode({ name: 'N', credentials: { httpBasicAuth: { id: 'cred-42', name: 'My Cred' } } });
+    const seen: Array<{ name: string; id: string | undefined }> = [];
+    const ctx = buildExecuteFunctions(
+      baseOptions({
+        node,
+        credentialsResolver: async (name, id) => {
+          seen.push({ name, id });
+          return {};
+        },
+      }),
+    );
+    await ctx.getCredentials('httpBasicAuth');
+    expect(seen).toEqual([{ name: 'httpBasicAuth', id: 'cred-42' }]);
+  });
+
+  it('getCredentials passes undefined for a credential type the node has not assigned', async () => {
+    const node = makeNode({ name: 'N' });
+    const seen: Array<string | undefined> = [];
+    const ctx = buildExecuteFunctions(
+      baseOptions({
+        node,
+        credentialsResolver: async (_name, id) => {
+          seen.push(id);
+          return {};
+        },
+      }),
+    );
+    await ctx.getCredentials('httpBasicAuth');
+    expect(seen).toEqual([undefined]);
+  });
+
   it('helpers.httpRequest delegates to the injected httpClient', async () => {
     const calls: unknown[] = [];
     const ctx = buildExecuteFunctions(

@@ -333,10 +333,19 @@ export class ActiveWorkflowManager {
     await this.workflows.save(workflow);
   }
 
-  private buildCredentialsResolver(): (credentialTypeName: string) => Promise<IDataObject> {
-    return async (credentialTypeName: string) => {
-      const credential = await this.credentials.findOneBy({ type: credentialTypeName });
-      if (!credential) throw new Error(`No stored credential of type "${credentialTypeName}"`);
+  /** Prefers the id a node actually has assigned for this credential type over "any stored credential of this type" — see run-workflow.ts's runWorkflow for why type-only lookup is ambiguous once more than one credential of the same type exists. */
+  private buildCredentialsResolver(): (credentialTypeName: string, credentialId?: string) => Promise<IDataObject> {
+    return async (credentialTypeName: string, credentialId?: string) => {
+      const credential = credentialId
+        ? await this.credentials.findOneBy({ id: credentialId })
+        : await this.credentials.findOneBy({ type: credentialTypeName });
+      if (!credential) {
+        throw new Error(
+          credentialId
+            ? `No stored credential with id "${credentialId}"`
+            : `No stored credential of type "${credentialTypeName}"`,
+        );
+      }
       return decryptCredentialData(
         JSON.parse(credential.data) as Parameters<typeof decryptCredentialData>[0],
         this.encryptionKey,

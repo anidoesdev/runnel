@@ -27,6 +27,9 @@ const assistantStore = useAssistantStore();
  */
 const previewNodes = computed(() => (assistantStore.panelOpen ? assistantStore.draft?.nodes : undefined));
 const previewConnections = computed(() => (assistantStore.panelOpen ? assistantStore.draft?.connections : undefined));
+/** What's actually on screen right now — the assistant's in-progress draft while it's building, the live workflow otherwise. Chat-readiness must track this, not the live store alone, or an Agent + Chat trigger the assistant just wired up won't open the dock until the draft is applied. */
+const effectiveNodes = computed(() => previewNodes.value ?? workflowStore.nodes);
+const effectiveConnections = computed(() => previewConnections.value ?? workflowStore.connections);
 
 async function onToggleAssistant(): Promise<void> {
   if (assistantStore.panelOpen) {
@@ -41,12 +44,12 @@ const selectedNodeId = ref<string | null>(null);
 const activateError = ref<string | null>(null);
 
 /** Every AI Agent node that already has a Chat trigger wired into its main input — each is a valid target for the bottom chat dock. */
-const chatReadyAgents = computed(() => findChatReadyAgents(workflowStore.nodes, workflowStore.connections));
+const chatReadyAgents = computed(() => findChatReadyAgents(effectiveNodes.value, effectiveConnections.value));
 /** Explicitly pinned dock target, set whenever some agent newly becomes chat-ready (see watch below) — "most recently wired" wins over whatever was open before. */
 const chatDockAgentId = ref<string | null>(null);
 const chatAgentNode = computed(() => chatReadyAgents.value.find((node) => node.id === chatDockAgentId.value));
 const chatTriggerNode = computed(() =>
-  chatAgentNode.value ? findChatTriggerNode(chatAgentNode.value, workflowStore.nodes, workflowStore.connections) : undefined,
+  chatAgentNode.value ? findChatTriggerNode(chatAgentNode.value, effectiveNodes.value, effectiveConnections.value) : undefined,
 );
 const chatPanelOpen = ref(false);
 const chatDockVisible = computed(() => chatPanelOpen.value && !!chatAgentNode.value && !!chatTriggerNode.value);

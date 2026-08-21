@@ -25,16 +25,15 @@ function currentWorkflow(ctx: IToolContext) {
 }
 
 const addNodeTool: ITool<
-  { type: string; typeVersion?: number; name?: string; position?: [number, number]; parameters?: IDataObject },
+  { type: string; typeVersion?: number; name?: string; parameters?: IDataObject },
   { name: string }
 > = {
   name: 'add_node',
-  description: 'Add a node of the given type to the workflow draft. Returns the ACTUAL name used after de-duplication — use that, not the requested name, in subsequent connect_nodes calls.',
+  description: 'Add a node of the given type to the workflow draft. Returns the ACTUAL name used after de-duplication — use that, not the requested name, in subsequent connect_nodes calls. Canvas position is placed automatically from the connection graph once you connect_nodes — there is no position to set here.',
   parameters: z.object({
     type: z.string().describe('The node type name, e.g. "httpRequest" — get this from search_nodes, never guess it.'),
     typeVersion: z.number().optional(),
     name: z.string().optional().describe('Requested display name; may be de-duplicated if already taken.'),
-    position: z.tuple([z.number(), z.number()]).optional(),
     parameters: dataObjectSchema.optional(),
   }),
   handler: (params, ctx) => {

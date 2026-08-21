@@ -51,6 +51,18 @@ describe('WorkflowDraftStore', () => {
     expect(() => store.get('nope')).toThrow(/No open draft/);
   });
 
+  it('has() reports existence without throwing, for a caller that wants to recover from a stale draftId', async () => {
+    const repo = fakeRepository({ 'wf-1': workflow() });
+    const store = new WorkflowDraftStore(repo);
+    const draft = await store.open('wf-1');
+
+    expect(store.has(draft.id)).toBe(true);
+    expect(store.has('nope')).toBe(false);
+
+    store.discard(draft.id);
+    expect(store.has(draft.id)).toBe(false);
+  });
+
   it('apply() persists current to the repository and forgets the draft', async () => {
     const repo = fakeRepository({ 'wf-1': workflow() });
     const store = new WorkflowDraftStore(repo);

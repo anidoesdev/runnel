@@ -16,7 +16,7 @@ export interface IPollOrTriggerFunctionsOptions {
   node: INode;
   workflow: IWorkflowBase;
   mode: WorkflowExecuteMode;
-  credentialsResolver?: (credentialTypeName: string) => Promise<IDataObject>;
+  credentialsResolver?: (credentialTypeName: string, credentialId?: string) => Promise<IDataObject>;
   credentialTypes?: ICredentialTypes;
   httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
 }

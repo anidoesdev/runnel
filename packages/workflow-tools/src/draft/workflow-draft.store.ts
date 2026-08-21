@@ -83,6 +83,11 @@ export class WorkflowDraftStore {
     return draft;
   }
 
+  /** Non-throwing existence check — lets a caller recover (re-open a fresh draft) instead of failing when a session outlives the in-memory store, e.g. a server restart mid-conversation. */
+  has(draftId: string): boolean {
+    return this.drafts.has(draftId);
+  }
+
   /** Applies a pure `(workflow) => workflow` mutation to the draft's working copy. */
   mutate(draftId: string, mutation: (workflow: IWorkflowBase) => IWorkflowBase): IWorkflowDraft {
     const draft = this.get(draftId);

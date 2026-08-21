@@ -1,6 +1,7 @@
 import { Workflow, WorkflowOperationError } from '@n8n-clone/workflow';
 import type { IConnection, IDataObject, INode, INodeTypeDescription, IWorkflowBase, NodeConnectionType } from '@n8n-clone/workflow';
 import type { INodeTypes } from '../execution/node-types.js';
+import { layoutWorkflow } from './workflow-layout.js';
 
 /**
  * Server-side counterparts of the graph edits the editor's Pinia store (workflow.store.ts)
@@ -145,7 +146,7 @@ export function connectNodes(workflow: IWorkflowBase, nodeTypes: INodeTypes, par
     branch.push({ node: params.to, type, index: inputIndex });
   }
 
-  return cloned;
+  return layoutWorkflow(cloned);
 }
 
 export interface IDisconnectNodesParams {
@@ -171,7 +172,7 @@ export function disconnectNodes(workflow: IWorkflowBase, params: IDisconnectNode
     (c) => !(c.node === params.to && c.index === inputIndex),
   );
 
-  return cloned;
+  return layoutWorkflow(cloned);
 }
 
 function isPlainObject(value: unknown): value is IDataObject {
@@ -221,7 +222,7 @@ export function removeNode(workflow: IWorkflowBase, params: { name: string }): I
     cloned.pinData = { ...cloned.pinData };
     delete cloned.pinData[params.name];
   }
-  return cloned;
+  return layoutWorkflow(cloned);
 }
 
 export interface ISetNodeCredentialParams {

@@ -10,6 +10,7 @@ const router = createRouter({
     { path: '/', name: 'workflows', component: () => import('../views/WorkflowListView.vue') },
     { path: '/workflow/new', name: 'workflow-new', component: () => import('../views/WorkflowEditorView.vue') },
     { path: '/workflow/:id', name: 'workflow-edit', component: () => import('../views/WorkflowEditorView.vue'), props: true },
+    { path: '/credentials/:id', name: 'credential-setup', component: () => import('../views/CredentialSetupView.vue'), props: true },
   ],
 });
 
