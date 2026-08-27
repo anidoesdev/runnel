@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { N8nButton, N8nInput, N8nModal } from '@n8n-clone/design-system';
+import { N8nButton, N8nModal } from '@n8n-clone/design-system';
 import PropertyField from './PropertyField.vue';
 import CredentialPicker from './CredentialPicker.vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
@@ -87,15 +87,27 @@ async function runToHere(): Promise<void> {
 </script>
 
 <template>
-  <N8nModal :model-value="node !== null" :title="description?.displayName ?? node?.type ?? ''" @update:model-value="close">
+  <N8nModal :model-value="node !== null" @update:model-value="close">
+    <template #header>
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center font-semibold uppercase shrink-0">
+          {{ (description?.displayName ?? node?.type ?? '').slice(0, 1) }}
+        </div>
+        <div class="min-w-0">
+          <input
+            class="node-detail-panel__name"
+            type="text"
+            :value="node?.name"
+            @change="onNameChange(($event.target as HTMLInputElement).value)"
+          />
+          <p class="node-detail-panel__type">{{ description?.displayName ?? node?.type }}</p>
+        </div>
+      </div>
+    </template>
+
     <div v-if="node" class="ndv">
       <section class="ndv__panel">
         <h3>Input</h3>
-
-        <label class="property-field">
-          Name
-          <N8nInput :model-value="node.name" @update:model-value="onNameChange" />
-        </label>
 
         <CredentialPicker
           v-for="credential in description?.credentials ?? []"
@@ -112,7 +124,7 @@ async function runToHere(): Promise<void> {
           @update:model-value="(v) => updateValue(property.name, v)"
         />
 
-        <p v-if="visibleProperties.length === 0 && !description?.credentials?.length" style="color: #888">
+        <p v-if="visibleProperties.length === 0 && !description?.credentials?.length" style="color: var(--color-on-surface-variant)">
           This node has no configurable parameters.
         </p>
       </section>

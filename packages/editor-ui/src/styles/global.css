@@ -1,8 +1,112 @@
+@import "tailwindcss";
+
+@theme {
+  /* Runnel palette */
+  --color-secondary-fixed: #b8eed4;
+  --color-on-secondary-container: #396c57;
+  --color-surface-container-low: #f4f4f1;
+  --color-on-tertiary: #ffffff;
+  --color-border-muted: #cbdac1;
+  --color-primary: #38645a;
+  --color-on-secondary-fixed-variant: #1b503c;
+  --color-on-tertiary-fixed-variant: #2f4d39;
+  --color-on-background: #1a1c1b;
+  --color-tertiary-container: #5c7c65;
+  --color-surface-container-high: #e8e8e6;
+  --color-on-primary: #ffffff;
+  --color-surface-elevated: #f4f9f0;
+  --color-primary-fixed-dim: #a1d0c4;
+  --color-on-primary-fixed-variant: #214e45;
+  --color-inverse-primary: #a1d0c4;
+  --color-inverse-on-surface: #f1f1ef;
+  --color-tertiary: #44634e;
+  --color-surface-bright: #f9f9f7;
+  --color-on-surface-variant: #404846;
+  --color-surface-dim: #dadad8;
+  --color-surface-base: #e6f2dd;
+  --color-inverse-surface: #2f3130;
+  --color-code-accent: #4a6e65;
+  --color-on-tertiary-fixed: #032110;
+  --color-on-secondary-fixed: #002115;
+  --color-surface-container: #eeeeec;
+  --color-on-error: #ffffff;
+  --color-outline-variant: #c0c8c5;
+  --color-outline: #717976;
+  --color-secondary-container: #b5ecd1;
+  --color-tertiary-fixed-dim: #adcfb5;
+  --color-primary-fixed: #bdecdf;
+  --color-surface-container-highest: #e2e3e0;
+  --color-on-tertiary-container: #f6fff5;
+  --color-surface-container-lowest: #ffffff;
+  --color-background: #f9f9f7;
+  --color-on-primary-fixed: #00201b;
+  --color-surface: #f9f9f7;
+  --color-surface-variant: #e2e3e0;
+  --color-secondary-fixed-dim: #9cd2b8;
+  --color-on-error-container: #93000a;
+  --color-on-secondary: #ffffff;
+  --color-secondary: #356853;
+  --color-primary-container: #507d72;
+  --color-on-surface: #1a1c1b;
+  --color-tertiary-fixed: #c8ebd0;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-surface-tint: #3a665c;
+  --color-on-primary-container: #f4fffa;
+
+  /* Aliases so the app's existing hand-rolled CSS and @n8n-clone/design-system components
+     (which read `--color-primary`/`--color-border`/`--color-bg`/`--color-text`) pick up the
+     Runnel palette without needing every consumer rewritten individually. */
+  --color-border: var(--color-outline-variant);
+  --color-bg: var(--color-background);
+  --color-text: var(--color-on-surface);
+
+  /* Layout spacing used by the marketing pages */
+  --spacing-base: 8px;
+  --spacing-container-max: 1440px;
+  --spacing-gutter: 24px;
+  --spacing-node-gap: 32px;
+  --spacing-margin-page: 40px;
+
+  /* Type */
+  --font-label-md: 'JetBrains Mono', monospace;
+  --font-label-sm: 'JetBrains Mono', monospace;
+  --font-headline-md: 'Hanken Grotesk', sans-serif;
+  --font-headline-lg-mobile: 'Hanken Grotesk', sans-serif;
+  --font-headline-lg: 'Hanken Grotesk', sans-serif;
+  --font-body-sm: 'Inter', sans-serif;
+  --font-body-md: 'Inter', sans-serif;
+  --font-body-lg: 'Inter', sans-serif;
+
+  --text-label-md: 14px;
+  --text-label-md--line-height: 20px;
+  --text-label-md--font-weight: 500;
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 16px;
+  --text-label-sm--font-weight: 500;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--letter-spacing: -0.01em;
+  --text-headline-md--font-weight: 600;
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 36px;
+  --text-headline-lg-mobile--font-weight: 600;
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 20px;
+  --text-body-sm--font-weight: 400;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 24px;
+  --text-body-md--font-weight: 400;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--letter-spacing: -0.02em;
+  --text-headline-lg--font-weight: 600;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 28px;
+  --text-body-lg--font-weight: 400;
+}
+
 :root {
-  --color-primary: #ff6d5a;
-  --color-border: #d9d9d9;
-  --color-bg: #f7f7f8;
-  --color-text: #1f1f1f;
   color-scheme: light;
 }
 
@@ -18,13 +122,29 @@ body,
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   color: var(--color-text);
   background: var(--color-bg);
 }
 
 a {
   color: var(--color-primary);
+}
+
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
 }
 
 /* Auth screens (setup/login) */
@@ -40,7 +160,7 @@ a {
   flex-direction: column;
   gap: 12px;
   width: 320px;
-  background: white;
+  background: var(--color-surface-container-lowest);
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
@@ -54,7 +174,7 @@ a {
 }
 
 .auth-error {
-  color: #c0392b;
+  color: var(--color-error);
   font-size: 13px;
   margin: 0;
 }
@@ -84,6 +204,24 @@ a {
   gap: 8px;
 }
 
+.workflow-list__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+
+.workflow-list__brand-mark {
+  color: var(--color-primary);
+  font-size: 16px;
+  line-height: 1;
+}
+
 .workflow-list__items {
   list-style: none;
   padding: 0;
@@ -97,7 +235,7 @@ a {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: white;
+  background: var(--color-surface-container-lowest);
   border-radius: 6px;
   padding: 12px 16px;
   border: 1px solid var(--color-border);
@@ -117,13 +255,13 @@ a {
 }
 
 .badge--active {
-  background: #d9f4e3;
-  color: #1c7a3e;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
 }
 
 .badge--inactive {
-  background: #eee;
-  color: #666;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
 }
 
 /* Workflow editor */
@@ -135,22 +273,85 @@ a {
 
 .workflow-editor__bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: 16px;
+  row-gap: 8px;
+  padding: 10px 16px;
   border-bottom: 1px solid var(--color-border);
-  background: white;
+  background: var(--color-surface-container-lowest);
 }
 
-.workflow-editor__bar input {
-  max-width: 260px;
+.workflow-editor__title {
+  flex: 1 1 auto;
+  min-width: 120px;
+  max-width: 420px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-on-surface);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 8px;
+  margin: -5px -8px;
+}
+
+.workflow-editor__title:hover {
+  background: var(--color-surface-container-high);
+}
+
+.workflow-editor__title:focus {
+  outline: none;
+  background: var(--color-surface-container-lowest);
+  border-color: var(--color-primary-container);
 }
 
 .workflow-editor__save-status {
-  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 12px;
-  color: #888;
+  color: var(--color-on-surface-variant);
   white-space: nowrap;
+}
+
+.workflow-editor__bar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.workflow-editor__save-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-outline-variant);
+  flex-shrink: 0;
+}
+
+.workflow-editor__save-dot--saving {
+  background: var(--color-outline);
+  animation: workflow-editor-save-pulse 1s ease-in-out infinite;
+}
+
+.workflow-editor__save-dot--dirty {
+  background: #e0a83c;
+}
+
+.workflow-editor__save-dot--saved {
+  background: var(--color-secondary);
+}
+
+@keyframes workflow-editor-save-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
 }
 
 .workflow-editor__body {
@@ -160,7 +361,7 @@ a {
   min-height: 0;
 }
 
-.workflow-editor__body--chat-open {
+.workflow-editor__body--collapsed {
   grid-template-columns: 220px 1fr;
 }
 
@@ -174,7 +375,7 @@ a {
   height: 340px;
   display: flex;
   border-top: 1px solid var(--color-border);
-  background: white;
+  background: var(--color-surface-container-lowest);
 }
 
 .workflow-editor__chat-dock .execution-panel {
@@ -209,7 +410,7 @@ a {
   cursor: pointer;
   font-size: 16px;
   line-height: 1;
-  color: #888;
+  color: var(--color-on-surface-variant);
   padding: 0 4px;
 }
 
@@ -223,7 +424,7 @@ a {
 }
 
 .chat-panel__empty {
-  color: #888;
+  color: var(--color-on-surface-variant);
   font-size: 13px;
 }
 
@@ -239,7 +440,7 @@ a {
 .chat-panel__message--user {
   align-self: flex-end;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
 }
 
 .chat-panel__message--assistant {
@@ -249,12 +450,12 @@ a {
 
 .chat-panel__message--error {
   align-self: flex-start;
-  background: #fbdcd8;
-  color: #c0392b;
+  background: var(--color-error-container);
+  color: var(--color-error);
 }
 
 .chat-panel__message--pending {
-  color: #888;
+  color: var(--color-on-surface-variant);
 }
 
 .chat-panel__input {
@@ -267,30 +468,29 @@ a {
 /* Node palette */
 .node-palette {
   border-right: 1px solid var(--color-border);
-  background: white;
-  overflow-y: auto;
-  padding: 12px;
+  background: var(--color-surface-container-low);
+  min-height: 0;
+  padding: 12px 8px;
 }
 
 .node-palette__group h3 {
   font-size: 11px;
   text-transform: uppercase;
-  color: #888;
-  margin: 12px 0 4px;
+  color: var(--color-on-surface-variant);
+  margin: 12px 8px 4px;
 }
 
 .node-palette__item {
   padding: 8px 10px;
-  border-radius: 4px;
-  border: 1px solid var(--color-border);
-  margin-bottom: 6px;
+  border-radius: 6px;
+  margin-bottom: 2px;
   cursor: grab;
   font-size: 13px;
-  background: var(--color-bg);
+  color: var(--color-on-surface);
 }
 
 .node-palette__item:hover {
-  border-color: var(--color-primary);
+  background: var(--color-surface-container-high);
 }
 
 /* Canvas node */
@@ -310,8 +510,8 @@ a {
   padding: 0;
   border: 1px solid var(--color-border);
   border-radius: 50%;
-  background: white;
-  color: #c0392b;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-error);
   font-size: 13px;
   line-height: 1;
   cursor: pointer;
@@ -319,8 +519,8 @@ a {
 }
 
 .canvas-node__delete:hover {
-  background: #fbdcd8;
-  border-color: #c0392b;
+  background: var(--color-error-container);
+  border-color: var(--color-error);
 }
 
 .canvas-node__handle--ai_languageModel,
@@ -339,12 +539,20 @@ a {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: white;
-  border: 2px solid var(--color-border);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
   border-radius: 8px;
   padding: 10px 14px;
   min-width: 140px;
+  max-width: 220px;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.canvas-node--selected .canvas-node__body {
+  border: 2px solid var(--color-primary-container);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary-container) 20%, transparent);
 }
 
 .canvas-node__icon {
@@ -353,17 +561,21 @@ a {
   justify-content: center;
   width: 22px;
   height: 22px;
-  border-radius: 50%;
-  background: var(--color-primary);
-  color: white;
+  border-radius: 6px;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
 }
 
 .canvas-node__name {
+  flex: 1;
   font-size: 13px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 /* Property form (NDV + credential modal) */
@@ -376,15 +588,15 @@ a {
 }
 
 .property-field__required {
-  color: #c0392b;
+  color: var(--color-error);
 }
 
-/* NDV two-panel layout (input parameters | output data) */
+/* NDV — the selected node's Input/Output editor, shown in a centered modal (see N8nModal). */
 .ndv {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  width: min(920px, 85vw);
+  width: min(880px, 80vw);
   max-height: 70vh;
 }
 
@@ -397,11 +609,11 @@ a {
 .ndv__panel h3 {
   font-size: 12px;
   text-transform: uppercase;
-  color: #888;
+  color: var(--color-on-surface-variant);
   margin: 0 0 12px;
   position: sticky;
   top: 0;
-  background: white;
+  background: var(--color-surface-container-lowest);
 }
 
 .ndv__output-header {
@@ -411,7 +623,7 @@ a {
   gap: 12px;
   position: sticky;
   top: 0;
-  background: white;
+  background: var(--color-surface-container-lowest);
   margin-bottom: 12px;
 }
 
@@ -430,22 +642,22 @@ a {
 }
 
 .ndv__output-status--success {
-  background: #d9f4e3;
-  color: #1c7a3e;
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
 }
 
 .ndv__output-status--error {
-  background: #fbdcd8;
-  color: #c0392b;
+  background: var(--color-error-container);
+  color: var(--color-error);
 }
 
 .ndv__output-status--skipped {
-  background: #eee;
-  color: #666;
+  background: var(--color-surface-container);
+  color: var(--color-on-surface-variant);
 }
 
 .ndv__output-empty {
-  color: #888;
+  color: var(--color-on-surface-variant);
   font-size: 13px;
 }
 
@@ -469,7 +681,7 @@ a {
 .ndv__view-tab {
   padding: 4px 10px;
   border: 1px solid var(--color-border);
-  background: white;
+  background: var(--color-surface-container-lowest);
   border-radius: 4px;
   font-size: 12px;
   cursor: pointer;
@@ -477,7 +689,7 @@ a {
 
 .ndv__view-tab--active {
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
   border-color: var(--color-primary);
 }
 
@@ -509,7 +721,7 @@ a {
   justify-content: space-between;
   gap: 12px;
   padding: 6px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-surface-container-highest);
   font-size: 12px;
 }
 
@@ -518,7 +730,31 @@ a {
 }
 
 .ndv__schema-type {
-  color: #888;
+  color: var(--color-on-surface-variant);
+}
+
+/* Node detail modal header (icon + editable name + type) — see N8nModal's #header slot usage in NodeDetailPanel.vue. */
+.node-detail-panel__name {
+  font: inherit;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--color-on-surface);
+  background: transparent;
+  border: none;
+  padding: 0;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.node-detail-panel__name:focus {
+  outline: none;
+  text-decoration: underline;
+}
+
+.node-detail-panel__type {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  margin: 0;
 }
 
 .property-field__multi {
@@ -560,29 +796,50 @@ a {
 /* Execution result panel */
 .execution-panel {
   border-left: 1px solid var(--color-border);
-  background: white;
+  background: var(--color-surface-container-lowest);
   overflow-y: auto;
   padding: 12px;
   font-size: 13px;
+}
+
+.execution-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.execution-panel__header h2 {
+  margin: 0;
+}
+
+.execution-panel__close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  color: var(--color-on-surface-variant);
+  padding: 0 4px;
 }
 
 .execution-panel__node {
   display: flex;
   justify-content: space-between;
   padding: 6px 0;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid var(--color-surface-container-highest);
 }
 
 .execution-panel__status--success {
-  color: #1c7a3e;
+  color: var(--color-on-secondary-container);
 }
 
 .execution-panel__status--error {
-  color: #c0392b;
+  color: var(--color-error);
 }
 
 .execution-panel__status--skipped {
-  color: #999;
+  color: var(--color-on-surface-variant);
 }
 
 .execution-panel__error {
@@ -615,7 +872,7 @@ a {
   min-width: 0;
   min-height: 0;
   border-left: 1px solid var(--color-border);
-  background: white;
+  background: var(--color-surface-container-lowest);
 }
 
 .assistant-panel__bar {
@@ -637,7 +894,7 @@ a {
   cursor: pointer;
   font-size: 16px;
   line-height: 1;
-  color: #888;
+  color: var(--color-on-surface-variant);
   padding: 0 4px;
 }
 
@@ -651,7 +908,7 @@ a {
 }
 
 .assistant-panel__empty {
-  color: #888;
+  color: var(--color-on-surface-variant);
   font-size: 13px;
 }
 
@@ -667,7 +924,7 @@ a {
 .assistant-panel__bubble--user {
   align-self: flex-end;
   background: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
 }
 
 .assistant-panel__bubble--assistant {
@@ -676,12 +933,12 @@ a {
 }
 
 .assistant-panel__bubble--pending {
-  color: #888;
+  color: var(--color-on-surface-variant);
 }
 
 .assistant-panel__tool-row {
   font-size: 12px;
-  color: #555;
+  color: var(--color-on-surface-variant);
   background: var(--color-bg);
   border-radius: 6px;
   padding: 6px 10px;
@@ -691,13 +948,13 @@ a {
 }
 
 .assistant-panel__tool-row--running {
-  color: #888;
+  color: var(--color-on-surface-variant);
   font-style: italic;
 }
 
 .assistant-panel__tool-row--error {
-  background: #fbdcd8;
-  color: #c0392b;
+  background: var(--color-error-container);
+  color: var(--color-error);
 }
 
 .assistant-panel__tool-row-detail {
@@ -730,7 +987,7 @@ a {
   border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 4px 12px;
-  background: white;
+  background: var(--color-surface-container-lowest);
   font-size: 12px;
   cursor: pointer;
 }
@@ -738,7 +995,7 @@ a {
 .assistant-panel__chip--selected {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: white;
+  color: var(--color-on-primary);
 }
 
 .assistant-panel__approval {
@@ -767,7 +1024,7 @@ a {
   margin: 0 0 6px;
   font-size: 12px;
   text-transform: uppercase;
-  color: #888;
+  color: var(--color-on-surface-variant);
 }
 
 .assistant-panel__diff-list {
@@ -780,22 +1037,22 @@ a {
 }
 
 .assistant-panel__diff-item--added {
-  color: #1c7a3e;
+  color: var(--color-on-secondary-container);
 }
 
 .assistant-panel__diff-item--removed {
-  color: #c0392b;
+  color: var(--color-error);
 }
 
 .assistant-panel__diff-item--changed {
-  color: #555;
+  color: var(--color-on-surface-variant);
 }
 
 .assistant-panel__diff-fields {
   list-style: none;
   margin: 2px 0 0;
   padding-left: 12px;
-  color: #888;
+  color: var(--color-on-surface-variant);
 }
 
 .assistant-panel__input {
@@ -808,13 +1065,13 @@ a {
 /* Live canvas highlighting — pulses a node/edge the instant the assistant's tool call lands (Part 6: "This is what makes it feel like an agent rather than a form"). */
 @keyframes canvas-node-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(255, 109, 90, 0.6);
+    box-shadow: 0 0 0 0 rgba(56, 100, 90, 0.6);
   }
   70% {
-    box-shadow: 0 0 0 14px rgba(255, 109, 90, 0);
+    box-shadow: 0 0 0 14px rgba(56, 100, 90, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 109, 90, 0);
+    box-shadow: 0 0 0 0 rgba(56, 100, 90, 0);
   }
 }
 

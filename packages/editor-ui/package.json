@@ -20,13 +20,15 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "@vitejs/plugin-vue": "^5.2.1",
     "@vitest/coverage-v8": "^2.1.8",
     "@vue/test-utils": "^2.4.6",
     "jsdom": "^25.0.1",
+    "tailwindcss": "^4.3.3",
     "typescript": "^5.7.2",
     "vite": "^6.0.3",
-    "vue-tsc": "^2.1.10",
-    "vitest": "^2.1.8"
+    "vitest": "^2.1.8",
+    "vue-tsc": "^2.1.10"
   }
 }

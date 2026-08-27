@@ -5,9 +5,11 @@ import { N8nButton } from '@n8n-clone/design-system';
 import { useAssistantStore } from '../../stores/assistant.store.js';
 import type { IExecuteWorkflowResult } from '../../api/types.js';
 
-const props = withDefaults(defineProps<{ result: IExecuteWorkflowResult | null; workflowId?: string; title?: string }>(), {
+const props = withDefaults(defineProps<{ result: IExecuteWorkflowResult | null; workflowId?: string; title?: string; closable?: boolean }>(), {
   title: 'Execution',
+  closable: false,
 });
+const emit = defineEmits<{ close: [] }>();
 const showRaw = ref(false);
 const assistantStore = useAssistantStore();
 
@@ -40,7 +42,10 @@ function onFixThis(summary: { nodeName: string; error?: string; errorDescription
 
 <template>
   <aside class="execution-panel">
-    <h2>{{ title }}</h2>
+    <div class="execution-panel__header">
+      <h2>{{ title }}</h2>
+      <button v-if="closable" type="button" class="execution-panel__close" aria-label="Close execution panel" @click="emit('close')">×</button>
+    </div>
     <p v-if="!result">Run the workflow to see results here.</p>
     <template v-else>
       <p>

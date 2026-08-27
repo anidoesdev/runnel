@@ -12,19 +12,24 @@ const props = defineProps<{
   previewConnections?: IConnections;
   pulseNodeNames?: string[];
   pulseConnectionKeys?: string[];
+  selectedNodeId?: string | null;
 }>();
 
 const emit = defineEmits<{
   'select-node': [nodeId: string];
   drop: [nodeType: string, position: { x: number; y: number }];
+  'ask-assistant': [];
 }>();
 
 const store = useWorkflowStore();
-const { project } = useVueFlow();
+const { project, zoomIn, zoomOut, fitView } = useVueFlow();
+
+const deleteKeyCodes = ['Delete', 'Backspace'];
 
 const readonly = computed(() => props.previewNodes !== undefined);
 const displayNodes = computed(() => props.previewNodes ?? store.nodes);
 const displayConnections = computed(() => props.previewConnections ?? store.connections);
+const isEmpty = computed(() => displayNodes.value.length === 0);
 
 const idByName = computed(() => new Map(displayNodes.value.map((n) => [n.name, n.id])));
 const nameById = computed(() => new Map(displayNodes.value.map((n) => [n.id, n.name])));
@@ -34,7 +39,7 @@ const flowNodes = computed<FlowNode[]>(() =>
     id: node.id,
     type: 'custom',
     position: { x: node.position[0], y: node.position[1] },
-    data: { node, pulse: (props.pulseNodeNames ?? []).includes(node.name) },
+    data: { node, pulse: (props.pulseNodeNames ?? []).includes(node.name), selected: node.id === props.selectedNodeId },
   })),
 );
 
@@ -164,6 +169,7 @@ function onDeleteNode(nodeId: string): void {
       :edges="flowEdges"
       :nodes-connectable="!readonly"
       :nodes-draggable="!readonly"
+      :delete-key-code="deleteKeyCodes"
       :is-valid-connection="isValidConnection"
       @node-drag-stop="onNodeDragStop"
       @connect="onConnect"
@@ -175,17 +181,150 @@ function onDeleteNode(nodeId: string): void {
         <CanvasNode v-bind="nodeProps" :readonly="readonly" @delete="onDeleteNode(nodeProps.id)" />
       </template>
     </VueFlow>
+
+    <div v-if="isEmpty && !readonly" class="workflow-canvas__empty">
+      <span class="material-symbols-outlined workflow-canvas__empty-icon">bolt</span>
+      <p class="workflow-canvas__empty-title">Start building</p>
+      <p class="workflow-canvas__empty-body">Drag a node in from the sidebar, or describe what you want to automate.</p>
+      <button type="button" class="workflow-canvas__empty-cta" @click="emit('ask-assistant')">
+        <span class="material-symbols-outlined text-[16px]">smart_toy</span>
+        Ask Assistant
+      </button>
+    </div>
+
+    <div v-if="!readonly" class="workflow-canvas__zoom-controls">
+      <button type="button" title="Zoom in" aria-label="Zoom in" @click="zoomIn()">
+        <span class="material-symbols-outlined">add</span>
+      </button>
+      <button type="button" title="Zoom out" aria-label="Zoom out" @click="zoomOut()">
+        <span class="material-symbols-outlined">remove</span>
+      </button>
+      <button type="button" title="Fit view" aria-label="Fit view" @click="fitView()">
+        <span class="material-symbols-outlined">fit_screen</span>
+      </button>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .workflow-canvas {
+  position: relative;
   width: 100%;
   height: 100%;
   min-height: 0;
 }
 
+.workflow-canvas__empty {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  max-width: 280px;
+  pointer-events: none;
+}
+
+.workflow-canvas__empty-icon {
+  color: var(--color-outline-variant);
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.workflow-canvas__empty-title {
+  font-weight: 600;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.workflow-canvas__empty-body {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  margin: 0 0 12px;
+}
+
+.workflow-canvas__empty-cta {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.workflow-canvas__empty-cta:hover {
+  background: var(--color-secondary);
+}
+
+.workflow-canvas__zoom-controls {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 5;
+  display: flex;
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+.workflow-canvas__zoom-controls button {
+  border: none;
+  background: none;
+  color: var(--color-on-surface-variant);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-right: 1px solid var(--color-outline-variant);
+}
+
+.workflow-canvas__zoom-controls button:last-child {
+  border-right: none;
+}
+
+.workflow-canvas__zoom-controls button:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+}
+
+.workflow-canvas__zoom-controls .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.workflow-canvas :deep(.vue-flow) {
+  background-color: var(--color-surface-base);
+  background-image: radial-gradient(circle, var(--color-outline-variant) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.workflow-canvas :deep(.vue-flow__handle) {
+  width: 12px;
+  height: 12px;
+  background: var(--color-surface-container-lowest);
+  border: 2px solid var(--color-outline-variant);
+  border-radius: 50%;
+}
+
+.workflow-canvas :deep(.vue-flow__handle.connectionindicator) {
+  border-color: var(--color-primary);
+}
+
 .workflow-canvas--readonly {
-  background: repeating-linear-gradient(45deg, var(--color-bg), var(--color-bg) 12px, #eee 12px, #eee 13px);
+  background: repeating-linear-gradient(45deg, var(--color-bg), var(--color-bg) 12px, var(--color-surface-container) 12px, var(--color-surface-container) 13px);
 }
 </style>

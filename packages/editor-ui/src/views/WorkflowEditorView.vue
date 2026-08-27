@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { N8nButton, N8nCheckbox, N8nInput } from '@n8n-clone/design-system';
+import { N8nButton, N8nCheckbox } from '@n8n-clone/design-system';
 import WorkflowCanvas from '../components/canvas/WorkflowCanvas.vue';
 import NodePalette from '../components/canvas/NodePalette.vue';
 import NodeDetailPanel from '../components/canvas/NodeDetailPanel.vue';
@@ -31,17 +31,22 @@ const previewConnections = computed(() => (assistantStore.panelOpen ? assistantS
 const effectiveNodes = computed(() => previewNodes.value ?? workflowStore.nodes);
 const effectiveConnections = computed(() => previewConnections.value ?? workflowStore.connections);
 
+/** A brand-new, never-saved workflow has no id yet — the assistant session needs one, so this saves first (silently, same as autosave would shortly do anyway) rather than making the user hit Save themselves before they're allowed to ask for help building it. */
 async function onToggleAssistant(): Promise<void> {
   if (assistantStore.panelOpen) {
     assistantStore.close();
     return;
   }
+  if (!workflowStore.id) await onSave();
   if (!workflowStore.id) return;
   await assistantStore.open(workflowStore.id);
 }
 
 const selectedNodeId = ref<string | null>(null);
+const selectedNode = computed(() => effectiveNodes.value.find((n) => n.id === selectedNodeId.value) ?? null);
 const activateError = ref<string | null>(null);
+/** Hidden until there's something worth showing — opens on its own right after a run, closable from there. No reason to occupy the right column with "Run the workflow to see results here" before anyone has run anything. */
+const executionPanelOpen = ref(false);
 
 /** Every AI Agent node that already has a Chat trigger wired into its main input — each is a valid target for the bottom chat dock. */
 const chatReadyAgents = computed(() => findChatReadyAgents(effectiveNodes.value, effectiveConnections.value));
@@ -53,6 +58,10 @@ const chatTriggerNode = computed(() =>
 );
 const chatPanelOpen = ref(false);
 const chatDockVisible = computed(() => chatPanelOpen.value && !!chatAgentNode.value && !!chatTriggerNode.value);
+/** Nothing occupies the right-hand column — collapse the grid to give the canvas the full width instead of reserving an empty strip. Selecting a node doesn't factor in here: its properties open in a modal, not this column. */
+const rightColumnCollapsed = computed(
+  () => !assistantStore.panelOpen && !(executionPanelOpen.value && !chatDockVisible.value),
+);
 
 /**
  * Pins the dock to whichever agent just became chat-ready and opens it — covers three cases
@@ -158,6 +167,7 @@ async function onToggleActive(active: boolean): Promise<void> {
 }
 
 async function onExecute(): Promise<void> {
+  executionPanelOpen.value = true;
   try {
     await workflowStore.execute();
   } catch {
@@ -169,34 +179,61 @@ async function onExecute(): Promise<void> {
 <template>
   <div class="workflow-editor">
     <header class="workflow-editor__bar">
-      <N8nButton variant="secondary" @click="router.push({ name: 'workflows' })">← Workflows</N8nButton>
-      <N8nInput :model-value="workflowStore.name" placeholder="Workflow name" @update:model-value="workflowStore.setName" />
-      <N8nCheckbox
-        :model-value="workflowStore.active"
-        label="Active"
-        :disabled="!workflowStore.id"
-        @update:model-value="onToggleActive"
+      <button
+        type="button"
+        class="flex items-center shrink-0 text-primary rounded-md p-1 -ml-1 hover:bg-surface-container-high transition-colors"
+        title="Back to workflows"
+        @click="router.push({ name: 'workflows' })"
+      >
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">schema</span>
+      </button>
+
+      <input
+        class="workflow-editor__title"
+        :value="workflowStore.name"
+        placeholder="Workflow name"
+        @change="workflowStore.setName(($event.target as HTMLInputElement).value)"
       />
-      <span class="workflow-editor__save-status">
-        {{ workflowStore.saving ? 'Saving…' : workflowStore.dirty ? 'Unsaved changes' : workflowStore.id ? 'All changes saved' : '' }}
+
+      <span v-if="workflowStore.id" class="workflow-editor__save-status">
+        <span
+          class="workflow-editor__save-dot"
+          :class="{
+            'workflow-editor__save-dot--saving': workflowStore.saving,
+            'workflow-editor__save-dot--dirty': !workflowStore.saving && workflowStore.dirty,
+            'workflow-editor__save-dot--saved': !workflowStore.saving && !workflowStore.dirty,
+          }"
+        />
+        {{ workflowStore.saving ? 'Saving…' : workflowStore.dirty ? 'Unsaved changes' : 'Saved' }}
       </span>
-      <N8nButton :disabled="workflowStore.saving" @click="onSave">{{ workflowStore.saving ? 'Saving…' : 'Save' }}</N8nButton>
-      <N8nButton :disabled="!workflowStore.id || workflowStore.executing" @click="onExecute">
-        {{ workflowStore.executing ? 'Running…' : 'Execute Workflow' }}
-      </N8nButton>
-      <N8nButton v-if="chatAgentNode" variant="secondary" @click="chatPanelOpen = !chatPanelOpen">
-        {{ chatPanelOpen ? 'Hide Chat' : 'Show Chat' }}
-      </N8nButton>
-      <N8nButton variant="secondary" :disabled="!workflowStore.id" :title="!workflowStore.id ? 'Save the workflow first' : ''" @click="onToggleAssistant">
-        {{ assistantStore.panelOpen ? 'Hide Assistant' : 'Ask Assistant' }}
-      </N8nButton>
+
+      <div class="workflow-editor__bar-actions">
+        <N8nCheckbox
+          :model-value="workflowStore.active"
+          label="Active"
+          :disabled="!workflowStore.id"
+          @update:model-value="onToggleActive"
+        />
+        <N8nButton v-if="chatAgentNode" variant="secondary" @click="chatPanelOpen = !chatPanelOpen">
+          {{ chatPanelOpen ? 'Hide Chat' : 'Chat' }}
+        </N8nButton>
+        <N8nButton variant="secondary" @click="onToggleAssistant">
+          {{ assistantStore.panelOpen ? 'Hide Assistant' : 'Ask Assistant' }}
+        </N8nButton>
+        <N8nButton :disabled="!workflowStore.id || workflowStore.executing" @click="onExecute">
+          {{ workflowStore.executing ? 'Running…' : 'Execute' }}
+        </N8nButton>
+      </div>
     </header>
     <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
     <p v-if="activateError" class="auth-error">{{ activateError }}</p>
 
     <div
       class="workflow-editor__body"
-      :class="{ 'workflow-editor__body--assistant-open': assistantStore.panelOpen, 'workflow-editor__body--chat-open': !assistantStore.panelOpen && chatDockVisible }"
+      :class="{
+        'workflow-editor__body--assistant-open': assistantStore.panelOpen,
+        'workflow-editor__body--collapsed': rightColumnCollapsed,
+      }"
     >
       <NodePalette />
       <WorkflowCanvas
@@ -204,12 +241,22 @@ async function onExecute(): Promise<void> {
         :preview-connections="previewConnections"
         :pulse-node-names="assistantStore.pulseNodeNames"
         :pulse-connection-keys="assistantStore.pulseConnectionKeys"
+        :selected-node-id="selectedNodeId"
         @select-node="selectedNodeId = $event"
         @drop="onDropNode"
+        @ask-assistant="onToggleAssistant"
       />
       <AssistantPanel v-if="assistantStore.panelOpen" />
-      <ExecutionResultPanel v-else-if="!chatDockVisible" :result="workflowStore.lastResult" :workflow-id="workflowStore.id ?? undefined" />
+      <ExecutionResultPanel
+        v-else-if="!chatDockVisible && executionPanelOpen"
+        closable
+        :result="workflowStore.lastResult"
+        :workflow-id="workflowStore.id ?? undefined"
+        @close="executionPanelOpen = false"
+      />
     </div>
+
+    <NodeDetailPanel v-if="selectedNode" :node-id="selectedNodeId" @close="selectedNodeId = null" />
 
     <div v-if="chatDockVisible" class="workflow-editor__chat-dock">
       <ChatPanel
@@ -219,7 +266,5 @@ async function onExecute(): Promise<void> {
       />
       <ExecutionResultPanel title="Logs" :result="workflowStore.lastResult" :workflow-id="workflowStore.id ?? undefined" />
     </div>
-
-    <NodeDetailPanel :node-id="selectedNodeId" @close="selectedNodeId = null" />
   </div>
 </template>

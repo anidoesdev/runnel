@@ -35,7 +35,13 @@ onMounted(refresh);
 <template>
   <div class="workflow-list">
     <header>
-      <h1>Workflows</h1>
+      <div>
+        <div class="workflow-list__brand">
+          <span class="material-symbols-outlined workflow-list__brand-mark">schema</span>
+          Runnel
+        </div>
+        <h1>Workflows</h1>
+      </div>
       <div>
         <N8nButton @click="router.push({ name: 'workflow-new' })">New workflow</N8nButton>
         <N8nButton variant="secondary" @click="logout">Log out</N8nButton>

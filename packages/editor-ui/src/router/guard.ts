@@ -12,9 +12,11 @@ export interface IAuthGuardStore {
 /**
  * Extracted from the router so it can be unit-tested directly, without mounting a real
  * vue-router instance. Order of decisions: setup status first (nothing else matters until
- * the owner account exists), then the setup/login routes are special-cased so a
- * fully-authenticated user is bounced away from them, then every other route requires a
- * session.
+ * the owner account exists) — except the public landing page, which renders at every stage
+ * and just funnels its own CTAs into login/setup rather than being redirected away from
+ * itself. Then the setup/login routes are special-cased so a fully-authenticated user is
+ * bounced away from them (the landing page gets the same treatment, sending a signed-in
+ * visitor straight to their workflows), then every other route requires a session.
  */
 export async function resolveNavigation(
   to: Pick<RouteLocationNormalized, 'name'>,
@@ -25,7 +27,7 @@ export async function resolveNavigation(
   }
 
   if (!auth.setupCompleted) {
-    return to.name === 'setup' ? true : { name: 'setup' };
+    return to.name === 'setup' || to.name === 'landing' ? true : { name: 'setup' };
   }
 
   if (to.name === 'setup') {
@@ -36,7 +38,7 @@ export async function resolveNavigation(
     await auth.fetchCurrentUser();
   }
 
-  if (to.name === 'login') {
+  if (to.name === 'login' || to.name === 'landing') {
     return auth.isAuthenticated ? { name: 'workflows' } : true;
   }
 

@@ -63,4 +63,19 @@ describe('resolveNavigation', () => {
     const auth = makeAuth({ setupCompleted: true, initialized: true, isAuthenticated: true });
     expect(await resolveNavigation({ name: 'workflows' }, auth)).toBe(true);
   });
+
+  it('allows the landing page through even while setup is incomplete, unlike every other route', async () => {
+    const auth = makeAuth({ setupCompleted: false });
+    expect(await resolveNavigation({ name: 'landing' }, auth)).toBe(true);
+  });
+
+  it('lets an unauthenticated visitor see the landing page', async () => {
+    const auth = makeAuth({ setupCompleted: true, initialized: true, isAuthenticated: false });
+    expect(await resolveNavigation({ name: 'landing' }, auth)).toBe(true);
+  });
+
+  it('sends an already-authenticated visitor from the landing page straight to their workflows', async () => {
+    const auth = makeAuth({ setupCompleted: true, initialized: true, isAuthenticated: true });
+    expect(await resolveNavigation({ name: 'landing' }, auth)).toEqual({ name: 'workflows' });
+  });
 });
