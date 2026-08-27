@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Runnel Node Editor</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+                "on-secondary-fixed-variant": "#1b503c",
+                "surface-elevated": "#F4F9F0",
+                "on-secondary-fixed": "#002115",
+                "outline-variant": "#c0c8c5",
+                "surface": "#f9f9f7",
+                "surface-bright": "#f9f9f7",
+                "surface-variant": "#e2e3e0",
+                "primary-fixed-dim": "#a1d0c4",
+                "surface-container": "#eeeeec",
+                "border-muted": "#CBDAC1",
+                "on-surface": "#1a1c1b",
+                "on-tertiary-fixed-variant": "#2f4d39",
+                "inverse-on-surface": "#f1f1ef",
+                "on-tertiary-container": "#f6fff5",
+                "on-primary-fixed-variant": "#214e45",
+                "surface-tint": "#3a665c",
+                "tertiary-container": "#5c7c65",
+                "primary-fixed": "#bdecdf",
+                "primary": "#38645a",
+                "secondary": "#356853",
+                "on-error-container": "#93000a",
+                "surface-container-lowest": "#ffffff",
+                "surface-base": "#E6F2DD",
+                "inverse-primary": "#a1d0c4",
+                "on-primary-container": "#f4fffa",
+                "error-container": "#ffdad6",
+                "inverse-surface": "#2f3130",
+                "background": "#f9f9f7",
+                "error": "#ba1a1a",
+                "secondary-container": "#b5ecd1",
+                "on-error": "#ffffff",
+                "secondary-fixed": "#b8eed4",
+                "on-primary": "#ffffff",
+                "primary-container": "#507d72",
+                "outline": "#717976",
+                "tertiary-fixed-dim": "#adcfb5",
+                "on-secondary-container": "#396c57",
+                "on-tertiary": "#ffffff",
+                "surface-container-highest": "#e2e3e0",
+                "tertiary": "#44634e",
+                "code-accent": "#4A6E65",
+                "on-surface-variant": "#404846",
+                "on-secondary": "#ffffff",
+                "surface-container-high": "#e8e8e6",
+                "on-tertiary-fixed": "#032110",
+                "tertiary-fixed": "#c8ebd0",
+                "surface-container-low": "#f4f4f1",
+                "surface-dim": "#dadad8",
+                "secondary-fixed-dim": "#9cd2b8",
+                "on-primary-fixed": "#00201b",
+                "on-background": "#1a1c1b"
+        },
+        "borderRadius": {
+                "DEFAULT": "0.25rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+        },
+        "spacing": {
+                "container-max": "1440px",
+                "node-gap": "32px",
+                "margin-page": "40px",
+                "base": "8px",
+                "gutter": "24px"
+        },
+        "fontFamily": {
+                "headline-lg": ["Hanken Grotesk"],
+                "body-sm": ["Inter"],
+                "body-lg": ["Inter"],
+                "headline-lg-mobile": ["Hanken Grotesk"],
+                "label-md": ["JetBrains Mono"],
+                "headline-md": ["Hanken Grotesk"],
+                "label-sm": ["JetBrains Mono"],
+                "body-md": ["Inter"]
+        },
+        "fontSize": {
+                "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
+                "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                "headline-lg-mobile": ["28px", { "lineHeight": "36px", "fontWeight": "600" }],
+                "label-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+        }
+      },
+    },
+  }
+</script>
+<style>
+  :root { color-scheme: light; }
+  body { background: #f9f9f7; }
+  .canvas-bg {
+      background-image: radial-gradient(circle at center, #c0c8c5 1px, transparent 1px);
+      background-size: 24px 24px;
+  }
+  .noodle {
+      fill: none;
+      stroke-width: 2;
+      stroke-dasharray: 4;
+      animation: flow 2s linear infinite;
+  }
+  @keyframes flow {
+      from { stroke-dashoffset: 8; }
+      to { stroke-dashoffset: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .noodle { animation: none; }
+  }
+</style>
+</head>
+<body class="bg-surface text-on-surface h-screen overflow-hidden flex flex-col font-body-md text-body-md">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest border-b border-surface-variant flex justify-between items-center w-full px-gutter h-16 z-20 shrink-0 shadow-sm">
+<div class="flex items-center gap-margin-page">
+<span class="font-headline-md text-headline-md font-semibold text-primary">Runnel</span>
+<div class="h-6 w-px bg-surface-variant mx-2"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-1 rounded-full">v1.0.4-stable</span>
+</div>
+<nav class="hidden md:flex gap-gutter">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-label-md text-label-md" href="#">Workflows</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors font-label-md text-label-md" href="#">Executions</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors font-label-md text-label-md" href="#">Integrations</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors font-label-md text-label-md" href="#">Assets</a>
+</nav>
+<div class="flex items-center gap-base">
+<button class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant transition-colors" data-icon="stop">
+<span class="material-symbols-outlined text-[20px]">stop</span>
+</button>
+<button class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant transition-colors" data-icon="share">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</button>
+<button class="w-8 h-8 rounded-full hover:bg-surface-container flex items-center justify-center text-on-surface-variant transition-colors" data-icon="settings">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<button class="px-4 py-2 border border-surface-variant text-on-surface-variant rounded-full hover:bg-surface-container transition-colors font-label-md text-label-md">Save</button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-full hover:bg-primary/90 transition-colors font-label-md text-label-md flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span>
+                Execute
+            </button>
+<img alt="User profile" class="w-8 h-8 rounded-full border border-surface-variant object-cover ml-2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCB2PSgOvoikdwG-7C3oZ6kYiu-6eMreddRV2bAdB9sI1nbo4EeNubirxhfev2vdZc9Va8ZupQwVs5u749GZAeB-9CUYWtlwvpfMLBFHLtAQRm2N476TRGdHl2LNmutDBuFnXDd9hg3juBiAGLd5slDwt0A69nfappSwtdYMxRkHsjFRoYhjhKWvwPE-3E6TaUuwi552GM4Nj4x7niJvGtKxu9mMJzWU3UYk2qaOu_BzH6OVWrqGii0" />
+</div>
+</header>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar -->
+<nav class="bg-surface-container-lowest border-r border-surface-variant flex flex-col h-full py-margin-page px-base gap-base w-16 z-10 shrink-0">
+<a class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full hover:text-on-surface transition-all mb-4" data-icon="account_tree" href="#">
+<span class="material-symbols-outlined">account_tree</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center bg-primary-container text-on-primary-container rounded-full" data-icon="bolt" href="#">
+<span class="material-symbols-outlined">bolt</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full hover:text-on-surface transition-all" data-icon="data_object" href="#">
+<span class="material-symbols-outlined">data_object</span>
+</a>
+<a class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full hover:text-on-surface transition-all" data-icon="terminal" href="#">
+<span class="material-symbols-outlined">terminal</span>
+</a>
+<div class="mt-auto flex flex-col gap-base">
+<a class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full hover:text-on-surface transition-all" data-icon="history" href="#">
+<span class="material-symbols-outlined">history</span>
+</a>
+</div>
+</nav>
+<!-- Main Canvas Area -->
+<main class="flex-1 relative overflow-hidden bg-surface">
+<div class="absolute inset-0 canvas-bg"></div>
+<!-- SVG Layer for Noodles -->
+<svg class="absolute inset-0 w-full h-full pointer-events-none z-0">
+<path class="noodle stroke-primary" d="M 280 150 C 350 150, 350 250, 420 250"></path>
+<path class="noodle stroke-outline" d="M 660 270 C 700 270, 700 350, 750 350"></path>
+<path class="noodle stroke-[#659287]" d="M 300 450 C 450 450, 450 390, 750 390" stroke-dasharray="0"></path>
+</svg>
+<!-- Canvas Content / Nodes -->
+<div class="absolute inset-0 overflow-auto z-10" style="transform-origin: 0 0; transform: scale(1) translate(0px, 0px);">
+<!-- Node: Manual Trigger -->
+<div class="absolute top-[110px] left-[80px] w-64 bg-surface-container-lowest border border-surface-variant rounded-lg shadow-sm flex flex-col font-headline-lg">
+<div class="px-4 py-3 border-b border-surface-variant flex items-center justify-between bg-surface-container-lowest rounded-t-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">play_circle</span>
+<span class="font-label-md text-label-md text-on-surface">Manual Trigger</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-2 relative">
+<div class="text-on-surface-variant font-label-sm text-label-sm">No parameters</div>
+<!-- Output Port -->
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-primary rounded-full cursor-pointer hover:bg-primary transition-colors"></div>
+</div>
+</div>
+<!-- Node: Set -->
+<div class="absolute top-[210px] left-[420px] w-64 bg-surface-container-lowest border border-[#659287] shadow-sm rounded-lg flex flex-col font-headline-lg">
+<div class="px-4 py-3 border-b border-surface-variant flex items-center justify-between bg-primary-container/10 rounded-t-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">data_object</span>
+<span class="font-label-md text-label-md text-on-surface">Set</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">more_vert</span>
+</div>
+<div class="p-4 flex flex-col gap-3 relative">
+<!-- Input Port -->
+<div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-[#659287] rounded-full cursor-pointer"></div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Action</label>
+<div class="bg-surface-container px-2 py-1 rounded border border-surface-variant font-label-md text-label-md text-on-surface">Rename Keys</div>
+</div>
+<!-- Output Port -->
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-outline rounded-full cursor-pointer"></div>
+</div>
+</div>
+<!-- Node: OpenAI Chat Model -->
+<div class="absolute top-[410px] left-[100px] w-64 bg-surface-container-lowest border border-surface-variant rounded-lg shadow-sm flex flex-col font-headline-lg">
+<div class="px-4 py-3 border-b border-surface-variant flex items-center justify-between bg-surface-container-lowest rounded-t-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-[#659287]">smart_toy</span>
+<span class="font-label-md text-label-md text-on-surface">OpenAI Chat Model</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-3 relative">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Model</label>
+<div class="bg-surface-container px-2 py-1 rounded border border-surface-variant font-label-md text-label-md text-on-surface truncate">gpt-4-turbo-preview</div>
+</div>
+<!-- Output Port (Model Type) -->
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-[#659287] rounded-full cursor-pointer"></div>
+</div>
+</div>
+<!-- Node: AI Agent -->
+<div class="absolute top-[290px] left-[750px] w-80 bg-surface-container-lowest border border-surface-variant rounded-lg shadow-sm flex flex-col font-headline-lg">
+<div class="px-4 py-3 border-b border-surface-variant flex items-center justify-between bg-surface-container-lowest rounded-t-lg">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-primary">psychology</span>
+<span class="font-label-md text-label-md text-on-surface">AI Agent</span>
+</div>
+</div>
+<div class="p-4 flex flex-col gap-4 relative">
+<!-- Main Input Port -->
+<div class="absolute left-0 top-6 -translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-outline rounded-full cursor-pointer"></div>
+<!-- Capability Input Ports -->
+<div class="absolute left-0 top-[100px] -translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-[#659287] rounded-full cursor-pointer"></div>
+<div class="absolute left-0 top-[140px] -translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-tertiary rounded-full cursor-pointer"></div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-outline"></span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">main (Item Flow)</span>
+</div>
+</div>
+<div class="h-px bg-surface-variant w-full"></div>
+<div class="flex flex-col gap-3">
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Capabilities</div>
+<div class="flex items-center justify-between bg-surface-container px-2 py-1 rounded border border-surface-variant">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-[#659287]">link</span>
+<span class="font-label-md text-label-md text-on-surface">ai_languageModel</span>
+</div>
+</div>
+<div class="flex items-center justify-between bg-surface-container px-2 py-1 rounded border border-surface-variant border-dashed">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px] text-tertiary">build</span>
+<span class="font-label-md text-label-md text-on-surface-variant">ai_tool (optional)</span>
+</div>
+</div>
+</div>
+<!-- Main Output Port -->
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-outline rounded-full cursor-pointer"></div>
+</div>
+</div>
+</div>
+<!-- Zoom/Pan Controls -->
+<div class="absolute bottom-gutter left-gutter flex bg-surface-container-lowest border border-surface-variant rounded-full shadow-sm z-20">
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors rounded-l-full"><span class="material-symbols-outlined text-[18px]">remove</span></button>
+<div class="w-12 h-8 flex items-center justify-center font-label-sm text-label-sm border-x border-surface-variant text-on-surface">100%</div>
+<button class="w-8 h-8 flex items-center justify-center text-on-surface-variant hover:bg-surface-container transition-colors rounded-r-full"><span class="material-symbols-outlined text-[18px]">add</span></button>
+</div>
+</main>
+<!-- Right Sidebar (Property Panel) -->
+<aside class="w-80 bg-surface-container-lowest border-l border-surface-variant flex flex-col h-full z-20 shrink-0">
+<div class="px-4 py-4 border-b border-surface-variant flex justify-between items-center">
+<span class="font-headline-md text-headline-md font-semibold text-on-surface">Properties</span>
+<button class="w-7 h-7 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[18px]">close</span></button>
+</div>
+<div class="flex-1 overflow-y-auto p-4 flex flex-col gap-6">
+<!-- Node Header -->
+<div class="flex items-center gap-3 mb-2">
+<div class="w-10 h-10 rounded-lg bg-primary-container/10 border border-primary flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">data_object</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md font-semibold text-on-surface">Set</h2>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Transform Data</div>
+</div>
+</div>
+<div class="h-px bg-surface-variant w-full"></div>
+<!-- Parameters -->
+<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant">Action</label>
+<select class="bg-surface border border-surface-variant text-on-surface rounded px-3 py-2 font-body-md text-body-md focus:border-primary focus:ring-1 focus:ring-primary outline-none">
+<option>Rename Keys</option>
+<option>Keep Keys</option>
+<option>Remove Keys</option>
+</select>
+</div>
+<div class="bg-surface-container-low rounded-lg border border-surface-variant p-3 flex flex-col gap-3">
+<div class="flex justify-between items-center">
+<span class="font-label-sm text-label-sm text-on-surface">Key Mapping 1</span>
+<button class="w-6 h-6 flex items-center justify-center rounded-full text-on-surface-variant hover:bg-error-container hover:text-error transition-colors"><span class="material-symbols-outlined text-[14px]">delete</span></button>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">Current Key</label>
+<input class="bg-surface border border-surface-variant text-on-surface rounded px-2 py-1 font-label-md text-label-md w-full focus:border-primary focus:ring-0 outline-none" type="text" value="user_id" />
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-sm text-label-sm text-on-surface-variant text-[10px]">New Key</label>
+<input class="bg-surface border border-surface-variant text-on-surface rounded px-2 py-1 font-label-md text-label-md w-full focus:border-primary focus:ring-0 outline-none" type="text" value="id" />
+</div>
+</div>
+</div>
+<button class="w-full py-2 border border-surface-variant border-dashed rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors font-label-md text-label-md flex justify-center items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">add</span> Add Mapping
+                    </button>
+</div>
+</div>
+</aside>
+</div>
+</body>
+</html>

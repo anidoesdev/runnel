@@ -255,16 +255,26 @@ function onDeleteNode(nodeId: string): void {
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
-  border-radius: 8px;
-  padding: 8px 16px;
+  border-radius: 999px;
+  padding: 8px 18px;
   font: inherit;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.1s ease;
 }
 
 .workflow-canvas__empty-cta:hover {
   background: var(--color-secondary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-canvas__empty-cta:active {
+  transform: scale(0.97);
 }
 
 .workflow-canvas__zoom-controls {
@@ -275,7 +285,7 @@ function onDeleteNode(nodeId: string): void {
   display: flex;
   background: var(--color-surface-container-lowest);
   border: 1px solid var(--color-outline-variant);
-  border-radius: 8px;
+  border-radius: 999px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
   overflow: hidden;
 }
@@ -291,6 +301,9 @@ function onDeleteNode(nodeId: string): void {
   justify-content: center;
   cursor: pointer;
   border-right: 1px solid var(--color-outline-variant);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .workflow-canvas__zoom-controls button:last-child {
@@ -302,22 +315,34 @@ function onDeleteNode(nodeId: string): void {
   color: var(--color-on-surface);
 }
 
+.workflow-canvas__zoom-controls button:active {
+  background: var(--color-surface-container-highest);
+}
+
 .workflow-canvas__zoom-controls .material-symbols-outlined {
   font-size: 18px;
 }
 
+/* Neutral, quiet ground instead of a full-bleed saturated tint — the canvas is the dominant
+   surface on screen, so it carries no color of its own; nodes and connections supply all the
+   color that's needed. */
 .workflow-canvas :deep(.vue-flow) {
-  background-color: var(--color-surface-base);
+  background-color: var(--color-surface);
   background-image: radial-gradient(circle, var(--color-outline-variant) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-size: 24px 24px;
 }
 
 .workflow-canvas :deep(.vue-flow__handle) {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   background: var(--color-surface-container-lowest);
   border: 2px solid var(--color-outline-variant);
   border-radius: 50%;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.workflow-canvas :deep(.vue-flow__handle:hover) {
+  border-color: var(--color-primary);
 }
 
 .workflow-canvas :deep(.vue-flow__handle.connectionindicator) {

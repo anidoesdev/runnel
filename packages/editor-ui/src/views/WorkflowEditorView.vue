@@ -181,7 +181,7 @@ async function onExecute(): Promise<void> {
     <header class="workflow-editor__bar">
       <button
         type="button"
-        class="flex items-center shrink-0 text-primary rounded-md p-1 -ml-1 hover:bg-surface-container-high transition-colors"
+        class="flex items-center shrink-0 text-primary rounded-full p-1 -ml-1 hover:bg-surface-container-high transition-colors"
         title="Back to workflows"
         @click="router.push({ name: 'workflows' })"
       >

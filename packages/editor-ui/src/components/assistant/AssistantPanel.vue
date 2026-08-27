@@ -72,7 +72,7 @@ async function onApply(): Promise<void> {
   <aside class="assistant-panel">
     <header class="assistant-panel__bar">
       <h2>Assistant</h2>
-      <button type="button" class="assistant-panel__close" aria-label="Close assistant" @click="assistantStore.close()">×</button>
+      <button type="button" class="icon-button" aria-label="Close assistant" @click="assistantStore.close()">×</button>
     </header>
 
     <div ref="listEl" class="assistant-panel__transcript">

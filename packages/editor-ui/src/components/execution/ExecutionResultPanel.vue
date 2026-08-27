@@ -44,7 +44,7 @@ function onFixThis(summary: { nodeName: string; error?: string; errorDescription
   <aside class="execution-panel">
     <div class="execution-panel__header">
       <h2>{{ title }}</h2>
-      <button v-if="closable" type="button" class="execution-panel__close" aria-label="Close execution panel" @click="emit('close')">×</button>
+      <button v-if="closable" type="button" class="icon-button" aria-label="Close execution panel" @click="emit('close')">×</button>
     </div>
     <p v-if="!result">Run the workflow to see results here.</p>
     <template v-else>

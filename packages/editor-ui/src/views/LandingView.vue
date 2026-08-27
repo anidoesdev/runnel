@@ -18,12 +18,12 @@ const year = new Date().getFullYear();
         Runnel
       </div>
       <div class="flex gap-4">
-        <button type="button" class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface px-4 py-2 transition-colors" @click="goToLogin">
+        <button type="button" class="font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container px-4 py-2 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30" @click="goToLogin">
           Sign In
         </button>
         <button
           type="button"
-          class="bg-primary text-on-primary px-4 py-2 rounded-xl font-label-md text-label-md hover:bg-secondary transition-colors shadow-sm"
+          class="bg-primary text-on-primary px-4 py-2 rounded-full font-label-md text-label-md hover:bg-secondary active:scale-[0.97] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
           @click="goToLogin"
         >
           Start Building
@@ -50,13 +50,13 @@ const year = new Date().getFullYear();
           <div class="flex gap-4 mb-16">
             <button
               type="button"
-              class="bg-primary text-on-primary px-6 py-3 rounded-xl font-label-md text-label-md hover:bg-secondary transition-colors shadow-sm flex items-center gap-2"
+              class="bg-primary text-on-primary px-6 py-3 rounded-full font-label-md text-label-md hover:bg-secondary active:scale-[0.97] transition-all shadow-sm hover:shadow-md flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
               @click="goToLogin"
             >
               Start Building Free
               <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
-            <button type="button" class="bg-transparent border border-outline text-on-surface-variant px-6 py-3 rounded-xl font-label-md text-label-md hover:bg-surface-container transition-colors">
+            <button type="button" class="bg-transparent border border-outline text-on-surface-variant px-6 py-3 rounded-full font-label-md text-label-md hover:bg-surface-container hover:border-on-surface-variant active:scale-[0.97] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30">
               View Documentation
             </button>
           </div>
@@ -73,10 +73,10 @@ const year = new Date().getFullYear();
                 <span class="ml-4 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Checkout_Flow_v2</span>
               </div>
               <div class="flex items-center gap-2">
-                <button type="button" class="text-on-surface-variant hover:text-on-surface p-1"><span class="material-symbols-outlined text-[18px]">undo</span></button>
-                <button type="button" class="text-on-surface-variant hover:text-on-surface p-1"><span class="material-symbols-outlined text-[18px]">redo</span></button>
+                <button type="button" class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full p-1 transition-colors"><span class="material-symbols-outlined text-[18px]">undo</span></button>
+                <button type="button" class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full p-1 transition-colors"><span class="material-symbols-outlined text-[18px]">redo</span></button>
                 <div class="h-4 w-px bg-surface-variant mx-2"></div>
-                <button type="button" class="bg-primary text-on-primary px-3 py-1 rounded font-label-sm text-label-sm">Execute</button>
+                <button type="button" class="bg-primary text-on-primary px-3 py-1 rounded-full font-label-sm text-label-sm hover:bg-secondary active:scale-[0.97] transition-all shadow-sm">Execute</button>
               </div>
             </div>
 
