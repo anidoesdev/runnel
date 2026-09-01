@@ -65,7 +65,7 @@ function onDragStart(event: DragEvent, nodeTypeName: string): void {
         v-model="filter"
         type="text"
         placeholder="Search nodes…"
-        class="pl-8 pr-3 py-1.5 w-full bg-surface-container-lowest border border-surface-variant rounded-lg text-body-sm focus:border-primary-container focus:ring-1 focus:ring-primary-container outline-none"
+        class="pl-8 pr-3 py-1.5 w-full bg-surface-container-lowest border border-surface-variant rounded-full text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors"
       />
     </div>
 
