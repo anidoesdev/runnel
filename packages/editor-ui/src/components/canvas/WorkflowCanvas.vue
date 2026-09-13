@@ -251,15 +251,17 @@ function onDeleteNode(nodeId: string): void {
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
   background: var(--color-primary);
   color: var(--color-on-primary);
   border: none;
   border-radius: 999px;
-  padding: 8px 18px;
+  padding: 0 16px;
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   transition:
@@ -269,8 +271,7 @@ function onDeleteNode(nodeId: string): void {
 }
 
 .workflow-canvas__empty-cta:hover {
-  background: var(--color-secondary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: color-mix(in srgb, var(--color-primary) 90%, transparent);
 }
 
 .workflow-canvas__empty-cta:active {

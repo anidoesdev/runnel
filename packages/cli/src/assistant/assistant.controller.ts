@@ -1,5 +1,5 @@
 import { createSession, resumeApproval, resumeAskUser, runTurn } from '@n8n-clone/assistant';
-import { createToolRegistry, WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { createToolRegistry, redactText, WorkflowDraftStore } from '@n8n-clone/workflow-tools';
 import { Get, Post, RestController } from '../http/decorators.js';
 import { NotFoundError } from '../http/http-errors.js';
 import { generateId } from '../db/id.js';
@@ -8,6 +8,8 @@ import { CredentialRepositoryAdapter } from './credential-repository.adapter.js'
 import { ExecutionAdapter } from './execution-adapter.js';
 import { createModelProviderForSession } from './model-provider.factory.js';
 import { startSseResponse, writeSseEvent } from './sse.js';
+import { disabledAssistantMemory } from './memory/memory.factory.js';
+import type { IAssistantMemory } from './memory/memory.factory.js';
 import type { AuthenticatedRequest } from '../auth/auth.middleware.js';
 import type { IAssistantSession, IAssistantSessionRepositoryPort, IRunTurnDeps, IRunTurnOptions } from '@n8n-clone/assistant';
 import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
@@ -37,6 +39,7 @@ export class AssistantController {
     private readonly credentialTypes: ICredentialTypes,
     private readonly encryptionKey: string,
     private readonly logger: Logger,
+    private readonly memory: IAssistantMemory = disabledAssistantMemory(),
   ) {}
 
   @Post('/sessions')
@@ -87,6 +90,7 @@ export class AssistantController {
   async sendMessage(req: Request, res: Response): Promise<void> {
     const parsed = sendAssistantMessageSchema.parse(req.body);
     const session = await this.findSessionOrThrow(String(req.params.id));
+    await this.recallInShadow(session, parsed.message);
     await this.streamTurn(res, session, (deps, options) => runTurn(session, parsed.message, deps, options));
   }
 
@@ -171,6 +175,7 @@ export class AssistantController {
     try {
       const finished = await run(deps, { signal: controller.signal, onEvent: (event) => writeSseEvent(res, event) });
       await this.sessions.save(finished);
+      this.captureInBackground(finished);
     } catch (err) {
       this.logger.error({ err, sessionId: session.id }, 'Assistant turn failed');
       writeSseEvent(res, { type: 'error', message: err instanceof Error ? err.message : String(err) });
@@ -178,5 +183,50 @@ export class AssistantController {
     } finally {
       res.end();
     }
+  }
+
+  /**
+   * Recall for a new turn only: resumeApproval/resumeAskUser continue a turn whose system prompt
+   * is already fixed, and re-recalling there would change it underneath the model mid-turn.
+   *
+   * Shadow mode: the result is logged and discarded. Injecting it into the prompt is milestone R5,
+   * after the recalled results have been read on real transcripts. A failure never affects the turn.
+   */
+  private async recallInShadow(session: IAssistantSession, message: string): Promise<void> {
+    const { config, port } = this.memory;
+    if (!config.capture && !config.recall) return;
+
+    const started = performance.now();
+    try {
+      const recalled = await port.recall(message, session.actor, config.tokenBudget);
+      this.logger.info(
+        {
+          event: 'memory.recall.shadow',
+          sessionId: session.id,
+          workflowId: session.workflowId,
+          query: redactText(message),
+          injected: false,
+          memoryCount: recalled.memories.length,
+          // Not "tokensUsed": the logger redacts any key containing "token".
+          budgetUsed: recalled.tokensUsed,
+          memories: recalled.memories,
+          trace: recalled.trace,
+          durationMs: Math.round(performance.now() - started),
+        },
+        'Assistant memory recall (shadow mode, not injected)',
+      );
+    } catch (err) {
+      this.logger.warn({ event: 'memory.recall.failed', sessionId: session.id, err }, 'Assistant memory recall failed; continuing without memory');
+    }
+  }
+
+  /** Fire and forget: the user already has their answer, and extraction means model calls. Neither a rejection nor a synchronous throw escapes. */
+  private captureInBackground(session: IAssistantSession): void {
+    if (!this.memory.config.capture) return;
+    void Promise.resolve()
+      .then(() => this.memory.port.capture(session))
+      .catch((err: unknown) => {
+        this.logger.warn({ event: 'memory.capture.failed', sessionId: session.id, err }, 'Assistant memory capture failed');
+      });
   }
 }

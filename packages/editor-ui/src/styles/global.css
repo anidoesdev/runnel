@@ -251,6 +251,14 @@ a {
   color: var(--color-on-surface-variant);
 }
 
+/* Top-bar size — matches N8nButton's 36px height so toolbar rows line up (shadcn's
+   `size="icon"` is likewise square at the default button height). The 28px default stays for
+   compact panel headers and card menus. */
+.icon-button--lg {
+  width: 36px;
+  height: 36px;
+}
+
 /* Workflow library (WorkflowListView) */
 .workflow-library {
   display: flex;
@@ -298,8 +306,8 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   border: 1px solid var(--color-outline-variant);
   background: var(--color-primary-container);
@@ -382,17 +390,18 @@ a {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   width: 100%;
-  padding: 9px 12px;
+  height: 36px;
+  padding: 0 16px;
   margin-bottom: 12px;
   border: 1px solid var(--color-outline-variant);
   border-radius: 999px;
   background: transparent;
   color: var(--color-primary);
   font: inherit;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition:
     border-color 0.15s ease,

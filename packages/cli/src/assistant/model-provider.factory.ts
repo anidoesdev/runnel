@@ -4,6 +4,12 @@ import type { IModelProvider } from '@n8n-clone/assistant';
 import type { Repository } from 'typeorm';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
 
+export interface IOpenAiConfig {
+  apiKey: string;
+  baseUrl?: string;
+  model: string;
+}
+
 /**
  * Resolves the model provider two ways, env var first:
  *
@@ -16,19 +22,17 @@ import type { CredentialEntity } from '../db/entities/Credential.entity.js';
  *    any other credential. Real per-request model *selection* (a user picking a specific
  *    credential when several openAiApi credentials exist) is an editor concern for a later pass,
  *    same simplification already accepted for node execution.
+ *
+ * Shared by the assistant's model provider and assistant memory's extraction calls.
  */
-export async function createModelProviderForSession(
+export async function resolveOpenAiConfig(
   credentials: Repository<CredentialEntity>,
   encryptionKey: string,
   model = 'gpt-4o-mini',
-): Promise<IModelProvider> {
+): Promise<IOpenAiConfig> {
   const envApiKey = process.env.OPENAI_API_KEY;
   if (envApiKey) {
-    return new OpenAiModelProvider({
-      apiKey: envApiKey,
-      baseUrl: process.env.OPENAI_BASE_URL,
-      model: process.env.OPENAI_MODEL ?? model,
-    });
+    return { apiKey: envApiKey, baseUrl: process.env.OPENAI_BASE_URL, model: process.env.OPENAI_MODEL ?? model };
   }
 
   const credential = await credentials.findOneBy({ type: 'openAiApi' });
@@ -42,5 +46,14 @@ export async function createModelProviderForSession(
     encryptionKey,
   ) as { apiKey: string; baseUrl?: string };
 
-  return new OpenAiModelProvider({ apiKey, baseUrl, model });
+  return { apiKey, baseUrl, model };
+}
+
+/** The model provider for one assistant turn, resolved as described on resolveOpenAiConfig. */
+export async function createModelProviderForSession(
+  credentials: Repository<CredentialEntity>,
+  encryptionKey: string,
+  model = 'gpt-4o-mini',
+): Promise<IModelProvider> {
+  return new OpenAiModelProvider(await resolveOpenAiConfig(credentials, encryptionKey, model));
 }

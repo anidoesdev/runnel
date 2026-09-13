@@ -75,6 +75,15 @@ importers:
 
   packages/cli:
     dependencies:
+      '@memnest/core':
+        specifier: ^0.1.0
+        version: 0.1.0
+      '@memnest/providers':
+        specifier: ^0.1.1
+        version: 0.1.1
+      '@memnest/store-sqlite':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@n8n-clone/assistant':
         specifier: workspace:*
         version: link:../assistant
@@ -791,6 +800,18 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@memnest/core@0.1.0':
+    resolution: {integrity: sha512-/pZQgTdVBYYvG/YgeS3Dw9p/4QPD2e4OygfprCKOmXckLkjGDLTLkI+AaxKgRltRa0YjwyQhPfdWdfnuC5B1vQ==}
+    engines: {node: '>=20'}
+
+  '@memnest/providers@0.1.1':
+    resolution: {integrity: sha512-OLDwX3NypDHCYQc+8CTF9FTMPYzSPFHQyk7w1MxMmttXnpx90lJxYtJyhh5CGaAVcjXE1Va3szNRZP8DRfUK6A==}
+    engines: {node: '>=20'}
+
+  '@memnest/store-sqlite@0.1.0':
+    resolution: {integrity: sha512-CrKkL3zW57XPHSdmVeqkq1SnhiLT80AEI39FuJpYSUz6vbLBGX22PC8cpA9gN0g5y7NG+XPW16ARJaqf3bqCAQ==}
+    engines: {node: '>=20'}
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     resolution: {integrity: sha512-oTXEIha4SsuXdTA4Iyskj0kpdx2yVXdhd75c2v3xGrHFfVMsbhTPZU/nMPL4sWKo4pBHm3aucLaqGlF696dTyQ==}
@@ -3522,6 +3543,18 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@memnest/core@0.1.0': {}
+
+  '@memnest/providers@0.1.1':
+    dependencies:
+      '@memnest/core': 0.1.0
+
+  '@memnest/store-sqlite@0.1.0':
+    dependencies:
+      '@memnest/core': 0.1.0
+      '@types/better-sqlite3': 7.6.13
+      better-sqlite3: 12.11.1
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
     optional: true

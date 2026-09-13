@@ -23,3 +23,41 @@ export function redactDeep<T>(value: T): T {
   }
   return value;
 }
+
+const REDACTED_TEXT = '[redacted]';
+
+/** Value shapes that are secrets wherever they appear, whatever (if anything) they're labelled. */
+const SECRET_VALUE_PATTERNS: Array<[RegExp, string]> = [
+  [/-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?-----END [A-Z ]*PRIVATE KEY-----/g, REDACTED_TEXT],
+  [/\beyJ[A-Za-z0-9_-]{5,}\.eyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}/g, REDACTED_TEXT],
+  [/\b(Bearer|Basic)\s+[A-Za-z0-9\-._~+/]{8,}=*/gi, `$1 ${REDACTED_TEXT}`],
+  [/\b(?:sk|rk|pk)[-_](?:live[-_]|test[-_])?[A-Za-z0-9_-]{16,}/g, REDACTED_TEXT],
+  [/\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g, REDACTED_TEXT],
+  [/\bgh[pousr]_[A-Za-z0-9]{30,}/g, REDACTED_TEXT],
+  [/\bxox[abprs]-[A-Za-z0-9-]{10,}/g, REDACTED_TEXT],
+  [/\bAIza[0-9A-Za-z_-]{35}\b/g, REDACTED_TEXT],
+  // Connection strings with inline credentials: postgres://user:pass@host → postgres://user:[redacted]@host
+  [/\b([a-z][a-z0-9+.-]*:\/\/[^\s:/@]+:)[^\s@/]+@/gi, `$1${REDACTED_TEXT}@`],
+  // "my password is hunter2"
+  [/\b(pass(?:word|code|phrase)|secret|api[ _]?key|token)(\s+(?:is|was)\s+)\S+/gi, `$1$2${REDACTED_TEXT}`],
+];
+
+/** `apiKey: "x"`, `"password": "x"`, `token=x` — a secret-shaped label followed by its value, in JSON, YAML, env files or prose. */
+const LABELLED_VALUE = /(["']?)([A-Za-z][A-Za-z0-9_.-]{0,63})\1(\s*[:=]\s*)("(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'|[^\s,;}\]]+)/g;
+
+/**
+ * redactDeep's counterpart for free text: it walks object keys, which does nothing for a
+ * string — and transcript text (a user pasting a key into chat, an assistant message quoting a
+ * JSON blob) is exactly where a credential reaches anything that stores or logs messages.
+ * Biased toward over-redaction: a lost word costs less than a persisted credential.
+ */
+export function redactText(text: string): string {
+  let out = text;
+  for (const [pattern, replacement] of SECRET_VALUE_PATTERNS) out = out.replace(pattern, replacement);
+  return out.replace(LABELLED_VALUE, (match, quote: string, key: string, separator: string, value: string) => {
+    // An unquoted value stops at `]`, so an already-redacted one arrives as "[redacted" — leave it be.
+    if (!SECRET_KEY_PATTERN.test(key) || value.replace(/^["']/, '').startsWith('[redacted')) return match;
+    const replacement = value.startsWith('"') ? `"${REDACTED_TEXT}"` : value.startsWith("'") ? `'${REDACTED_TEXT}'` : REDACTED_TEXT;
+    return `${quote}${key}${quote}${separator}${replacement}`;
+  });
+}

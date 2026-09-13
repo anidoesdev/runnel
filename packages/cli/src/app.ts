@@ -15,6 +15,7 @@ import { CredentialTypesController } from './credential-types/credential-types.c
 import { AssistantController } from './assistant/assistant.controller.js';
 import { WorkflowRepositoryAdapter } from './assistant/workflow-repository.adapter.js';
 import { AssistantSessionRepositoryAdapter } from './assistant/assistant-session.repository.js';
+import { disabledAssistantMemory } from './assistant/memory/memory.factory.js';
 import { buildRouterForController } from './http/router-builder.js';
 import { buildErrorMiddleware } from './http/error-middleware.js';
 import { buildAccessLogMiddleware } from './http/access-log.js';
@@ -31,6 +32,7 @@ import type { Express } from 'express';
 import type { DataSource } from 'typeorm';
 import type { Logger } from 'pino';
 import type { INodeType } from '@n8n-clone/workflow';
+import type { IAssistantMemory } from './assistant/memory/memory.factory.js';
 
 export interface ICreateAppOptions {
   dataSource: DataSource;
@@ -39,6 +41,8 @@ export interface ICreateAppOptions {
   logger: Logger;
   /** Already-loaded third-party node types (see custom-nodes/load-custom-nodes.ts) to register alongside the built-in ones — loading is async I/O, so it happens before createApp (which stays synchronous) is called. */
   customNodeTypes?: INodeType[];
+  /** Assistant memory, already built (see assistant/memory/memory.factory.ts) — omitted means disabled. */
+  memory?: IAssistantMemory;
 }
 
 export interface ICreatedApp {
@@ -128,6 +132,7 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
       credentialTypes,
       encryptionKey,
       logger,
+      options.memory ?? disabledAssistantMemory(),
     ),
   ];
 

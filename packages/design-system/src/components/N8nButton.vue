@@ -23,13 +23,14 @@ defineEmits<{ click: [event: MouseEvent] }>();
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
+  height: 36px;
   border-radius: 999px;
-  padding: 8px 18px;
+  padding: 0 16px;
   border: 1px solid transparent;
   font: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   line-height: 1.2;
   white-space: nowrap;
   cursor: pointer;
@@ -61,9 +62,10 @@ defineEmits<{ click: [event: MouseEvent] }>();
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
+/* Same hue at 90%, matching shadcn's `hover:bg-primary/90` — hover changes color only, no
+   shadow growth. */
 .n8n-button--primary:hover:not(:disabled) {
-  background: var(--color-secondary, var(--color-primary, #ff6d5a));
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  background: color-mix(in srgb, var(--color-primary, #ff6d5a) 90%, transparent);
 }
 
 .n8n-button--primary:focus-visible {

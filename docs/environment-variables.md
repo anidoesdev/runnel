@@ -18,6 +18,9 @@
 | `OPENAI_API_KEY` | unset | The Workflow Assistant's own model credential — set this to skip creating an `openAiApi` credential through the editor UI just to get the assistant working locally. Takes priority over any stored credential when set; unset falls back to "the first stored `openAiApi` credential", same as before. Never commit a real key — set it in `.env` (gitignored) or your shell, not in code. |
 | `OPENAI_BASE_URL` | unset (real OpenAI) | Only read when `OPENAI_API_KEY` is set. Point the assistant at an OpenAI-compatible endpoint other than `api.openai.com` (Azure OpenAI, a local server, ...). |
 | `OPENAI_MODEL` | `gpt-4o-mini` | Only read when `OPENAI_API_KEY` is set. |
+| `RUNNEL_MEMORY_CAPTURE` | `false` | `true` turns on assistant memory capture (Memnest): after each turn, the session's user/assistant text — redacted, tool traffic dropped — is stored under `user:<userId>` and facts are extracted in the background using the same OpenAI key the assistant uses. On its own this is **shadow mode**: recall runs before each new turn and is logged as `memory.recall.shadow`, but nothing reaches the model. Creates Memnest's own `memnest_*` tables on first start; with both memory flags off, none are created. SQLite only for now (lexical recall); on Postgres memory stays disabled with a warning. |
+| `RUNNEL_MEMORY_RECALL` | `false` | Reserved for injecting recalled memories into the assistant's prompt. Not built yet — setting it logs a warning and memory keeps running in shadow mode. |
+| `RUNNEL_MEMORY_TOKEN_BUDGET` | `400` | Maximum tokens of recalled memory per turn. |
 
 Nothing here configures webhook URLs specially — a workflow's webhook is always reachable at
 `/webhook/<path>` on whatever host/port the server itself is reachable at.

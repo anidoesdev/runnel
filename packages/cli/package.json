@@ -16,6 +16,9 @@
     "clean": "rimraf dist *.tsbuildinfo"
   },
   "dependencies": {
+    "@memnest/core": "^0.1.0",
+    "@memnest/providers": "^0.1.1",
+    "@memnest/store-sqlite": "^0.1.0",
     "@n8n-clone/assistant": "workspace:*",
     "@n8n-clone/core": "workspace:*",
     "@n8n-clone/nodes-base": "workspace:*",

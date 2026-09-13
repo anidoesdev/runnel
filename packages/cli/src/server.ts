@@ -3,6 +3,8 @@ import { createApp } from './app.js';
 import { createLogger } from './logging/logger.js';
 import { loadConfig } from './config.js';
 import { loadCustomNodeTypes } from './custom-nodes/load-custom-nodes.js';
+import { createAssistantMemory } from './assistant/memory/memory.factory.js';
+import { CredentialEntity } from './db/entities/Credential.entity.js';
 import type { Server } from 'node:http';
 import type { DataSource } from 'typeorm';
 import type { Logger } from 'pino';
@@ -34,12 +36,22 @@ export async function startServer(): Promise<IRunningServer> {
 
   const customNodeTypes = config.customNodesDir ? await loadCustomNodeTypes(config.customNodesDir, logger) : [];
 
+  // After the DataSource is up and migrated: Memnest owns its own schema and only creates it when a memory flag is on.
+  const memory = await createAssistantMemory({
+    memory: config.memory,
+    db: config.db,
+    logger,
+    credentials: dataSource.getRepository(CredentialEntity),
+    encryptionKey: config.encryptionKey,
+  });
+
   const { app, activeWorkflowManager } = createApp({
     dataSource,
     encryptionKey: config.encryptionKey,
     jwtSecret: config.jwtSecret,
     logger,
     customNodeTypes,
+    memory,
   });
 
   const server = await new Promise<Server>((resolve) => {
@@ -54,6 +66,7 @@ export async function startServer(): Promise<IRunningServer> {
     await new Promise<void>((resolve, reject) => {
       server.close((err) => (err ? reject(err) : resolve()));
     });
+    await memory.close();
     await dataSource.destroy();
   };
 

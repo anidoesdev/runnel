@@ -114,10 +114,10 @@ onUnmounted(() => {
 
       <div class="workflow-library__topbar-actions">
         <N8nButton @click="router.push({ name: 'workflow-new' })">Create New</N8nButton>
-        <button type="button" class="icon-button" disabled aria-disabled="true" title="Notifications (coming soon)">
+        <button type="button" class="icon-button icon-button--lg" disabled aria-disabled="true" title="Notifications (coming soon)">
           <span class="material-symbols-outlined text-[20px]">notifications</span>
         </button>
-        <button type="button" class="icon-button" disabled aria-disabled="true" title="Settings (coming soon)">
+        <button type="button" class="icon-button icon-button--lg" disabled aria-disabled="true" title="Settings (coming soon)">
           <span class="material-symbols-outlined text-[20px]">settings</span>
         </button>
         <div ref="avatarMenuRoot" class="app-avatar-wrap">
