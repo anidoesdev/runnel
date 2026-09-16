@@ -1,11 +1,11 @@
 import { scopeOf } from '@memnest/core';
 import { redactText } from '@n8n-clone/workflow-tools';
 import { toCaptureTranscript, userContainerTag } from './capture-transcript.js';
-import type { Memnest } from '@memnest/core';
+import type { MemnestApi } from '@memnest/core';
 import type { IAssistantActor, IAssistantMemoryPort, IAssistantSession, IRecallResult } from '@n8n-clone/assistant';
 
 /** The slice of Memnest this adapter uses — narrow so tests can hand it a spy. */
-export type IMemnestForAssistant = Pick<Memnest, 'add' | 'search'>;
+export type IMemnestForAssistant = Pick<MemnestApi, 'add' | 'search'>;
 
 export class MemnestMemoryAdapter implements IAssistantMemoryPort {
   constructor(private readonly memnest: IMemnestForAssistant) {}

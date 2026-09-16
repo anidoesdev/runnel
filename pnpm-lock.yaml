@@ -76,14 +76,14 @@ importers:
   packages/cli:
     dependencies:
       '@memnest/core':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@memnest/providers':
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.2
+        version: 0.1.2
       '@memnest/store-sqlite':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.2.0
+        version: 0.2.0
       '@n8n-clone/assistant':
         specifier: workspace:*
         version: link:../assistant
@@ -801,16 +801,16 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
-  '@memnest/core@0.1.0':
-    resolution: {integrity: sha512-/pZQgTdVBYYvG/YgeS3Dw9p/4QPD2e4OygfprCKOmXckLkjGDLTLkI+AaxKgRltRa0YjwyQhPfdWdfnuC5B1vQ==}
+  '@memnest/core@0.2.0':
+    resolution: {integrity: sha512-yivKfvJtjj4V/yiTYhooHszpI3hX9mHKdAwadUfCa/1CwBAicKVpAI610hbm2d0izkCHx+TkGcmiE7xv50HR1g==}
     engines: {node: '>=20'}
 
-  '@memnest/providers@0.1.1':
-    resolution: {integrity: sha512-OLDwX3NypDHCYQc+8CTF9FTMPYzSPFHQyk7w1MxMmttXnpx90lJxYtJyhh5CGaAVcjXE1Va3szNRZP8DRfUK6A==}
+  '@memnest/providers@0.1.2':
+    resolution: {integrity: sha512-DGzcDgQPsmP1Ix/WkGihdO2T0VnATypE8U+Vl6k226t5eJUalUQi5GeE0SuB2y6kM0Dh75sHEjO1L1sRONKRQg==}
     engines: {node: '>=20'}
 
-  '@memnest/store-sqlite@0.1.0':
-    resolution: {integrity: sha512-CrKkL3zW57XPHSdmVeqkq1SnhiLT80AEI39FuJpYSUz6vbLBGX22PC8cpA9gN0g5y7NG+XPW16ARJaqf3bqCAQ==}
+  '@memnest/store-sqlite@0.2.0':
+    resolution: {integrity: sha512-tvlTwKqF90aGYKWeUofLVf0kzJVDGofJCJ8L3P1NoSa78HLR87C5qjDE5vU0B5xdNkkC0AAQCPlNR1mCZm5ETg==}
     engines: {node: '>=20'}
 
   '@napi-rs/lzma-linux-x64-gnu@1.5.1':
@@ -3544,15 +3544,15 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@memnest/core@0.1.0': {}
+  '@memnest/core@0.2.0': {}
 
-  '@memnest/providers@0.1.1':
+  '@memnest/providers@0.1.2':
     dependencies:
-      '@memnest/core': 0.1.0
+      '@memnest/core': 0.2.0
 
-  '@memnest/store-sqlite@0.1.0':
+  '@memnest/store-sqlite@0.2.0':
     dependencies:
-      '@memnest/core': 0.1.0
+      '@memnest/core': 0.2.0
       '@types/better-sqlite3': 7.6.13
       better-sqlite3: 12.11.1
 
