@@ -1,4 +1,5 @@
 import { createDataSource, postgresConfigFromEnv, sqliteConfig } from './db/data-source.js';
+import { explainDatabaseStartupError } from './db/startup-error.js';
 import { createApp } from './app.js';
 import { createLogger } from './logging/logger.js';
 import { loadConfig } from './config.js';
@@ -30,10 +31,13 @@ export async function startServer(): Promise<IRunningServer> {
     logger.warn('RUNNEL_JWT_SECRET is not set — using an insecure development default. Do not use this in production.');
   }
 
-  const dataSource = createDataSource(
-    config.db.type === 'sqlite' ? sqliteConfig(config.db.database) : postgresConfigFromEnv(),
-  );
-  await dataSource.initialize();
+  const dbConfig = config.db.type === 'sqlite' ? sqliteConfig(config.db.database) : postgresConfigFromEnv();
+  const dataSource = createDataSource(dbConfig);
+  try {
+    await dataSource.initialize();
+  } catch (err) {
+    throw explainDatabaseStartupError(err, dbConfig) ?? err;
+  }
   await dataSource.runMigrations();
 
   const customNodeTypes = config.customNodesDir ? await loadCustomNodeTypes(config.customNodesDir, logger) : [];

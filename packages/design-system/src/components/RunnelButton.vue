@@ -62,10 +62,11 @@ defineEmits<{ click: [event: MouseEvent] }>();
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
-/* Same hue at 90%, matching shadcn's `hover:bg-primary/90` — hover changes color only, no
-   shadow growth. */
+/* Same hue at 90%, matching shadcn's `hover:bg-primary/90`. The glow is transparent unless the
+   theme defines one — Runnel's dark mode does, so primary actions light up on hover there only. */
 .runnel-button--primary:hover:not(:disabled) {
   background: color-mix(in srgb, var(--color-primary, #ff6d5a) 90%, transparent);
+  box-shadow: 0 0 18px var(--color-glow-soft, transparent);
 }
 
 .runnel-button--primary:focus-visible {

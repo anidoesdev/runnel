@@ -2,9 +2,15 @@
 import { Handle, Position } from '@vue-flow/core';
 import { computed } from 'vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
+import { nodeIcon } from '../../utils/nodeIcons.js';
 import type { INode, NodeConnectionType } from '@runnel/workflow';
+import type { NodeRunState } from '../../utils/runStatus.js';
 
-const props = defineProps<{ id: string; data: { node: INode; pulse?: boolean; selected?: boolean }; readonly?: boolean }>();
+const props = defineProps<{
+  id: string;
+  data: { node: INode; pulse?: boolean; selected?: boolean; runState?: NodeRunState };
+  readonly?: boolean;
+}>();
 const emit = defineEmits<{ delete: [] }>();
 
 const nodeTypesStore = useNodeTypesStore();
@@ -50,7 +56,10 @@ function onDeleteClick(event: MouseEvent): void {
 </script>
 
 <template>
-  <div class="canvas-node" :class="{ 'canvas-node--pulse': data.pulse, 'canvas-node--selected': data.selected }">
+  <div
+    class="canvas-node"
+    :class="[{ 'canvas-node--pulse': data.pulse, 'canvas-node--selected': data.selected }, data.runState ? `canvas-node--${data.runState}` : '']"
+  >
     <button
       v-if="!readonly"
       class="canvas-node__delete nodrag"
@@ -82,8 +91,11 @@ function onDeleteClick(event: MouseEvent): void {
     />
 
     <div class="canvas-node__body">
-      <span class="canvas-node__icon">{{ (description?.displayName ?? data.node.type).slice(0, 1) }}</span>
+      <span class="canvas-node__icon material-symbols-outlined" :title="description?.displayName ?? data.node.type">{{ nodeIcon(data.node.type) }}</span>
       <span class="canvas-node__name" :title="data.node.name">{{ data.node.name }}</span>
+      <span v-if="data.runState === 'success' || data.runState === 'error'" class="canvas-node__run-badge" :aria-label="data.runState === 'success' ? 'Ran successfully' : 'Failed'">
+        <span class="material-symbols-outlined">{{ data.runState === 'success' ? 'check' : 'priority_high' }}</span>
+      </span>
     </div>
 
     <Handle

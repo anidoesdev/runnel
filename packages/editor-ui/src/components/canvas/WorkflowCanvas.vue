@@ -3,6 +3,7 @@ import { VueFlow, useVueFlow } from '@vue-flow/core';
 import { computed } from 'vue';
 import CanvasNode from './CanvasNode.vue';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
+import { nodeRunStates } from '../../utils/runStatus.js';
 import type { Connection, Edge, EdgeChange, Node as FlowNode, NodeChange, NodeDragEvent } from '@vue-flow/core';
 import type { IConnection, IConnections, INode, NodeConnectionType } from '@runnel/workflow';
 
@@ -24,6 +25,19 @@ const emit = defineEmits<{
 const store = useWorkflowStore();
 const { project, zoomIn, zoomOut, fitView } = useVueFlow();
 
+/**
+ * Frame the whole workflow once when it opens — nodes otherwise sit wherever the saved positions
+ * put them, often jammed against an edge or under a side panel. Only once per workflow: re-fitting
+ * after every added node would yank the view out from under the person editing it.
+ */
+let fittedWorkflowKey: string | undefined;
+function onNodesInitialized(): void {
+  const key = store.id ?? 'new';
+  if (fittedWorkflowKey === key) return;
+  fittedWorkflowKey = key;
+  void fitView({ padding: 0.15, maxZoom: 1 });
+}
+
 const deleteKeyCodes = ['Delete', 'Backspace'];
 
 const readonly = computed(() => props.previewNodes !== undefined);
@@ -34,12 +48,31 @@ const isEmpty = computed(() => displayNodes.value.length === 0);
 const idByName = computed(() => new Map(displayNodes.value.map((n) => [n.name, n.id])));
 const nameById = computed(() => new Map(displayNodes.value.map((n) => [n.id, n.name])));
 
+/**
+ * Real runs only — the live canvas never plays a pretend execution. While one is in flight the
+ * whole flow is "running"; afterwards each node shows what actually happened to it. An assistant
+ * draft (readonly preview) isn't what ran, so it shows neither.
+ */
+const lastRunStates = computed(() => nodeRunStates(store.lastResult?.data));
+const running = computed(() => !readonly.value && store.executing);
+
+function runStateFor(name: string): 'running' | 'success' | 'error' | undefined {
+  if (readonly.value) return undefined;
+  if (store.executing) return 'running';
+  return lastRunStates.value[name];
+}
+
 const flowNodes = computed<FlowNode[]>(() =>
   displayNodes.value.map((node) => ({
     id: node.id,
     type: 'custom',
     position: { x: node.position[0], y: node.position[1] },
-    data: { node, pulse: (props.pulseNodeNames ?? []).includes(node.name), selected: node.id === props.selectedNodeId },
+    data: {
+      node,
+      pulse: (props.pulseNodeNames ?? []).includes(node.name),
+      selected: node.id === props.selectedNodeId,
+      runState: runStateFor(node.name),
+    },
   })),
 );
 
@@ -71,6 +104,7 @@ const flowEdges = computed<Edge[]>(() => {
           if (!targetId) continue;
           const classes = [type === 'main' ? undefined : 'workflow-canvas__edge--sub-node'];
           if (pulseKeys.has(`${sourceName}->${connection.node}`)) classes.push('workflow-canvas__edge--pulse');
+          if (running.value) classes.push('workflow-canvas__edge--running');
           edges.push({
             id: `${sourceId}:${type}:${outputIndex}->${targetId}:${connection.index}`,
             source: sourceId,
@@ -78,6 +112,8 @@ const flowEdges = computed<Edge[]>(() => {
             sourceHandle: portHandleId('output', type, outputIndex),
             targetHandle: portHandleId('input', type, connection.index),
             class: classes.filter(Boolean).join(' ') || undefined,
+            // Vue Flow's own marching-dash animation, styled neon in global.css, while a run is in flight.
+            animated: running.value,
           });
         }
       });
@@ -176,6 +212,7 @@ function onDeleteNode(nodeId: string): void {
       @edges-change="onEdgesChange"
       @nodes-change="onNodesChange"
       @node-click="onNodeClick"
+      @nodes-initialized="onNodesInitialized"
     >
       <template #node-custom="nodeProps">
         <CanvasNode v-bind="nodeProps" :readonly="readonly" @delete="onDeleteNode(nodeProps.id)" />
@@ -329,7 +366,7 @@ function onDeleteNode(nodeId: string): void {
    color that's needed. */
 .workflow-canvas :deep(.vue-flow) {
   background-color: var(--color-surface);
-  background-image: radial-gradient(circle, var(--color-outline-variant) 1px, transparent 1px);
+  background-image: radial-gradient(circle, var(--color-canvas-dot, var(--color-outline-variant)) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 

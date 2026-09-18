@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { RunnelButton } from '@runnel/design-system';
 import { foldersApi } from '../api/folders.js';
 import { workflowsApi } from '../api/workflows.js';
 import { WORKFLOW_TEMPLATES } from '../data/templates.js';
 import TopbarActions from '../components/app/TopbarActions.vue';
+import FlowPreview from '../components/flow/FlowPreview.vue';
 import type { IFolderRecord, IWorkflowRecord } from '../api/types.js';
 import type { IWorkflowTemplate } from '../data/templates.js';
 
@@ -201,6 +202,41 @@ async function useTemplate(template: IWorkflowTemplate): Promise<void> {
   await router.push({ name: 'workflow-edit', params: { id: created.id } });
 }
 
+/** Built once per template for its preview; useTemplate builds a fresh copy with new node ids. */
+const templatePreviews = Object.fromEntries(WORKFLOW_TEMPLATES.map((template) => [template.id, template.build()]));
+
+/**
+ * Only previews on screen animate. A library can hold many workflows, and dozens of looping SVG
+ * animations nobody can see would burn CPU for nothing. Without IntersectionObserver (tests, old
+ * browsers) everything simply animates.
+ */
+const visiblePreviewIds = ref(new Set<string>());
+let previewObserver: IntersectionObserver | undefined;
+
+function observePreviews(): void {
+  previewObserver?.disconnect();
+  const elements = Array.from(document.querySelectorAll<HTMLElement>('[data-preview-id]'));
+  if (typeof IntersectionObserver === 'undefined') {
+    visiblePreviewIds.value = new Set(elements.map((element) => element.dataset.previewId!));
+    return;
+  }
+  previewObserver = new IntersectionObserver(
+    (entries) => {
+      const next = new Set(visiblePreviewIds.value);
+      for (const entry of entries) {
+        const id = (entry.target as HTMLElement).dataset.previewId!;
+        if (entry.isIntersecting) next.add(id);
+        else next.delete(id);
+      }
+      visiblePreviewIds.value = next;
+    },
+    { rootMargin: '120px' },
+  );
+  for (const element of elements) previewObserver.observe(element);
+}
+
+watch([visibleWorkflows, activeTab, loading], () => void nextTick(observePreviews));
+
 const openMenuId = ref<string | null>(null);
 function toggleCardMenu(id: string): void {
   openMenuId.value = openMenuId.value === id ? null : id;
@@ -219,6 +255,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   document.removeEventListener('click', onDocumentClick);
+  previewObserver?.disconnect();
 });
 </script>
 
@@ -350,10 +387,14 @@ onUnmounted(() => {
         <template v-if="activeTab === 'templates'">
           <div class="workflow-library__grid">
             <article v-for="template in WORKFLOW_TEMPLATES" :key="template.id" class="workflow-card template-card">
+              <div class="workflow-card__preview" :data-preview-id="`tpl:${template.id}`">
+                <FlowPreview
+                  :nodes="templatePreviews[template.id]!.nodes"
+                  :connections="templatePreviews[template.id]!.connections"
+                  :animate="visiblePreviewIds.has(`tpl:${template.id}`)"
+                />
+              </div>
               <div class="workflow-card__top">
-                <div class="workflow-card__icon">
-                  <span class="material-symbols-outlined">{{ template.icon }}</span>
-                </div>
                 <div class="workflow-card__title-group">
                   <h3 class="workflow-card__title">{{ template.name }}</h3>
                   <p class="workflow-card__meta">{{ template.steps.length }} nodes</p>
@@ -424,10 +465,18 @@ onUnmounted(() => {
             >
               <div class="workflow-card__stripe" :class="{ 'workflow-card__stripe--active': workflow.active }" />
 
+              <div class="workflow-card__preview" :data-preview-id="workflow.id">
+                <FlowPreview
+                  :nodes="workflow.nodes"
+                  :connections="workflow.connections"
+                  :animate="!isTrash && visiblePreviewIds.has(workflow.id)"
+                />
+                <span v-if="workflow.active && !isTrash" class="workflow-card__live" title="Active — running on its trigger">
+                  <span class="workflow-card__live-dot" /> Live
+                </span>
+              </div>
+
               <div class="workflow-card__top">
-                <div class="workflow-card__icon" :class="{ 'workflow-card__icon--active': workflow.active }">
-                  <span class="material-symbols-outlined">account_tree</span>
-                </div>
                 <div class="workflow-card__title-group">
                   <h3 class="workflow-card__title">{{ workflow.name }}</h3>
                   <p class="workflow-card__meta">

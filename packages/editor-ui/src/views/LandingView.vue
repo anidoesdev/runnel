@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
+import FlowPreview from '../components/flow/FlowPreview.vue';
+import type { IConnections, INode } from '@runnel/workflow';
 
 const router = useRouter();
 
@@ -8,6 +10,29 @@ function goToLogin(): void {
 }
 
 const year = new Date().getFullYear();
+
+/** The hero's demo: real Runnel node types, with a branch so the run visibly splits. */
+const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; connections: IConnections } = {
+  nodes: [
+    { name: 'New order', type: 'webhook', position: [0, 0] },
+    { name: 'Payment captured?', type: 'if', position: [1, 0] },
+    { name: 'Save order', type: 'postgres', position: [2, -1] },
+    { name: 'Notify fulfilment', type: 'httpRequest', position: [2, 0] },
+    { name: 'Flag for review', type: 'set', position: [2, 1] },
+  ],
+  connections: {
+    'New order': { main: [[{ node: 'Payment captured?', type: 'main', index: 0 }]] },
+    'Payment captured?': {
+      main: [
+        [
+          { node: 'Save order', type: 'main', index: 0 },
+          { node: 'Notify fulfilment', type: 'main', index: 0 },
+        ],
+        [{ node: 'Flag for review', type: 'main', index: 0 }],
+      ],
+    },
+  },
+};
 </script>
 
 <template>
@@ -64,7 +89,7 @@ const year = new Date().getFullYear();
 
         <!-- Canvas preview -->
         <div class="w-full max-w-5xl z-10 relative">
-          <div class="bg-surface-container-lowest rounded-xl border border-surface-variant shadow-sm overflow-hidden flex flex-col h-[500px]">
+          <div class="hero-window bg-surface-container-lowest rounded-xl border border-surface-variant overflow-hidden flex flex-col h-[500px]">
             <div class="h-12 border-b border-surface-variant bg-surface flex items-center justify-between px-4">
               <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-outline-variant"></div>
@@ -80,71 +105,11 @@ const year = new Date().getFullYear();
               </div>
             </div>
 
-            <div class="flex-grow bg-surface relative overflow-hidden flex items-center justify-center p-8 grid-bg">
-              <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1">
-                <path d="M 280 250 C 350 250, 400 180, 480 180" fill="none" stroke="#e2e3e0" stroke-width="2"></path>
-                <path d="M 280 250 C 350 250, 400 320, 480 320" fill="none" stroke="#e2e3e0" stroke-dasharray="4" stroke-width="2"></path>
-                <path d="M 720 180 C 800 180, 820 250, 900 250" fill="none" stroke="#e2e3e0" stroke-width="2"></path>
-              </svg>
-
-              <div class="flex gap-16 md:gap-24 items-center w-full max-w-4xl relative z-10">
-                <!-- Trigger -->
-                <div class="bg-surface-container-lowest border border-surface-variant rounded-lg p-4 w-64 shadow-sm flex flex-col gap-3 relative transform hover:-translate-y-1 transition-transform">
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-primary font-label-md text-label-md">
-                      <span class="material-symbols-outlined bg-surface-base p-1 rounded">bolt</span>
-                      Webhook
-                    </div>
-                    <span class="material-symbols-outlined text-outline-variant text-[16px]">more_horiz</span>
-                  </div>
-                  <div class="text-body-sm text-on-surface-variant font-mono bg-surface p-2 rounded border border-surface-variant truncate">
-                    POST /api/v1/checkout
-                  </div>
-                  <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-primary rounded-full"></div>
-                </div>
-
-                <!-- Processing column -->
-                <div class="flex flex-col gap-12 relative z-10">
-                  <div class="bg-surface-container-lowest border border-primary rounded-lg p-4 w-64 shadow-sm flex flex-col gap-3 relative ring-2 ring-secondary-container">
-                    <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-primary rounded-full"></div>
-                    <div class="flex items-center justify-between">
-                      <div class="flex items-center gap-2 text-on-surface font-label-md text-label-md">
-                        <span class="material-symbols-outlined bg-surface-container p-1 rounded">transform</span>
-                        Data Transform
-                      </div>
-                    </div>
-                    <div class="flex gap-2 mb-1">
-                      <span class="px-2 py-0.5 bg-surface-container text-on-surface-variant rounded text-[10px] font-mono">MAP</span>
-                      <span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container rounded text-[10px] font-mono">JS</span>
-                    </div>
-                    <div class="text-body-sm text-on-surface-variant font-mono bg-surface p-2 rounded border border-surface-variant text-xs">
-                      return {<br />&nbsp;&nbsp;userId: $input.id<br />}
-                    </div>
-                    <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-primary rounded-full"></div>
-                  </div>
-
-                  <div class="bg-surface-container-lowest border border-surface-variant rounded-lg p-4 w-64 shadow-sm flex flex-col gap-3 relative opacity-60">
-                    <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-outline-variant rounded-full"></div>
-                    <div class="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
-                      <span class="material-symbols-outlined bg-surface-container p-1 rounded">call_split</span>
-                      Condition
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Destination -->
-                <div class="bg-surface-container-lowest border border-surface-variant rounded-lg p-4 w-64 shadow-sm flex flex-col gap-3 relative z-10">
-                  <div class="absolute -left-3 top-1/2 -translate-y-1/2 w-4 h-4 bg-surface-container-lowest border-2 border-outline-variant rounded-full"></div>
-                  <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2 text-on-surface font-label-md text-label-md">
-                      <span class="material-symbols-outlined bg-surface-container p-1 rounded">database</span>
-                      PostgreSQL
-                    </div>
-                  </div>
-                  <div class="text-body-sm text-on-surface-variant font-mono bg-surface p-2 rounded border border-surface-variant">
-                    INSERT INTO users...
-                  </div>
-                </div>
+            <div class="hero-canvas flex-grow relative overflow-hidden flex items-center justify-center p-6 md:p-10">
+              <FlowPreview variant="hero" :nodes="HERO_FLOW.nodes" :connections="HERO_FLOW.connections" />
+              <div class="hero-canvas__status" aria-hidden="true">
+                <span class="hero-canvas__status-dot"></span>
+                Live · runs on every order
               </div>
             </div>
           </div>
@@ -241,11 +206,44 @@ const year = new Date().getFullYear();
 </template>
 
 <style scoped>
-.grid-bg {
-  background-size: 16px 16px;
-  background-image:
-    linear-gradient(to right, #e2e3e0 1px, transparent 1px),
-    linear-gradient(to bottom, #e2e3e0 1px, transparent 1px);
-  opacity: 0.4;
+.hero-window {
+  box-shadow: var(--shadow-card-hover);
+}
+
+.hero-canvas {
+  background-color: var(--color-surface);
+  background-image: radial-gradient(circle, var(--color-grid) 1px, transparent 1.3px);
+  background-size: 20px 20px;
+}
+
+.hero-canvas__status {
+  position: absolute;
+  left: 16px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--color-surface-container-lowest) 80%, transparent);
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+}
+
+.hero-canvas__status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: live-dot 1.8s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-canvas__status-dot {
+    animation: none;
+  }
 }
 </style>

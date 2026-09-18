@@ -6,3 +6,8 @@
 **/*.sqlite
 .git
 custom-nodes
+
+# Secrets never go into an image: docker-compose.yml passes every variable in explicitly.
+.env
+.env.*
+!.env.example
