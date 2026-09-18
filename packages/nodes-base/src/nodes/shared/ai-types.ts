@@ -1,4 +1,4 @@
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 
 /** Shared by the AI Agent node and every `ai_languageModel`/`ai_tool` sub-node it can be wired to. */
 

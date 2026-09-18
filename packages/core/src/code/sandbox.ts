@@ -1,5 +1,5 @@
 import { createContext, Script } from 'node:vm';
-import type { IDataObject, INodeExecutionData } from '@n8n-clone/workflow';
+import type { IDataObject, INodeExecutionData } from '@runnel/workflow';
 
 /**
  * Runs user-authored JavaScript for the Code node using Node's built-in `vm` module: a
@@ -8,7 +8,7 @@ import type { IDataObject, INodeExecutionData } from '@n8n-clone/workflow';
  * explicitly assigned into the context below.
  *
  * IMPORTANT — this is NOT the hard security boundary the spec calls for (§9, §12.8). `vm`
- * contexts still run in the *same OS process* as the rest of n8n-clone, and are documented
+ * contexts still run in the *same OS process* as the rest of runnel, and are documented
  * to have known escape vectors (constructor-chain tricks, prototype access). It also cannot
  * enforce a wall-clock timeout on *async* code — `Script.runInContext`'s `timeout` option
  * only bounds synchronous execution; an `await` inside user code suspends past it. Real
@@ -46,9 +46,25 @@ async function runInSandbox(code: string, globals: Record<string, unknown>, time
   const context = createContext({ console, Buffer, Math, Date, JSON, setTimeout, clearTimeout, ...globals });
   const script = new Script(`(async () => {\n${code}\n})()`, { filename: 'Code.vm.js' });
 
-  const execution = Promise.resolve().then(
-    () => script.runInContext(context, { timeout: timeoutMs }) as Promise<unknown>,
-  );
+  // Two different mechanisms can time this out: vm's own synchronous `timeout` (which fires for
+  // a blocking loop, and also when a busy machine takes too long just to *start* the script) and
+  // the wall-clock race below (which covers async code that keeps running). They word their
+  // errors differently, so vm's is normalized here — callers get one message either way.
+  const normalizeTimeout = (err: unknown): never => {
+    // Not `err instanceof Error`: the interrupt can arrive as an error from the vm's own realm,
+    // where the host's Error constructor is a different object and instanceof is false.
+    const message = typeof (err as { message?: unknown } | null)?.message === 'string' ? (err as { message: string }).message : String(err);
+    if (timeoutMs !== undefined && /Script execution timed out/i.test(message)) {
+      throw new Error(`Code execution exceeded ${timeoutMs}ms`);
+    }
+    throw err;
+  };
+
+  // vm's interrupt surfaces either as a synchronous throw or as a rejection of the async IIFE's
+  // promise, depending on where the script was when the clock ran out — normalize both.
+  const execution = Promise.resolve()
+    .then(() => script.runInContext(context, { timeout: timeoutMs }) as Promise<unknown>)
+    .catch(normalizeTimeout);
 
   if (!timeoutMs) return execution;
 

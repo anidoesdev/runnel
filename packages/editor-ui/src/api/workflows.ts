@@ -1,5 +1,5 @@
 import { api } from './http.js';
-import type { IConnections, IDataObject, INode, IWorkflowSettings } from '@n8n-clone/workflow';
+import type { IConnections, IDataObject, INode, IWorkflowSettings } from '@runnel/workflow';
 import type { IExecuteWorkflowResult, IWorkflowRecord } from './types.js';
 
 export interface IWorkflowPayload {

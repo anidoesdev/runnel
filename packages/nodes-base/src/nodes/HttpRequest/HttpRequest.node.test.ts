@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { MapCredentialTypes } from '@n8n-clone/core';
+import { MapCredentialTypes } from '@runnel/core';
 import { httpRequestNode } from './HttpRequest.node.js';
 import { httpBearerAuth } from '../../credentials/HttpBearerAuth.credentials.js';
 import { makeExecuteFunctions, makeNode } from '../../test-utils.js';

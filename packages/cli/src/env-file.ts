@@ -4,7 +4,7 @@ import { config as loadDotenv } from 'dotenv';
 
 /**
  * Walks up from `startDir` looking for the monorepo root (marked by `pnpm-workspace.yaml`) —
- * mirrors @n8n-clone/node-dev's own `findMonorepoRoot`. Duplicated rather than imported:
+ * mirrors @runnel/node-dev's own `findMonorepoRoot`. Duplicated rather than imported:
  * packages/cli can't depend on packages/node-dev (see .dependency-cruiser.cjs — node-dev only
  * depends on workflow, and nothing depends on node-dev), and this is eight lines.
  */
@@ -20,7 +20,7 @@ function findMonorepoRoot(startDir: string): string | null {
 
 /**
  * Loads a `.env` file from the monorepo root, if one is found — purely a local-development
- * convenience for `n8n-clone start`/`execute` run directly from a checkout. Real deployments
+ * convenience for `runnel start`/`execute` run directly from a checkout. Real deployments
  * set environment variables directly (Docker Compose, systemd, ...) and this silently no-ops
  * for them, since there's no monorepo root to find inside a deployed container. Never
  * overrides an already-set variable (dotenv's default behavior) — an explicitly-exported env

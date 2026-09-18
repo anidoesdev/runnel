@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { ifNode } from './If.node.js';
 import { makeExecuteFunctions, makeNode } from '../../test-utils.js';
-import type { IDataObjectValue } from '@n8n-clone/workflow';
+import type { IDataObjectValue } from '@runnel/workflow';
 
 function conditionsNode(
   conditions: Array<{ leftValue: IDataObjectValue; operator: string; rightValue?: IDataObjectValue }>,

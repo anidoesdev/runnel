@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { N8nButton, N8nModal } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelModal } from '@runnel/design-system';
 import PropertyField from './PropertyField.vue';
 import CredentialPicker from './CredentialPicker.vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 import { isPropertyVisible } from '../../utils/displayOptions.js';
 import { inferSchema, tableCell, tableColumns } from '../../utils/outputView.js';
-import type { IDataObject, IDataObjectValue, INodeExecutionData } from '@n8n-clone/workflow';
+import type { IDataObject, IDataObjectValue, INodeExecutionData } from '@runnel/workflow';
 
 const props = defineProps<{ nodeId: string | null }>();
 const emit = defineEmits<{ close: [] }>();
@@ -87,7 +87,7 @@ async function runToHere(): Promise<void> {
 </script>
 
 <template>
-  <N8nModal :model-value="node !== null" @update:model-value="close">
+  <RunnelModal :model-value="node !== null" @update:model-value="close">
     <template #header>
       <div class="flex items-center gap-3 min-w-0">
         <div class="w-10 h-10 rounded-lg bg-secondary-container text-on-secondary-container flex items-center justify-center font-semibold uppercase shrink-0">
@@ -132,9 +132,9 @@ async function runToHere(): Promise<void> {
       <section class="ndv__panel">
         <div class="ndv__output-header">
           <h3>Output</h3>
-          <N8nButton v-if="!isSubNode" :disabled="!workflowStore.id || workflowStore.executing" @click="runToHere">
+          <RunnelButton v-if="!isSubNode" :disabled="!workflowStore.id || workflowStore.executing" @click="runToHere">
             {{ workflowStore.executing ? 'Running…' : 'Run to Here' }}
-          </N8nButton>
+          </RunnelButton>
         </div>
 
         <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
@@ -202,5 +202,5 @@ async function runToHere(): Promise<void> {
         </template>
       </section>
     </div>
-  </N8nModal>
+  </RunnelModal>
 </template>

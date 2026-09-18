@@ -2,7 +2,7 @@
 import { Handle, Position } from '@vue-flow/core';
 import { computed } from 'vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
-import type { INode, NodeConnectionType } from '@n8n-clone/workflow';
+import type { INode, NodeConnectionType } from '@runnel/workflow';
 
 const props = defineProps<{ id: string; data: { node: INode; pulse?: boolean; selected?: boolean }; readonly?: boolean }>();
 const emit = defineEmits<{ delete: [] }>();

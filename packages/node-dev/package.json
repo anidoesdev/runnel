@@ -1,22 +1,22 @@
 {
-  "name": "@n8n-clone/node-dev",
+  "name": "@runnel/node-dev",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "n8n-node-dev": "./dist/bin.js"
+    "runnel-node-dev": "./dist/bin.js"
   },
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b",
     "lint": "eslint src",
     "test": "vitest run --coverage",
-    "clean": "rimraf dist *.tsbuildinfo"
+    "clean": "rimraf --glob dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@n8n-clone/workflow": "workspace:*"
+    "@runnel/workflow": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

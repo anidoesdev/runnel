@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { isPropertyVisible } from './displayOptions.js';
-import type { INodeProperties } from '@n8n-clone/workflow';
+import type { INodeProperties } from '@runnel/workflow';
 
 const base: INodeProperties = { displayName: 'Value', name: 'value', type: 'string', default: '' };
 

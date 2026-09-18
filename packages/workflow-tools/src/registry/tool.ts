@@ -1,4 +1,4 @@
-import type { INodeTypes } from '@n8n-clone/core';
+import type { INodeTypes } from '@runnel/core';
 import type { z } from 'zod';
 import type { ICredentialRepositoryPort } from '../draft/credential-repository.port.js';
 import type { IWorkflowExecutorPort } from '../draft/execution.port.js';
@@ -17,7 +17,7 @@ export interface IToolContext {
 /**
  * A tool handler should be a five-line wrapper (build-prompt rule #3: "if a tool handler
  * contains business logic, it's in the wrong place"). All the actual graph-mutation logic lives
- * in @n8n-clone/core's mutation module; a handler here does nothing but read the draft, call
+ * in @runnel/core's mutation module; a handler here does nothing but read the draft, call
  * into core, and write the result back.
  */
 export interface ITool<TParams, TResult> {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { N8nCheckbox, N8nInput, N8nSelect } from '@n8n-clone/design-system';
-import type { IDataObject, IDataObjectValue, INodeProperties, INodePropertyOptions } from '@n8n-clone/workflow';
+import { RunnelCheckbox, RunnelInput, RunnelSelect } from '@runnel/design-system';
+import type { IDataObject, IDataObjectValue, INodeProperties, INodePropertyOptions } from '@runnel/workflow';
 
 defineOptions({ name: 'PropertyField' });
 
@@ -61,26 +61,26 @@ function toggleMultiOption(optionValue: string | number | boolean, checked: bool
   <div class="property-field">
     <label>{{ property.displayName }}<span v-if="property.required" class="property-field__required" aria-hidden="true"> *</span></label>
 
-    <N8nInput
+    <RunnelInput
       v-if="property.type === 'string' || property.type === 'dateTime' || property.type === 'color'"
       :model-value="String(value ?? '')"
       :placeholder="property.placeholder"
       @update:model-value="update"
     />
 
-    <N8nInput
+    <RunnelInput
       v-else-if="property.type === 'number'"
       type="number"
       :model-value="String(value ?? 0)"
       @update:model-value="(v) => update(Number(v))"
     />
 
-    <N8nCheckbox v-else-if="property.type === 'boolean'" :model-value="Boolean(value)" @update:model-value="update" />
+    <RunnelCheckbox v-else-if="property.type === 'boolean'" :model-value="Boolean(value)" @update:model-value="update" />
 
-    <N8nSelect v-else-if="property.type === 'options'" :model-value="String(value ?? '')" :options="selectOptions" @update:model-value="update" />
+    <RunnelSelect v-else-if="property.type === 'options'" :model-value="String(value ?? '')" :options="selectOptions" @update:model-value="update" />
 
     <div v-else-if="property.type === 'multiOptions'" class="property-field__multi">
-      <N8nCheckbox
+      <RunnelCheckbox
         v-for="option in multiOptions"
         :key="String(option.value)"
         :label="option.name"
@@ -110,6 +110,6 @@ function toggleMultiOption(optionValue: string | number | boolean, checked: bool
       <button type="button" class="link-button" @click="addRow">+ Add</button>
     </div>
 
-    <N8nInput v-else :model-value="String(value ?? '')" @update:model-value="update" />
+    <RunnelInput v-else :model-value="String(value ?? '')" @update:model-value="update" />
   </div>
 </template>

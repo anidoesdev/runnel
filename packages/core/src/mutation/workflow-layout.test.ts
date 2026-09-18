@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { layoutWorkflow } from './workflow-layout.js';
-import type { IWorkflowBase, INode } from '@n8n-clone/workflow';
+import type { IWorkflowBase, INode } from '@runnel/workflow';
 
 function node(name: string): INode {
   return { id: name, name, type: 'test.noOp', typeVersion: 1, position: [0, 0], parameters: {} };

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { encryptCredentialData } from '@n8n-clone/core';
-import { OpenAiModelProvider } from '@n8n-clone/assistant';
+import { encryptCredentialData } from '@runnel/core';
+import { OpenAiModelProvider } from '@runnel/assistant';
 import { createModelProviderForSession } from './model-provider.factory.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';

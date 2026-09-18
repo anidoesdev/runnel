@@ -53,7 +53,7 @@ describe('redactSecrets', () => {
   });
 
   it('redacts a cookie header, which can carry a session token wholesale', () => {
-    expect(redactSecrets({ headers: { cookie: 'n8n-clone-auth=abc.def.ghi' } })).toEqual({
+    expect(redactSecrets({ headers: { cookie: 'runnel-auth=abc.def.ghi' } })).toEqual({
       headers: { cookie: '[Redacted]' },
     });
   });

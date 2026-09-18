@@ -1,4 +1,4 @@
-import type { IDataObject, IExecuteFunctions, INodeType, IPollFunctions, NodeOutput } from '@n8n-clone/workflow';
+import type { IDataObject, IExecuteFunctions, INodeType, IPollFunctions, NodeOutput } from '@runnel/workflow';
 
 interface IPollableItem {
   id: string | number;

@@ -8,12 +8,12 @@ import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { DataSource } from 'typeorm';
 import type { Express } from 'express';
-import type { INodeType } from '@n8n-clone/workflow';
+import type { INodeType } from '@runnel/workflow';
 
 /**
  * The M6 definition of done, exercised for real: a workflow is created, run, and inspected
  * entirely over the REST API — against a real (in-memory) SQLite database that's been
- * migrated the same way `n8n-clone start` would migrate it, not a mocked repository layer.
+ * migrated the same way `runnel start` would migrate it, not a mocked repository layer.
  */
 let dataSource: DataSource;
 let app: Express;

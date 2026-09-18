@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
-import N8nCheckbox from './N8nCheckbox.vue';
+import RunnelCheckbox from './RunnelCheckbox.vue';
 
-describe('N8nCheckbox', () => {
+describe('RunnelCheckbox', () => {
   it('reflects modelValue and emits update:modelValue on toggle', async () => {
-    const wrapper = mount(N8nCheckbox, { props: { modelValue: false, label: 'Active' } });
+    const wrapper = mount(RunnelCheckbox, { props: { modelValue: false, label: 'Active' } });
     expect((wrapper.find('input').element as HTMLInputElement).checked).toBe(false);
     expect(wrapper.text()).toBe('Active');
 

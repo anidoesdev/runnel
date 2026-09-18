@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { MapNodeTypes } from './node-types.js';
 import { testNoOpNode } from './test-nodes.js';
-import type { INodeType, VersionedNodeType } from '@n8n-clone/workflow';
+import type { INodeType, VersionedNodeType } from '@runnel/workflow';
 
 describe('MapNodeTypes', () => {
   it('returns a registered node type by name', () => {

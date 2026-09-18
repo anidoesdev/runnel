@@ -1,6 +1,6 @@
 import { writeFileSync } from 'node:fs';
 import { OpenAiModelProvider } from '../providers/openai-model-provider.js';
-import { ALL_EVAL_CASES } from './cases/index.js';
+import { ALL_EVAL_CASES, MEMORY_CASES } from './cases/index.js';
 import { formatScorecard, scorecardToJson } from './reporter.js';
 import { runEvalSuite } from './runner.js';
 
@@ -29,8 +29,10 @@ async function main(): Promise<void> {
     model: process.env.OPENAI_MODEL,
   });
 
-  console.log(`Running ${ALL_EVAL_CASES.length} eval cases against ${process.env.OPENAI_MODEL ?? '(default model)'}...`);
-  const scorecard = await runEvalSuite(ALL_EVAL_CASES, provider);
+  // Memory cases are opt-in so the default suite's score is unaffected by memory work.
+  const cases = process.env.RUNNEL_EVAL_MEMORY === 'true' ? [...ALL_EVAL_CASES, ...MEMORY_CASES] : ALL_EVAL_CASES;
+  console.log(`Running ${cases.length} eval cases against ${process.env.OPENAI_MODEL ?? '(default model)'}...`);
+  const scorecard = await runEvalSuite(cases, provider);
 
   console.log(formatScorecard(scorecard));
 

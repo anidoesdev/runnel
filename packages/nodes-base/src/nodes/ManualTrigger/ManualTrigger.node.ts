@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
 /**
  * The default trigger for manually running a workflow from the editor. `trigger()`/the

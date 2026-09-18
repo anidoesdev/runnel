@@ -27,6 +27,7 @@ export type {
 } from './session.js';
 
 export type { IAssistantMemoryPort, IRecallResult, IRecalledMemory } from './memory-port.js';
+export { renderMemoryBlock } from './memory-block.js';
 
 export { ASK_USER_TOOL_DEFINITION, ASK_USER_TOOL_NAME, parseAskUserArguments } from './ask-user.js';
 

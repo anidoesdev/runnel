@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { MapNodeTypes } from '@n8n-clone/core';
-import { registerAllNodeTypes } from '@n8n-clone/nodes-base';
-import { createToolRegistry, WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { MapNodeTypes } from '@runnel/core';
+import { registerAllNodeTypes } from '@runnel/nodes-base';
+import { createToolRegistry, WorkflowDraftStore } from '@runnel/workflow-tools';
 import { runTurn } from './agent-loop.js';
 import { createSession, InMemoryAssistantSessionStore } from './session.js';
 import { ScriptedModelProvider } from './test-utils/scripted-model-provider.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
-import type { IWorkflowRepositoryPort } from '@n8n-clone/workflow-tools';
+import type { IWorkflowBase } from '@runnel/workflow';
+import type { IWorkflowRepositoryPort } from '@runnel/workflow-tools';
 
 /**
  * Milestone 3's own bar: "Builds a 3-node workflow end to end from a prompt, in a test." Runs

@@ -10,11 +10,12 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
+      # pgvector image: assistant memory on Postgres needs the extension (see memory.factory.ts).
       postgres:
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: n8n_clone_test
+          POSTGRES_DB: runnel_test
         ports:
           - 5433:5432
         options: >-
@@ -28,7 +29,8 @@ jobs:
       TEST_POSTGRES_PORT: 5433
       TEST_POSTGRES_USER: postgres
       TEST_POSTGRES_PASSWORD: postgres
-      TEST_POSTGRES_DATABASE: n8n_clone_test
+      TEST_POSTGRES_DATABASE: runnel_test
+      TEST_MEMORY_PG_URL: postgres://postgres:postgres@localhost:5433/runnel_test
 
     steps:
       - uses: actions/checkout@v4

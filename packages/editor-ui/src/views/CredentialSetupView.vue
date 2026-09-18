@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { N8nButton, N8nInput } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelInput } from '@runnel/design-system';
 import PropertyField from '../components/canvas/PropertyField.vue';
 import { credentialsApi } from '../api/credentials.js';
 import { useNodeTypesStore } from '../stores/nodeTypes.store.js';
-import type { IDataObject, IDataObjectValue } from '@n8n-clone/workflow';
+import type { IDataObject, IDataObjectValue } from '@runnel/workflow';
 import type { ICredentialRecord } from '../api/types.js';
 
 const route = useRoute();
@@ -70,7 +70,7 @@ async function onSave(): Promise<void> {
       <p>Enter the real values for this credential — an assistant-requested credential is a placeholder until you do.</p>
       <label>
         Name
-        <N8nInput v-model="name" />
+        <RunnelInput v-model="name" />
       </label>
 
       <PropertyField
@@ -83,8 +83,8 @@ async function onSave(): Promise<void> {
 
       <p v-if="error" class="auth-error">{{ error }}</p>
       <p v-if="saved">Saved. You can close this tab and go back to the workflow.</p>
-      <N8nButton :disabled="saving">{{ saving ? 'Saving…' : 'Save' }}</N8nButton>
-      <N8nButton variant="secondary" type="button" @click="router.push({ name: 'workflows' })">Back to workflows</N8nButton>
+      <RunnelButton :disabled="saving">{{ saving ? 'Saving…' : 'Save' }}</RunnelButton>
+      <RunnelButton variant="secondary" type="button" @click="router.push({ name: 'workflows' })">Back to workflows</RunnelButton>
     </form>
 
     <p v-else-if="notFound" class="auth-error">This credential no longer exists.</p>

@@ -1,4 +1,4 @@
-import type { IDataObject, INodeType, ISupplyDataFunctions } from '@n8n-clone/workflow';
+import type { IDataObject, INodeType, ISupplyDataFunctions } from '@runnel/workflow';
 import type { IChatMessage, IChatModel, IChatToolCall, IToolSchema } from '../shared/ai-types.js';
 
 function toApiMessage(message: IChatMessage): IDataObject {

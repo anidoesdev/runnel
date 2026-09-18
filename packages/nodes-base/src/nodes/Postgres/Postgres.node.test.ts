@@ -13,7 +13,7 @@ import { makeExecuteFunctions, makeNode } from '../../test-utils.js';
 const credentials = {
   host: process.env.TEST_POSTGRES_HOST ?? 'localhost',
   port: Number(process.env.TEST_POSTGRES_PORT ?? 5433),
-  database: process.env.TEST_POSTGRES_DATABASE ?? 'n8n_clone_test',
+  database: process.env.TEST_POSTGRES_DATABASE ?? 'runnel_test',
   user: process.env.TEST_POSTGRES_USER ?? 'postgres',
   password: process.env.TEST_POSTGRES_PASSWORD ?? 'postgres',
   ssl: false,
@@ -35,7 +35,7 @@ if (!postgresAvailable) {
   console.warn(
     `\n[Postgres.node.test.ts] No reachable Postgres at ${credentials.host}:${credentials.port} — skipping. ` +
       'Set TEST_POSTGRES_* env vars, or run:\n' +
-      '  docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=n8n_clone_test -p 5433:5432 postgres:16-alpine\n',
+      '  docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runnel_test -p 5433:5432 postgres:16-alpine\n',
   );
 }
 

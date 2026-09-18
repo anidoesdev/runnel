@@ -24,10 +24,10 @@ export async function startServer(): Promise<IRunningServer> {
   const logger = createLogger();
 
   if (config.usingDevDefaults.encryptionKey) {
-    logger.warn('N8N_ENCRYPTION_KEY is not set — using an insecure development default. Do not use this in production.');
+    logger.warn('RUNNEL_ENCRYPTION_KEY is not set — using an insecure development default. Do not use this in production.');
   }
   if (config.usingDevDefaults.jwtSecret) {
-    logger.warn('N8N_JWT_SECRET is not set — using an insecure development default. Do not use this in production.');
+    logger.warn('RUNNEL_JWT_SECRET is not set — using an insecure development default. Do not use this in production.');
   }
 
   const dataSource = createDataSource(
@@ -65,7 +65,7 @@ export async function startServer(): Promise<IRunningServer> {
   const server = await new Promise<Server>((resolve) => {
     const s = app.listen(config.port, () => resolve(s));
   });
-  logger.info(`n8n-clone server listening on port ${config.port}`);
+  logger.info(`runnel server listening on port ${config.port}`);
 
   await activeWorkflowManager.init();
 

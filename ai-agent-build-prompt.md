@@ -265,7 +265,7 @@ That last one is worth building early. Repairing broken workflows is a more freq
 Build this **before** tuning the system prompt. Without it you are guessing.
 
 - 40+ cases: `{ prompt, seedWorkflow?, availableCredentials[], assertions[] }`
-- Source prompts from real user language, not your own phrasing. The n8n community forum is a good corpus.
+- Source prompts from real user language, not your own phrasing. Workflow-automation community forums are a good corpus.
 - Score on outcomes, not structure: does it execute without error; does the final node receive the expected fields; were the right node types used; how many tool calls, tokens, seconds; did it ask when it should have and stay quiet when it shouldn't.
 - Mock all external APIs at the HTTP layer so runs are deterministic and free.
 - Run in CI on every change to the system prompt or tool descriptions. Report a scorecard diff on the PR.

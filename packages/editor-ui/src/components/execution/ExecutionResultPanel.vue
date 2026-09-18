@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { getNodeInputData } from '@n8n-clone/workflow';
-import { N8nButton } from '@n8n-clone/design-system';
+import { getNodeInputData } from '@runnel/workflow';
+import { RunnelButton } from '@runnel/design-system';
 import { useAssistantStore } from '../../stores/assistant.store.js';
 import type { IExecuteWorkflowResult } from '../../api/types.js';
 
@@ -60,14 +60,14 @@ function onFixThis(summary: { nodeName: string; error?: string; errorDescription
       </div>
       <div v-for="summary in nodeSummaries.filter((s) => s.error)" :key="`${summary.nodeName}-error`" class="execution-panel__error">
         <p class="auth-error">{{ summary.nodeName }}: {{ summary.error }}</p>
-        <N8nButton
+        <RunnelButton
           v-if="workflowId"
           variant="secondary"
           :disabled="assistantStore.sending"
           @click="onFixThis(summary)"
         >
           Fix this
-        </N8nButton>
+        </RunnelButton>
       </div>
 
       <button type="button" class="link-button" @click="showRaw = !showRaw">

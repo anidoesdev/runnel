@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { mount } from '@vue/test-utils';
-import N8nInput from './N8nInput.vue';
+import RunnelInput from './RunnelInput.vue';
 
-describe('N8nInput', () => {
+describe('RunnelInput', () => {
   it('renders the modelValue and emits update:modelValue on input', async () => {
-    const wrapper = mount(N8nInput, { props: { modelValue: 'hello' } });
+    const wrapper = mount(RunnelInput, { props: { modelValue: 'hello' } });
     expect((wrapper.element as HTMLInputElement).value).toBe('hello');
 
     await wrapper.setValue('world');
@@ -12,7 +12,7 @@ describe('N8nInput', () => {
   });
 
   it('respects the disabled prop', () => {
-    const wrapper = mount(N8nInput, { props: { disabled: true } });
+    const wrapper = mount(RunnelInput, { props: { disabled: true } });
     expect(wrapper.attributes('disabled')).toBeDefined();
   });
 });

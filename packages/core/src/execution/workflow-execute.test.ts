@@ -14,7 +14,7 @@ import {
   testSetNode,
   testThrowingNode,
 } from './test-nodes.js';
-import type { IRunExecutionData, IWorkflowBase } from '@n8n-clone/workflow';
+import type { IRunExecutionData, IWorkflowBase } from '@runnel/workflow';
 
 function registry(): MapNodeTypes {
   return new MapNodeTypes()

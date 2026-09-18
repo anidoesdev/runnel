@@ -4,6 +4,8 @@ export interface IRecalledMemory {
   id: string;
   content: string;
   kind: 'fact' | 'preference' | 'episode';
+  /** Relevance, as the engine scored it. Higher is more relevant; absent when it can't be known. */
+  score?: number;
 }
 
 export interface IRecallResult {

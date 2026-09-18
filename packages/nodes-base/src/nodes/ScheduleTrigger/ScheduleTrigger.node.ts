@@ -1,11 +1,11 @@
-import type { IExecuteFunctions, INodeType, ITriggerFunctions, ITriggerResponse, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeType, ITriggerFunctions, ITriggerResponse, NodeOutput } from '@runnel/workflow';
 
 type IntervalUnit = 'seconds' | 'minutes' | 'hours';
 
 const unitToMs: Record<IntervalUnit, number> = { seconds: 1000, minutes: 60_000, hours: 3_600_000 };
 
 /**
- * Runs the workflow on a fixed interval. Real n8n's Schedule Trigger also accepts full cron
+ * Runs the workflow on a fixed interval. A fuller Schedule Trigger would also accept cron
  * expressions via a cron-parsing library; this is scoped to a simple interval (matching the
  * project's other deliberate scope decisions, e.g. HttpRequest's proxy option or the Code
  * node's vm sandbox) — ActiveWorkflowManager just needs *a* node that proves the trigger()

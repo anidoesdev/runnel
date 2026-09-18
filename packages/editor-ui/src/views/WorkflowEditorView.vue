@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { N8nButton, N8nCheckbox } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelCheckbox } from '@runnel/design-system';
 import WorkflowCanvas from '../components/canvas/WorkflowCanvas.vue';
 import NodePalette from '../components/canvas/NodePalette.vue';
 import NodeDetailPanel from '../components/canvas/NodeDetailPanel.vue';
@@ -206,21 +206,21 @@ async function onExecute(): Promise<void> {
       </span>
 
       <div class="workflow-editor__bar-actions">
-        <N8nCheckbox
+        <RunnelCheckbox
           :model-value="workflowStore.active"
           label="Active"
           :disabled="!workflowStore.id"
           @update:model-value="onToggleActive"
         />
-        <N8nButton v-if="chatAgentNode" variant="secondary" @click="chatPanelOpen = !chatPanelOpen">
+        <RunnelButton v-if="chatAgentNode" variant="secondary" @click="chatPanelOpen = !chatPanelOpen">
           {{ chatPanelOpen ? 'Hide Chat' : 'Chat' }}
-        </N8nButton>
-        <N8nButton variant="secondary" @click="onToggleAssistant">
+        </RunnelButton>
+        <RunnelButton variant="secondary" @click="onToggleAssistant">
           {{ assistantStore.panelOpen ? 'Hide Assistant' : 'Ask Assistant' }}
-        </N8nButton>
-        <N8nButton :disabled="!workflowStore.id || workflowStore.executing" @click="onExecute">
+        </RunnelButton>
+        <RunnelButton :disabled="!workflowStore.id || workflowStore.executing" @click="onExecute">
           {{ workflowStore.executing ? 'Running…' : 'Execute' }}
-        </N8nButton>
+        </RunnelButton>
 
         <TopbarActions />
       </div>

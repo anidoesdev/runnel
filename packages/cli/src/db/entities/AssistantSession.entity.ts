@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import type { IModelMessage } from '@n8n-clone/assistant';
+import type { IModelMessage } from '@runnel/assistant';
 
 /**
  * Mirrors IAssistantSession almost field-for-field — the repository adapter (see

@@ -21,7 +21,7 @@ async function main(): Promise<void> {
     const idArg = rest.find((arg) => arg.startsWith('--id='));
     const id = idArg?.slice('--id='.length);
     if (!id) {
-      console.error('Usage: n8n-clone execute --id=<workflowId>');
+      console.error('Usage: runnel execute --id=<workflowId>');
       process.exitCode = 1;
       return;
     }
@@ -29,7 +29,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.error('Usage: n8n-clone <start|execute --id=<workflowId>>');
+  console.error('Usage: runnel <start|execute --id=<workflowId>>');
   process.exitCode = 1;
 }
 

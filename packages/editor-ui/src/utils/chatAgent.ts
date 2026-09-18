@@ -1,4 +1,4 @@
-import type { IConnections, INode } from '@n8n-clone/workflow';
+import type { IConnections, INode } from '@runnel/workflow';
 
 /** True once some node feeds `nodeName`'s `main` input — used to avoid wiring a second trigger into an AI Agent that already has one. */
 export function hasMainInput(nodeName: string, connections: IConnections): boolean {

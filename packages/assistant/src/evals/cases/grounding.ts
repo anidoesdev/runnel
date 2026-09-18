@@ -1,5 +1,5 @@
 import type { IEvalCase } from '../types.js';
-import type { INode } from '@n8n-clone/workflow';
+import type { INode } from '@runnel/workflow';
 
 const triggerNode: INode = { id: 'n1', name: 'Manual Trigger', type: 'manualTrigger', typeVersion: 1, position: [0, 0], parameters: {} };
 

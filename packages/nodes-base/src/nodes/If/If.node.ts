@@ -1,5 +1,5 @@
 import { combinatorProperty, conditionsProperty, evaluateConditions } from '../shared/conditions.js';
-import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 import type { ICondition } from '../shared/conditions.js';
 
 /** Routes items to output 0 (true) or output 1 (false) based on one or more conditions, combined with AND/OR. */

@@ -1,17 +1,19 @@
-import { MapNodeTypes } from '@n8n-clone/core';
-import { registerAllNodeTypes } from '@n8n-clone/nodes-base';
-import { createToolRegistry, WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { MapNodeTypes } from '@runnel/core';
+import { registerAllNodeTypes } from '@runnel/nodes-base';
+import { createToolRegistry, WorkflowDraftStore } from '@runnel/workflow-tools';
 import { resumeApproval, resumeAskUser, runTurn } from '../agent-loop.js';
 import { createSession } from '../session.js';
+import { renderMemoryBlock } from '../memory-block.js';
+import { SYSTEM_PROMPT } from '../prompts/load-system-prompt.js';
 import { scoreCase } from './scorer.js';
-import type { IConnections, INode, IWorkflowBase } from '@n8n-clone/workflow';
+import type { IConnections, INode, IWorkflowBase } from '@runnel/workflow';
 import type {
   ICredentialRepositoryPort,
   ICredentialSummary,
   IWorkflowExecutionSummary,
   IWorkflowExecutorPort,
   IWorkflowRepositoryPort,
-} from '@n8n-clone/workflow-tools';
+} from '@runnel/workflow-tools';
 import type { IModelProvider } from '../model-provider.js';
 import type { IEvalCase, IEvalCaseResult, IEvalSeedExecutionOutput, IScorecard } from './types.js';
 
@@ -102,7 +104,15 @@ export async function runEvalCase(evalCase: IEvalCase, modelProvider: IModelProv
   const draft = await draftStore.open('eval-workflow');
   const tools = createToolRegistry();
   const executor = fakeExecutor(evalCase.seedExecutionOutputs ?? {});
-  const deps = { modelProvider, tools, toolContext: { draftId: draft.id, nodeTypes, draftStore, credentials: credentialRepo, executor } };
+  const memoryBlock = evalCase.recalledMemories ? renderMemoryBlock(evalCase.recalledMemories) : undefined;
+  const deps = {
+    modelProvider,
+    tools,
+    toolContext: { draftId: draft.id, nodeTypes, draftStore, credentials: credentialRepo, executor },
+    ...(memoryBlock ? { systemPrompt: `${SYSTEM_PROMPT}
+
+${memoryBlock}` } : {}),
+  };
   const session = createSession({ id: `eval-${evalCase.id}`, workflowId: 'eval-workflow', draftId: draft.id, actor: { userId: 'eval', scopes: [] }, tokenLimit: 1_000_000 });
 
   let error: string | undefined;

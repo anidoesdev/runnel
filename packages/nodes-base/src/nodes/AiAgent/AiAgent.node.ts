@@ -1,5 +1,5 @@
-import { NodeOperationError } from '@n8n-clone/workflow';
-import type { IDataObject, IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import { NodeOperationError } from '@runnel/workflow';
+import type { IDataObject, IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 import type { IAiTool, IChatMessage, IChatModel, IToolSchema } from '../shared/ai-types.js';
 
 export const aiAgent: INodeType = {

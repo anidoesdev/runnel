@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { MapNodeTypes } from '@n8n-clone/core';
+import { MapNodeTypes } from '@runnel/core';
 import { invokeTool } from './invoke-tool.js';
 import { createToolRegistry } from './tools.js';
 import { WorkflowDraftStore } from '../draft/workflow-draft.store.js';
 import type { INodeOutputSample, IWorkflowExecutionSummary, IWorkflowExecutorPort } from '../draft/execution.port.js';
 import type { IToolContext } from './tool.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { IWorkflowBase } from '@runnel/workflow';
 import type { IWorkflowRepositoryPort } from '../draft/workflow-repository.port.js';
 
 function fakeWorkflowRepository(): IWorkflowRepositoryPort {

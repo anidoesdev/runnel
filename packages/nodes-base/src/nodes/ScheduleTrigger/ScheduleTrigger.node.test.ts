@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { scheduleTrigger } from './ScheduleTrigger.node.js';
 import { makeNode, makeTriggerFunctions } from '../../test-utils.js';
-import type { NodeOutput } from '@n8n-clone/workflow';
+import type { NodeOutput } from '@runnel/workflow';
 
 describe('Schedule Trigger node', () => {
   beforeEach(() => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { N8nButton, N8nInput } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelInput } from '@runnel/design-system';
 import { useAuthStore } from '../stores/auth.store.js';
 
 const email = ref('');
@@ -32,14 +32,14 @@ async function onSubmit(): Promise<void> {
       <h1>Log in</h1>
       <label>
         Email
-        <N8nInput v-model="email" type="email" placeholder="you@example.com" />
+        <RunnelInput v-model="email" type="email" placeholder="you@example.com" />
       </label>
       <label>
         Password
-        <N8nInput v-model="password" type="password" />
+        <RunnelInput v-model="password" type="password" />
       </label>
       <p v-if="error" class="auth-error">{{ error }}</p>
-      <N8nButton :disabled="submitting">{{ submitting ? 'Logging in…' : 'Log in' }}</N8nButton>
+      <RunnelButton :disabled="submitting">{{ submitting ? 'Logging in…' : 'Log in' }}</RunnelButton>
     </form>
   </div>
 </template>

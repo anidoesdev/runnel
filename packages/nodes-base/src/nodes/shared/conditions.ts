@@ -1,4 +1,4 @@
-import type { INodeProperties } from '@n8n-clone/workflow';
+import type { INodeProperties } from '@runnel/workflow';
 
 /** Shared by If, Switch, and Filter — the same "compare two values" building block each of them routes/keeps items with. */
 export type ConditionOperator =

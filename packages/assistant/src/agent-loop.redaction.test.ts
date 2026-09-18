@@ -1,12 +1,12 @@
 import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
-import { MapNodeTypes } from '@n8n-clone/core';
-import { WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { MapNodeTypes } from '@runnel/core';
+import { WorkflowDraftStore } from '@runnel/workflow-tools';
 import { resumeApproval, runTurn } from './agent-loop.js';
 import { createSession } from './session.js';
 import { ScriptedModelProvider } from './test-utils/scripted-model-provider.js';
-import type { AnyTool, ITool, IToolContext } from '@n8n-clone/workflow-tools';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { AnyTool, ITool, IToolContext } from '@runnel/workflow-tools';
+import type { IWorkflowBase } from '@runnel/workflow';
 import type { AgentLoopEvent } from './agent-loop.js';
 
 /**

@@ -1,4 +1,4 @@
-import type { IDataObject, INodeExecutionData } from '@n8n-clone/workflow';
+import type { IDataObject, INodeExecutionData } from '@runnel/workflow';
 
 export interface SchemaField {
   path: string;
@@ -13,7 +13,7 @@ function typeOf(value: unknown): string {
 
 /**
  * Flattens each item's `json` into dot/bracket-notation field paths with an inferred type
- * (e.g. `user.name: string`, `tags[0]: string`), matching n8n's schema view. Fields are
+ * (e.g. `user.name: string`, `tags[0]: string`), the shape a schema view expects. Fields are
  * deduplicated by path across all items — the type of the first occurrence wins.
  */
 export function inferSchema(items: INodeExecutionData[]): SchemaField[] {

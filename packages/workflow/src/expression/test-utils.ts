@@ -12,7 +12,7 @@ export function makeExpressionContext(
     node: {
       id: 'node-1',
       name: 'Node1',
-      type: 'n8n-clone.noOp',
+      type: 'runnel.noOp',
       typeVersion: 1,
       position: [0, 0],
       parameters: {},

@@ -1,6 +1,6 @@
 import { Bm25Index } from './bm25.js';
 import { NODE_ALIASES } from './node-aliases.js';
-import type { INodeTypeDescription } from '@n8n-clone/workflow';
+import type { INodeTypeDescription } from '@runnel/workflow';
 
 export interface INodeSearchResult {
   type: string;

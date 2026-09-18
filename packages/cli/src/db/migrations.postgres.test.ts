@@ -22,7 +22,7 @@ const postgresConfig: Extract<IDatabaseConfig, { type: 'postgres' }> = {
   port: Number(process.env.TEST_POSTGRES_PORT ?? 5433),
   username: process.env.TEST_POSTGRES_USER ?? 'postgres',
   password: process.env.TEST_POSTGRES_PASSWORD ?? 'postgres',
-  database: process.env.TEST_POSTGRES_DATABASE ?? 'n8n_clone_test',
+  database: process.env.TEST_POSTGRES_DATABASE ?? 'runnel_test',
 };
 
 async function checkPostgresAvailable(): Promise<boolean> {
@@ -48,7 +48,7 @@ if (!postgresAvailable) {
   console.warn(
     `\n[migrations.postgres.test.ts] No reachable Postgres at ${postgresConfig.host}:${postgresConfig.port} — skipping. ` +
       'Set TEST_POSTGRES_* env vars, or run:\n' +
-      '  docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=n8n_clone_test -p 5433:5432 postgres:16-alpine\n',
+      '  docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runnel_test -p 5433:5432 postgres:16-alpine\n',
   );
 }
 

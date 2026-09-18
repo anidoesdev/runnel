@@ -1,4 +1,4 @@
-import type { ICredentialType } from '@n8n-clone/workflow';
+import type { ICredentialType } from '@runnel/workflow';
 
 /**
  * The credential type/field schema only. The actual OAuth2 authorization-code flow

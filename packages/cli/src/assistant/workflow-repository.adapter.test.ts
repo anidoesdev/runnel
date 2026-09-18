@@ -3,7 +3,7 @@ import { WorkflowRepositoryAdapter } from './workflow-repository.adapter.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
 import { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import type { DataSource, Repository } from 'typeorm';
-import type { IWorkflowBase, INode } from '@n8n-clone/workflow';
+import type { IWorkflowBase, INode } from '@runnel/workflow';
 
 /**
  * Raw SQL, not the repository API, for every write and read against the `workflow` table

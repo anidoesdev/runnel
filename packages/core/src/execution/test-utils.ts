@@ -1,4 +1,4 @@
-import type { IConnections, INode, IWorkflowBase } from '@n8n-clone/workflow';
+import type { IConnections, INode, IWorkflowBase } from '@runnel/workflow';
 
 type NodeFixture = { name: string; type?: string } & Partial<Omit<INode, 'name' | 'type'>>;
 

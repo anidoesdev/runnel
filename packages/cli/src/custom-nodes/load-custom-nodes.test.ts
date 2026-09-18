@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { MapNodeTypes } from '@n8n-clone/core';
+import { MapNodeTypes } from '@runnel/core';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { loadCustomNodeTypes, registerCustomNodeTypes } from './load-custom-nodes.js';
 import type { Logger } from 'pino';
@@ -11,7 +11,7 @@ function makeLogger(): Logger {
 }
 
 /** Writes a minimal, real, already-"built" custom node package — a plain .js module, no
- * compilation needed — at <dir>/<packageName>/dist/index.js, matching what `n8n-node-dev new`
+ * compilation needed — at <dir>/<packageName>/dist/index.js, matching what `runnel-node-dev new`
  * + `npm run build` would actually produce. */
 function writeBuiltPackage(dir: string, packageName: string, source: string): void {
   const distDir = join(dir, packageName, 'dist');

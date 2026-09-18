@@ -1,4 +1,4 @@
-import '@n8n-clone/design-system/style.css';
+import '@runnel/design-system/style.css';
 import '@vue-flow/core/dist/style.css';
 import '@vue-flow/core/dist/theme-default.css';
 import './styles/global.css';

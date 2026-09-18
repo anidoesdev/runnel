@@ -1,5 +1,5 @@
 import { evaluateCondition, operatorOptions } from '../shared/conditions.js';
-import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 import type { ConditionOperator } from '../shared/conditions.js';
 
 interface IRule {

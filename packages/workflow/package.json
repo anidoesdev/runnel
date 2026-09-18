@@ -1,5 +1,5 @@
 {
-  "name": "@n8n-clone/workflow",
+  "name": "@runnel/workflow",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,7 +16,7 @@
     "typecheck": "tsc -b",
     "lint": "eslint src",
     "test": "vitest run --coverage",
-    "clean": "rimraf dist *.tsbuildinfo"
+    "clean": "rimraf --glob dist *.tsbuildinfo"
   },
   "dependencies": {
     "luxon": "^3.5.0"

@@ -1,5 +1,5 @@
 # Build from the monorepo root, not this directory:
-#   docker build -f packages/cli/Dockerfile -t n8n-clone-cli .
+#   docker build -f packages/cli/Dockerfile -t runnel-cli .
 
 FROM node:22-alpine AS build
 # better-sqlite3 compiles a native addon on install; these are only needed for that build step.
@@ -9,7 +9,7 @@ WORKDIR /repo
 
 COPY . .
 RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @n8n-clone/cli... build
+RUN pnpm --filter @runnel/cli... build
 
 FROM node:22-alpine AS runtime
 WORKDIR /repo

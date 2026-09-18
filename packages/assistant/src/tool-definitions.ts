@@ -1,5 +1,5 @@
 import { zodToJsonSchema } from 'zod-to-json-schema';
-import type { AnyTool } from '@n8n-clone/workflow-tools';
+import type { AnyTool } from '@runnel/workflow-tools';
 import type { IModelToolDefinition } from './model-provider.js';
 
 /**

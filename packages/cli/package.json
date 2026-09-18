@@ -1,29 +1,30 @@
 {
-  "name": "@n8n-clone/cli",
+  "name": "@runnel/cli",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "n8n-clone": "./dist/bin.js"
+    "runnel": "./dist/bin.js"
   },
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -b",
     "lint": "eslint src",
     "test": "vitest run --coverage",
-    "clean": "rimraf dist *.tsbuildinfo"
+    "clean": "rimraf --glob dist *.tsbuildinfo"
   },
   "dependencies": {
     "@memnest/core": "^0.2.0",
     "@memnest/providers": "^0.1.2",
+    "@memnest/store-postgres": "^0.2.0",
     "@memnest/store-sqlite": "^0.2.0",
-    "@n8n-clone/assistant": "workspace:*",
-    "@n8n-clone/core": "workspace:*",
-    "@n8n-clone/nodes-base": "workspace:*",
-    "@n8n-clone/workflow": "workspace:*",
-    "@n8n-clone/workflow-tools": "workspace:*",
+    "@runnel/assistant": "workspace:*",
+    "@runnel/core": "workspace:*",
+    "@runnel/nodes-base": "workspace:*",
+    "@runnel/workflow": "workspace:*",
+    "@runnel/workflow-tools": "workspace:*",
     "argon2": "^0.41.1",
     "better-sqlite3": "^12.11.1",
     "cookie-parser": "^1.4.7",

@@ -1,4 +1,4 @@
-import type { IConnections, INode } from '@n8n-clone/workflow';
+import type { IConnections, INode } from '@runnel/workflow';
 
 export interface IWorkflowTemplate {
   id: string;
@@ -77,7 +77,7 @@ export const WORKFLOW_TEMPLATES: IWorkflowTemplate[] = [
       nodes: [
         node('Chat Trigger', 'chatTrigger', [0, 0], {}),
         node('AI Agent', 'aiAgent', [280, 0], {}),
-        node('OpenAI Chat Model', 'languageModelOpenAi', [180, 200], { model: 'gpt-4o-mini' }),
+        node('OpenAI Chat Model', 'languageModelOpenAi', [180, 200]),
         node('Calculator', 'toolCalculator', [400, 200], {}),
       ],
       connections: {

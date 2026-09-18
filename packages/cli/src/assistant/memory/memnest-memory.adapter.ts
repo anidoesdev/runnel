@@ -1,8 +1,8 @@
 import { scopeOf } from '@memnest/core';
-import { redactText } from '@n8n-clone/workflow-tools';
+import { redactText } from '@runnel/workflow-tools';
 import { toCaptureTranscript, userContainerTag } from './capture-transcript.js';
 import type { MemnestApi } from '@memnest/core';
-import type { IAssistantActor, IAssistantMemoryPort, IAssistantSession, IRecallResult } from '@n8n-clone/assistant';
+import type { IAssistantActor, IAssistantMemoryPort, IAssistantSession, IRecallResult } from '@runnel/assistant';
 
 /** The slice of Memnest this adapter uses — narrow so tests can hand it a spy. */
 export type IMemnestForAssistant = Pick<MemnestApi, 'add' | 'search'>;
@@ -16,7 +16,7 @@ export class MemnestMemoryAdapter implements IAssistantMemoryPort {
     // extracted memories are used, so only their tokens are reported.
     const response = await this.memnest.search(redactText(query), scope, { tokenBudget });
     return {
-      memories: response.memories.map(({ memory }) => ({ id: memory.id, content: memory.content, kind: memory.kind })),
+      memories: response.memories.map(({ memory, score }) => ({ id: memory.id, content: memory.content, kind: memory.kind, score })),
       trace: response.trace,
       tokensUsed: response.memories.reduce((sum, result) => sum + result.tokens, 0),
     };

@@ -1,4 +1,4 @@
-import type { IDataObject, IHttpRequestOptions, IHttpResponse } from '@n8n-clone/workflow';
+import type { IDataObject, IHttpRequestOptions, IHttpResponse } from '@runnel/workflow';
 
 /**
  * The real HTTP client behind IExecuteFunctions.helpers.httpRequest, built on Node's global

@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { MapNodeTypes, WorkflowExecute } from '@n8n-clone/core';
-import { Workflow } from '@n8n-clone/workflow';
+import { MapNodeTypes, WorkflowExecute } from '@runnel/core';
+import { Workflow } from '@runnel/workflow';
 import { registerAllNodeTypes } from './index.js';
 import { startTestServer } from './test-server.js';
 import type { TestServer } from './test-server.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { IWorkflowBase } from '@runnel/workflow';
 
 /**
  * M5 definition-of-done test: a nine-node workflow — one instance of every M5 node type —

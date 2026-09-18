@@ -1,5 +1,5 @@
 import { ToolError } from '../errors.js';
-import type { IConnection, IDataObject, IWorkflowBase, NodeConnectionType } from '@n8n-clone/workflow';
+import type { IConnection, IDataObject, IWorkflowBase, NodeConnectionType } from '@runnel/workflow';
 import type { IWorkflowRepositoryPort } from './workflow-repository.port.js';
 
 export interface IWorkflowDraft {

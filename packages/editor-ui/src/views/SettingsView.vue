@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { N8nButton, N8nInput } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelInput } from '@runnel/design-system';
 import { settingsApi } from '../api/settings.js';
 import { ApiError } from '../api/http.js';
 import { useTheme } from '../composables/useTheme.js';
@@ -104,22 +104,22 @@ async function changePassword(): Promise<void> {
         <form class="settings-form" @submit.prevent="changePassword">
           <label>
             Current password
-            <N8nInput :model-value="currentPassword" type="password" autocomplete="current-password" @update:model-value="currentPassword = $event" />
+            <RunnelInput :model-value="currentPassword" type="password" autocomplete="current-password" @update:model-value="currentPassword = $event" />
           </label>
           <label>
             New password
-            <N8nInput :model-value="newPassword" type="password" autocomplete="new-password" @update:model-value="newPassword = $event" />
+            <RunnelInput :model-value="newPassword" type="password" autocomplete="new-password" @update:model-value="newPassword = $event" />
           </label>
           <label>
             Confirm new password
-            <N8nInput :model-value="confirmPassword" type="password" autocomplete="new-password" @update:model-value="confirmPassword = $event" />
+            <RunnelInput :model-value="confirmPassword" type="password" autocomplete="new-password" @update:model-value="confirmPassword = $event" />
           </label>
           <p v-if="passwordError" class="settings-card__error">{{ passwordError }}</p>
           <p v-if="passwordSaved" class="settings-card__ok">Password changed.</p>
           <div>
-            <N8nButton :disabled="savingPassword || !currentPassword || !newPassword">
+            <RunnelButton :disabled="savingPassword || !currentPassword || !newPassword">
               {{ savingPassword ? 'Saving…' : 'Change password' }}
-            </N8nButton>
+            </RunnelButton>
           </div>
         </form>
       </section>
@@ -151,7 +151,7 @@ async function changePassword(): Promise<void> {
             Token budget
             <input v-model.number="tokenLimit" type="number" min="1000" max="1000000" step="1000" placeholder="200000" />
           </label>
-          <N8nButton :disabled="savingAssistant">{{ savingAssistant ? 'Saving…' : 'Save' }}</N8nButton>
+          <RunnelButton :disabled="savingAssistant">{{ savingAssistant ? 'Saving…' : 'Save' }}</RunnelButton>
         </form>
         <p v-if="assistantError" class="settings-card__error">{{ assistantError }}</p>
         <p v-if="assistantSaved" class="settings-card__ok">Saved.</p>

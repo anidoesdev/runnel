@@ -110,7 +110,7 @@ describe('runCode — timeouts', () => {
         code: 'while (true) {}',
         timeoutMs: 50,
       }),
-    ).rejects.toThrow();
+    ).rejects.toThrow(/exceeded 50ms/);
   });
 
   it('rejects on timeout even for async code that keeps running past it (documented caveat)', async () => {

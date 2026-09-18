@@ -1,5 +1,5 @@
-import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
-import { allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from '@n8n-clone/nodes-base';
+import { MapCredentialTypes, MapNodeTypes } from '@runnel/core';
+import { allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from '@runnel/nodes-base';
 import { createDataSource, postgresConfigFromEnv, sqliteConfig } from '../db/data-source.js';
 import { loadConfig } from '../config.js';
 import { runWorkflow } from '../execution/run-workflow.js';
@@ -8,7 +8,7 @@ import { createLogger } from '../logging/logger.js';
 import { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';
 
-/** `n8n-clone execute --id=<workflowId>`: runs a stored workflow directly, prints the resulting IRunExecutionData as JSON, and returns a process exit code. */
+/** `runnel execute --id=<workflowId>`: runs a stored workflow directly, prints the resulting IRunExecutionData as JSON, and returns a process exit code. */
 export async function executeCommand(workflowId: string): Promise<number> {
   const config = loadConfig();
   const dataSource = createDataSource(

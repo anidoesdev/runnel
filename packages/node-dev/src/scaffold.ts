@@ -20,7 +20,7 @@ function toPosixPath(path: string): string {
   return path.split('\\').join('/');
 }
 
-/** Walks up from `startDir` looking for the pnpm workspace root — the scaffold depends on `@n8n-clone/workflow` via a relative `file:` reference back into `packages/workflow`, which only makes sense once we know where that root is. */
+/** Walks up from `startDir` looking for the pnpm workspace root — the scaffold depends on `@runnel/workflow` via a relative `file:` reference back into `packages/workflow`, which only makes sense once we know where that root is. */
 export function findMonorepoRoot(startDir: string): string | null {
   let dir = startDir;
   while (true) {
@@ -70,7 +70,7 @@ export function generateScaffoldFiles(options: IScaffoldOptions): Record<string,
       test: 'vitest run',
     },
     dependencies: {
-      '@n8n-clone/workflow': workflowDependency,
+      '@runnel/workflow': workflowDependency,
     },
     devDependencies: {
       typescript: '^5.7.2',
@@ -102,9 +102,9 @@ export function generateScaffoldFiles(options: IScaffoldOptions): Record<string,
         include: ['src'],
       };
 
-  const nodeSource = `import type { IExecuteFunctions, INodeType, NodeOutput } from '@n8n-clone/workflow';
+  const nodeSource = `import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
-/** Scaffolded by \`n8n-node-dev new ${name}\` — replace this with real logic. */
+/** Scaffolded by \`runnel-node-dev new ${name}\` — replace this with real logic. */
 export const ${name}: INodeType = {
   description: {
     displayName: '${displayName}',
@@ -137,11 +137,11 @@ export default ${name};
 
   const testSource = `import { describe, expect, it } from 'vitest';
 import { ${name} } from './${pascalName}.node.js';
-import type { IExecuteFunctions, INode, INodeExecutionData, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INode, INodeExecutionData, NodeOutput } from '@runnel/workflow';
 
 /**
  * A minimal hand-rolled IExecuteFunctions stand-in — real nodes-base tests reuse a shared
- * test harness from inside the n8n-clone monorepo (which depends on @n8n-clone/core), but a
+ * test harness from inside the runnel monorepo (which depends on @runnel/core), but a
  * standalone custom node package can't reach into that repo's src, so this stays self-contained.
  */
 function makeContext(node: INode, items: INodeExecutionData[]): IExecuteFunctions {
@@ -184,7 +184,7 @@ describe('${displayName}', () => {
 
   const readme = `# ${displayName}
 
-A custom n8n-clone node, scaffolded by \`n8n-node-dev new ${name}\`.
+A custom runnel node, scaffolded by \`runnel-node-dev new ${name}\`.
 
 ## Build
 
@@ -193,13 +193,13 @@ npm install
 npm run build
 \`\`\`
 
-## Load it into a running n8n-clone server
+## Load it into a running runnel server
 
 Point \`CUSTOM_NODES_DIR\` at the parent directory containing this package (its \`dist/\` must
 already be built) when starting the server:
 
 \`\`\`
-CUSTOM_NODES_DIR=/path/to/parent-dir n8n-clone start
+CUSTOM_NODES_DIR=/path/to/parent-dir runnel start
 \`\`\`
 
 The server scans every immediate subdirectory of \`CUSTOM_NODES_DIR\` for a built \`dist/index.js\`

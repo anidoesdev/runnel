@@ -1,4 +1,4 @@
-import { allNodeTypes } from '@n8n-clone/nodes-base';
+import { allNodeTypes } from '@runnel/nodes-base';
 
 export function getLoadedNodeTypeNames(): string[] {
   return allNodeTypes.map((nodeType) => nodeType.description.name);

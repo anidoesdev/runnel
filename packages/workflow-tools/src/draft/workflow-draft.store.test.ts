@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { WorkflowDraftStore } from './workflow-draft.store.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { IWorkflowBase } from '@runnel/workflow';
 import type { IWorkflowRepositoryPort } from './workflow-repository.port.js';
 
 function fakeRepository(initial: Record<string, IWorkflowBase>): IWorkflowRepositoryPort & { saved: Record<string, IWorkflowBase> } {

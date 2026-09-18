@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { describe, expect, it } from 'vitest';
 import { toModelToolDefinitions } from './tool-definitions.js';
-import type { AnyTool, ITool } from '@n8n-clone/workflow-tools';
+import type { AnyTool, ITool } from '@runnel/workflow-tools';
 
 describe('toModelToolDefinitions', () => {
   it('carries the name and description through unchanged', () => {

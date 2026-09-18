@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { toolCalculator } from './ToolCalculator.node.js';
 import { makeNode } from '../../test-utils.js';
-import type { ISupplyDataFunctions } from '@n8n-clone/workflow';
+import type { ISupplyDataFunctions } from '@runnel/workflow';
 import type { IAiTool } from '../shared/ai-types.js';
 
 function makeSupplyContext(): ISupplyDataFunctions {

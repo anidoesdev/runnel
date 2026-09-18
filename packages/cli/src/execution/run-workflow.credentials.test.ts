@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { encryptCredentialData, MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
+import { encryptCredentialData, MapCredentialTypes, MapNodeTypes } from '@runnel/core';
 import { runWorkflowDefinition } from './run-workflow.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';
 import type { DataSource, Repository } from 'typeorm';
-import type { IExecuteFunctions, INode, INodeType, IWorkflowBase, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INode, INodeType, IWorkflowBase, NodeOutput } from '@runnel/workflow';
 
 const ENCRYPTION_KEY = 'test-encryption-key';
 

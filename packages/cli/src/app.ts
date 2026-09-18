@@ -1,9 +1,9 @@
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import helmet from 'helmet';
-import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
-import { allCredentialTypes, allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from '@n8n-clone/nodes-base';
-import { WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { MapCredentialTypes, MapNodeTypes } from '@runnel/core';
+import { allCredentialTypes, allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from '@runnel/nodes-base';
+import { WorkflowDraftStore } from '@runnel/workflow-tools';
 import { requireAuth } from './auth/auth.middleware.js';
 import { AuthController } from './auth/auth.controller.js';
 import { HealthController } from './health/health.controller.js';
@@ -37,7 +37,7 @@ import { NotificationEntity } from './db/entities/Notification.entity.js';
 import type { Express } from 'express';
 import type { DataSource } from 'typeorm';
 import type { Logger } from 'pino';
-import type { INodeType } from '@n8n-clone/workflow';
+import type { INodeType } from '@runnel/workflow';
 import type { IAssistantMemory } from './assistant/memory/memory.factory.js';
 import type { ISystemInfo } from './settings/settings.controller.js';
 

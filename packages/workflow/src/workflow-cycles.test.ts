@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { Workflow } from './workflow.js';
 import { makeNode, makeWorkflow } from './test-utils.js';
 
-const isIterationNode = (type: string): boolean => type === 'n8n-clone.splitInBatches';
+const isIterationNode = (type: string): boolean => type === 'runnel.splitInBatches';
 
 describe('Workflow.detectIllegalCycles', () => {
   it('reports no cycles for a DAG (linear, branching, merging)', () => {
@@ -36,7 +36,7 @@ describe('Workflow.detectIllegalCycles', () => {
 
   it('accepts a cycle that contains a Loop Over Items / SplitInBatches node', () => {
     const nodes = [
-      makeNode({ name: 'Loop', type: 'n8n-clone.splitInBatches' }),
+      makeNode({ name: 'Loop', type: 'runnel.splitInBatches' }),
       makeNode({ name: 'Body' }),
     ];
     const workflow = new Workflow(
@@ -60,7 +60,7 @@ describe('Workflow.detectIllegalCycles', () => {
   });
 
   it('accepts a self-loop on an iteration node', () => {
-    const nodes = [makeNode({ name: 'Loop', type: 'n8n-clone.splitInBatches' })];
+    const nodes = [makeNode({ name: 'Loop', type: 'runnel.splitInBatches' })];
     const workflow = new Workflow(
       makeWorkflow(nodes, { Loop: { main: [[{ node: 'Loop', type: 'main', index: 0 }]] } }),
     );

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
-import type { INodeTypeDescription } from '@n8n-clone/workflow';
+import type { INodeTypeDescription } from '@runnel/workflow';
 
 const store = useNodeTypesStore();
 
@@ -52,7 +52,7 @@ function toggleGroup(group: string): void {
 
 function onDragStart(event: DragEvent, nodeTypeName: string): void {
   if (!event.dataTransfer) return;
-  event.dataTransfer.setData('application/n8n-node-type', nodeTypeName);
+  event.dataTransfer.setData('application/runnel-node-type', nodeTypeName);
   event.dataTransfer.effectAllowed = 'copy';
 }
 </script>

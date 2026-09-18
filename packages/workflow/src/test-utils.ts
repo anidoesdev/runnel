@@ -9,7 +9,7 @@ export function makeNode(fixture: NodeFixture): INode {
   autoId += 1;
   return {
     id: `node-${autoId}`,
-    type: 'n8n-clone.noOp',
+    type: 'runnel.noOp',
     typeVersion: 1,
     position: [0, 0],
     parameters: {},

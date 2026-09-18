@@ -33,8 +33,8 @@ export async function newCommand(options: INewCommandOptions): Promise<number> {
   console.log(`Created ${name} in ${targetDir}`);
   if (!monorepoRoot) {
     console.warn(
-      'No n8n-clone monorepo (pnpm-workspace.yaml) found above the target directory — ' +
-        '"@n8n-clone/workflow" was left as an unresolvable "*" dependency in package.json. ' +
+      'No runnel monorepo (pnpm-workspace.yaml) found above the target directory — ' +
+        '"@runnel/workflow" was left as an unresolvable "*" dependency in package.json. ' +
         'Point it at a real install (e.g. a file: path to packages/workflow) before running `npm install`.',
     );
   } else {

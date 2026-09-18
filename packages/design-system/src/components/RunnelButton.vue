@@ -9,8 +9,8 @@ defineEmits<{ click: [event: MouseEvent] }>();
 
 <template>
   <button
-    class="n8n-button"
-    :class="`n8n-button--${variant}`"
+    class="runnel-button"
+    :class="`runnel-button--${variant}`"
     :disabled="disabled"
     @click="(event) => $emit('click', event)"
   >
@@ -19,7 +19,7 @@ defineEmits<{ click: [event: MouseEvent] }>();
 </template>
 
 <style scoped>
-.n8n-button {
+.runnel-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -41,22 +41,22 @@ defineEmits<{ click: [event: MouseEvent] }>();
     transform 0.1s ease;
 }
 
-.n8n-button:active:not(:disabled) {
+.runnel-button:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.n8n-button:focus-visible {
+.runnel-button:focus-visible {
   outline: none;
 }
 
-.n8n-button:disabled {
+.runnel-button:disabled {
   cursor: not-allowed;
   opacity: 0.5;
   box-shadow: none;
   transform: none;
 }
 
-.n8n-button--primary {
+.runnel-button--primary {
   background: var(--color-primary, #ff6d5a);
   color: var(--color-on-primary, #fff);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
@@ -64,26 +64,26 @@ defineEmits<{ click: [event: MouseEvent] }>();
 
 /* Same hue at 90%, matching shadcn's `hover:bg-primary/90` — hover changes color only, no
    shadow growth. */
-.n8n-button--primary:hover:not(:disabled) {
+.runnel-button--primary:hover:not(:disabled) {
   background: color-mix(in srgb, var(--color-primary, #ff6d5a) 90%, transparent);
 }
 
-.n8n-button--primary:focus-visible {
+.runnel-button--primary:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #ff6d5a) 30%, transparent);
 }
 
-.n8n-button--secondary {
+.runnel-button--secondary {
   background: var(--color-surface-container-lowest, #fff);
   color: var(--color-on-surface, currentColor);
   border-color: var(--color-outline-variant, currentColor);
 }
 
-.n8n-button--secondary:hover:not(:disabled) {
+.runnel-button--secondary:hover:not(:disabled) {
   background: var(--color-surface-container-high, rgba(0, 0, 0, 0.04));
   border-color: var(--color-outline, currentColor);
 }
 
-.n8n-button--secondary:focus-visible {
+.runnel-button--secondary:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-outline, #717976) 25%, transparent);
 }
 </style>

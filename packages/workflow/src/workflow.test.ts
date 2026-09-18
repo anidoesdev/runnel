@@ -13,7 +13,7 @@ describe('Workflow.getNode', () => {
         {
           id: 'n1',
           name: 'Start',
-          type: 'n8n-clone.start',
+          type: 'runnel.start',
           typeVersion: 1,
           position: [0, 0],
           parameters: {},

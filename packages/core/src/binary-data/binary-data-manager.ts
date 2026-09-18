@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { IBinaryData } from '@n8n-clone/workflow';
+import type { IBinaryData } from '@runnel/workflow';
 
 export interface IBinaryDataMetadata {
   mimeType: string;

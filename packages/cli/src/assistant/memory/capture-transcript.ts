@@ -1,5 +1,5 @@
-import { redactText } from '@n8n-clone/workflow-tools';
-import type { IAssistantActor, IAssistantSession } from '@n8n-clone/assistant';
+import { redactText } from '@runnel/workflow-tools';
+import type { IAssistantActor, IAssistantSession } from '@runnel/assistant';
 
 export interface ICaptureTurn {
   role: 'user' | 'assistant';

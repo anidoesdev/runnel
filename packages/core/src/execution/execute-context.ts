@@ -3,7 +3,7 @@ import {
   Workflow,
   evaluateExpressionString,
   isExpression,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 import { applyCredentialAuthentication } from '../credentials/authenticate.js';
 import { httpRequest as defaultHttpRequest } from '../http/http-client.js';
 import type { ICredentialTypes } from '../credentials/credential-types.js';
@@ -21,7 +21,7 @@ import type {
   NodeConnectionType,
   NodeOutput,
   WorkflowExecuteMode,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 export interface IExecuteFunctionsOptions {
   node: INode;

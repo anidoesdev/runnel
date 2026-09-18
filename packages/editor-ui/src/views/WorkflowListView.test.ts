@@ -43,7 +43,7 @@ const folder: IFolderRecord = { id: 'f1', name: 'API Integrations', createdAt: '
 async function mountView(workflows: IWorkflowRecord[] = [workflow()], folders: IFolderRecord[] = []) {
   vi.mocked(workflowsApi.list).mockResolvedValue(workflows);
   vi.mocked(foldersApi.list).mockResolvedValue(folders);
-  const wrapper = mount(WorkflowListView, { global: { stubs: { RouterLink: { template: '<a><slot /></a>' }, N8nButton: { template: '<button><slot /></button>' } } } });
+  const wrapper = mount(WorkflowListView, { global: { stubs: { RouterLink: { template: '<a><slot /></a>' }, RunnelButton: { template: '<button><slot /></button>' } } } });
   await flushPromises();
   return wrapper;
 }

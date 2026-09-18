@@ -2,7 +2,7 @@ import { verifySessionToken } from './jwt.js';
 import { UnauthorizedError } from '../http/http-errors.js';
 import type { NextFunction, Request, Response } from 'express';
 
-export const SESSION_COOKIE_NAME = 'n8n-clone-auth';
+export const SESSION_COOKIE_NAME = 'runnel-auth';
 
 export interface IAuthenticatedUser {
   id: string;

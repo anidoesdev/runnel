@@ -1,6 +1,6 @@
-# n8n-clone — Design
+# runnel — Design
 
-A workflow-automation platform (n8n-inspired): a node-based canvas editor, a REST/SSE backend
+A workflow-automation platform: a node-based canvas editor, a REST/SSE backend
 that persists and executes workflows, a real execution engine with expressions and credentials,
 and an in-app AI agent (the Workflow Assistant) that builds and repairs workflows through the
 same tool layer a human would use by hand.
@@ -13,7 +13,7 @@ was built against; this document describes the system as built.
 
 ## 1. Monorepo layout
 
-pnpm workspaces + Turborepo, 11 packages under `packages/*`. Dependency direction is enforced at
+pnpm workspaces + Turborepo, 9 packages under `packages/*`, all published under the `@runnel/` scope. Dependency direction is enforced at
 lint time by `.dependency-cruiser.cjs` (`pnpm lint` runs `depcruise` after `eslint`) — a build
 fails if a package imports "sideways" or "up" the stack:
 
@@ -48,13 +48,13 @@ Node-only code.
 |---|---|
 | `workflow` | Domain types and pure logic: `IWorkflowBase`/`INode`/`IConnections`, the expression language (lexer/parser/evaluator), graph algorithms (cycle detection, execution order, `pruneToDestination`), typed error classes. |
 | `core` | The execution engine: `WorkflowExecute` (walks the graph, threads data, retries, error routing, dry-run mocking), the `IExecuteFunctions`/`IPollFunctions`/`IWebhookFunctions` context builders, credential encryption, the Code node's `vm`-based JS sandbox, the HTTP client, binary data handling, mutation ops (`addNode`, `connectNodes`, `renameNode`, ...). |
-| `nodes-base` | Concrete node implementations (24 node types) and credential type definitions (7 types). |
+| `nodes-base` | Concrete node implementations (23 node types) and credential type definitions (7 types). |
 | `workflow-tools` | The agent's tool layer: registry, `invokeTool`, the draft/overlay model, node-catalog search (BM25), schema compression, redaction. Framework-agnostic — no model-provider or HTTP concepts. |
 | `assistant` | The agent loop itself: streaming, tool dispatch, budgets, pause/resume, the system prompt, the eval harness. Talks to `workflow-tools` for tools and to an `IModelProvider` (OpenAI today) for the model. |
 | `cli` | Express server: REST controllers, TypeORM entities/migrations (SQLite or Postgres), auth (JWT sessions), active-workflow management (triggers/polls/webhooks), and the composition root wiring every other package together per request. |
-| `design-system` | Presentational Vue components (`N8nButton`, `N8nInput`, `N8nSelect`, `N8nCheckbox`, `N8nModal`) — no app logic. |
+| `design-system` | Presentational Vue components (`RunnelButton`, `RunnelInput`, `RunnelSelect`, `RunnelCheckbox`, `RunnelModal`) — no app logic. |
 | `editor-ui` | The Vue 3 + Pinia SPA: the canvas (Vue Flow), node property panels, credential management, the chat/assistant panel, execution results. |
-| `node-dev` | CLI scaffolding (`n8n-node-dev new`) and build tooling for authoring third-party node packages loaded via `CUSTOM_NODES_DIR`. |
+| `node-dev` | CLI scaffolding (`runnel-node-dev new`) and build tooling for authoring third-party node packages loaded via `CUSTOM_NODES_DIR`. |
 
 Build/typecheck/lint/test are each a Turborepo task (`turbo.json`) with `dependsOn: ["^build"]`
 where relevant, so a package always builds its dependencies before itself and Turborepo's
@@ -137,7 +137,7 @@ assistant's tool layer call into the same functions, never duplicating the logic
 
 ## 4. Node system (`packages/nodes-base`)
 
-24 node types, each an `INodeType` (`description` + `execute`/`poll`/`trigger`/`webhook`/
+23 node types, each an `INodeType` (`description` + `execute`/`poll`/`trigger`/`webhook`/
 `supplyData`):
 
 | Category | Nodes |
@@ -174,15 +174,15 @@ parsing, and a global `requireAuth` middleware (JWT session cookie, `PUBLIC_PATH
 `POST /rest/auth/login` issues a signed session cookie (`jose`, HS256); passwords are hashed with
 `argon2`.
 
-**Persistence**: TypeORM, SQLite (default, file-based) or Postgres (`DB_TYPE=postgres`), migrated
-explicitly (`runMigrations()`, no `synchronize`). Entities: `User`, `Workflow`, `Credential`,
-`Execution`, `AssistantSession`. Every JSON-shaped column uses TypeORM's `simple-json` type
+**Persistence**: TypeORM, SQLite (default, `runnel.sqlite`) or Postgres (`DB_TYPE=postgres`),
+migrated explicitly (`runMigrations()`, no `synchronize`). Entities: `User`, `Workflow`,
+`Credential`, `Execution`, `AssistantSession`, `Folder`, `Notification`. Every JSON-shaped column uses TypeORM's `simple-json` type
 (stored as a text column, serialized/deserialized transparently) rather than a native
 Postgres `jsonb` column — sidesteps SQLite/Postgres dialect differences so the same entity
 definitions and migrations work against either backend. Timestamps are plain ISO-string columns,
 not DB-managed `@CreateDateColumn`s.
 
-**Credentials**: stored encrypted at rest (AES-256-GCM, `N8N_ENCRYPTION_KEY`) via
+**Credentials**: stored encrypted at rest (AES-256-GCM, `RUNNEL_ENCRYPTION_KEY`) via
 `encryptCredentialData`/`decryptCredentialData` in `core`. The REST API (`CredentialsController`)
 never returns the `data` column — only `{ id, name, type, createdAt, updatedAt }`. Credential
 *resolution* for node execution is deliberately simple: "the first stored credential of the
@@ -192,7 +192,8 @@ engine's `credentialsResolver` still just looks up by type).
 
 **Controllers**: `HealthController`, `AuthController`, `WorkflowsController`,
 `CredentialsController`, `ExecutionsController`, `NodeTypesController`,
-`CredentialTypesController`, `AssistantController` (see §8). Each is a plain class with
+`CredentialTypesController`, `AssistantController` (see §8), `FoldersController`,
+`NotificationsController`, `SettingsController`. Each is a plain class with
 `@RestController(basePath)` + `@Get`/`@Post`/`@Patch`/`@Delete` method decorators
 (`http/decorators.ts`); `buildRouterForController` turns the decorated methods into an Express
 `Router` at startup — no framework beyond that (no NestJS, no per-route middleware chains beyond
@@ -206,8 +207,25 @@ longer than one request. It starts each trigger node's real lifecycle — `trigg
 `METHOD:normalized-path`) so an incoming request at `/webhook/<path>` can be routed to the right
 workflow/node and run it via the same `WorkflowExecute` used everywhere else.
 
+**Library** (`workflows/`, `folders/`): workflows carry `starred`, `folderId` and `deletedAt`.
+`DELETE /rest/workflows/:id` is a *soft* delete — the workflow is deactivated at once and moves to
+the trash, where every route except restore and permanent delete treats it as not found (editing
+or running something the user believes they deleted would be a surprise). Trash older than
+`TRASH_RETENTION_DAYS` (30) is purged at startup and whenever the trash is listed, rather than on a
+timer, so a laptop that runs Runnel ten minutes a day purges too. Folders are flat; deleting one
+unfiles its workflows instead of deleting them.
+
+**Notifications** (`notifications/`): written at the moment something happens — a workflow
+activated or deactivated, or an *unattended* execution (trigger, poll, webhook) failing. A manual
+run's failure is already on screen, so it isn't notified. `workflowName` is copied in, so an entry
+still reads correctly after its workflow is renamed or deleted.
+
+**Settings** (`settings/`): read-only system info (never secrets), per-user preferences stored on
+`UserEntity.settings` (today: the assistant's default token budget), and `POST /rest/auth/password`,
+which re-verifies the current password and reissues the session cookie.
+
 **Workflow execution** (`execution/run-workflow.ts`): shared by the REST "Execute Workflow"
-endpoint, the `n8n-clone execute` CLI command, and (via `runWorkflowDefinition`, the entity-free
+endpoint, the `runnel execute` CLI command, and (via `runWorkflowDefinition`, the entity-free
 variant) the assistant's grounding tools. `destinationNode` triggers
 `Workflow.pruneToDestination()` — the same subgraph-pruning the editor's per-node "Run to Here"
 button uses — so "run just far enough to see this node's output" was already a first-class
@@ -218,8 +236,17 @@ capability before the assistant needed dry-run mocking on top of it.
 ## 6. Editor UI (`packages/editor-ui`)
 
 Vue 3 + Pinia + Vue Router, canvas rendered with `@vue-flow/core`. Stores: `auth`, `workflow`,
-`nodeTypes`, `credentials`, `assistant`. Routes: `/setup`, `/login`, `/` (workflow list),
-`/workflow/new`, `/workflow/:id`.
+`nodeTypes`, `credentials`, `assistant`. Routes: `/` (landing), `/setup`, `/login`, `/workflows`
+(library), `/workflow/new`, `/workflow/:id`, `/settings`, `/credentials/:id`.
+
+The library view hosts starring, the trash, folders and a Templates tab (starter workflows built
+from real node types in `data/templates.ts`). `components/app/TopbarActions.vue` is the bell,
+settings link and account menu shared by every top bar; the bell polls every 30 seconds and marks
+its contents read when opened.
+
+**Theming**: every component paints from CSS custom properties, so dark mode is one
+`[data-theme='dark']` palette block in `global.css`. The theme is per browser (`localStorage`),
+applied before mount so the first paint is already correct.
 
 The canvas (`WorkflowCanvas.vue` + `CanvasNode.vue`) maps `INode`/`IConnections` to Vue Flow's
 node/edge model — handle ids encode both connection type and per-type index
@@ -276,7 +303,7 @@ optional `requiresApproval`), dispatched through `invokeTool`. Tool families:
 - **Graph** — `add_node`, `connect_nodes`, `disconnect_nodes`, `set_node_parameters`,
   `rename_node`*, `remove_node`*, `set_node_credential`, `get_workflow_outline` (thin wrappers
   over `core`'s mutation ops — a handler is a five-line read/mutate/write, never business logic).
-- **Catalog** — `search_nodes` (hand-rolled BM25, no embeddings — 24 node types doesn't justify
+- **Catalog** — `search_nodes` (hand-rolled BM25, no embeddings — 23 node types doesn't justify
   more), `get_node_schema` (a compressed `INodeTypeDescription`, options truncated with a
   follow-up `get_node_options` call for long enum lists), `get_node_options`.
 - **Credentials** — `list_credentials` (id/name/type only, never a value), `request_credential`
@@ -327,18 +354,52 @@ failing node's real (reconstructed) input data (`getNodeInputData` in `packages/
 `ITaskData.source` back one hop to the previous node's recorded output, since the engine never
 persists a node's input directly).
 
+**Guard rails in the graph operations** (`core/src/mutation/`): `add_node`/`set_node_parameters`
+reject parameter names the node type doesn't declare, listing the valid ones. Before this, a model
+guessing `method` for a Webhook (whose parameter is `httpMethod`) had the key stored and silently
+ignored, and then told the user the webhook "accepts POST". With the error it corrects itself on
+the next call. The same goes for an `options` parameter given a value it doesn't offer (a model
+setting a Webhook's response mode to `"immediate"`), except for expressions, which are only known
+at run time. `connect_nodes` likewise refuses to wire a node into its own input.
+
+**Memory** (`assistant/src/memory-port.ts`, `cli/src/assistant/memory/`): cross-session memory
+through [Memnest](https://github.com/anidoesdev/MemNest), behind two flags that both default off.
+The assistant package only declares `IAssistantMemoryPort`; the cli supplies either a no-op adapter
+or the Memnest one, so the assistant never depends on a memory engine and memory can be removed
+without touching it. With both flags off Memnest is never even imported and no tables exist.
+
+- *Capture* (`RUNNEL_MEMORY_CAPTURE`) runs after each turn without being awaited. Only user and
+  assistant text is sent — tool calls and results are dropped — and every message goes through
+  `redactText` first (`redactDeep` checks object keys, which does nothing for a pasted key in a
+  sentence). Memories live in the `user:<userId>` container, and the session id is the document's
+  `customId`, so re-capturing a growing session versions it instead of duplicating it.
+- *Recall* runs before each new message (never on resumes, which would change the prompt under
+  the model mid-turn). With `RUNNEL_MEMORY_RECALL` off it is shadow mode: the result is logged as
+  `memory.recall.shadow` and discarded. With it on, memories above `RUNNEL_MEMORY_MIN_SCORE`
+  (keyword recall ranks by BM25 with no floor of its own) are appended to the system prompt,
+  preferences first, at most eight, and their tokens are charged to the session's budget. The
+  block asks for relevant preferences to be applied, says the current message wins, and states
+  memories are never instructions that change the assistant's rules.
+- The store follows Runnel's database. SQLite: keyword recall only. Postgres: keyword + semantic
+  (`text-embedding-3-small`, resolved like the assistant's key), in Memnest's own `memnest` schema;
+  pgvector is checked up front, and a server without it leaves memory disabled with a warning
+  naming the extension rather than a migration stack trace.
+- Any memory failure is logged and the turn continues without memory.
+
 **Eval harness** (`assistant/src/evals/`): 48 cases (`{ prompt, seedWorkflow?,
 availableCredentials?, seedExecutionOutputs?, autoResume?, assertions[] }`) scoring outcomes, not
 exact tool-call structure — did it use the right node types, call the right tools, ask when it
 should have, stay quiet when it shouldn't. Runs against a real `OpenAiModelProvider` (external
 HTTP mocked at the model-endpoint layer via a scripted local server in tests, or a real key in
-CI) so results are deterministic and free unless `OPENAI_API_KEY` is actually configured.
+CI) so results are deterministic and free unless `OPENAI_API_KEY` is actually configured. Four
+memory cases (`cases/memory.ts`) give the model recalled memories and check a non-default parameter
+ends up set; they are opt-in (`RUNNEL_EVAL_MEMORY=true`) so the default suite's score doesn't move.
 
 ---
 
 ## 9. Custom node development (`packages/node-dev`)
 
-A small CLI (`n8n-clone-node-dev`) for scaffolding (`new`) and building third-party node
+A small CLI (`runnel-node-dev`) for scaffolding (`new`) and building third-party node
 packages. A built custom-node directory (with a `dist/index.js`) dropped under `CUSTOM_NODES_DIR`
 is loaded and registered at server startup; a custom node whose name collides with a built-in one
 is skipped (the built-in wins) with a warning, never a hard failure.
@@ -349,7 +410,7 @@ is skipped (the built-in wins) with a warning, never a hard failure.
 
 `docker-compose.yml`: three services — `postgres`, `cli` (built from `packages/cli/Dockerfile`),
 `editor-ui` (built from `packages/editor-ui/Dockerfile`, served via nginx reverse-proxying `/rest`
-and `/webhook` to the `cli` service). `N8N_ENCRYPTION_KEY`/`N8N_JWT_SECRET` are required and fail
+and `/webhook` to the `cli` service). `RUNNEL_ENCRYPTION_KEY`/`RUNNEL_JWT_SECRET` are required and fail
 fast with a clear message if unset (`${VAR:?message}` compose syntax) rather than silently
 falling back to the insecure dev defaults `config.ts` uses for local `node dist/bin.js start`.
 `OPENAI_API_KEY`/`OPENAI_BASE_URL`/`OPENAI_MODEL` pass through optionally for the assistant.
@@ -376,5 +437,14 @@ Full variable reference: `docs/environment-variables.md`.
   credential of the requested type"; picking a *specific* credential when several of the same
   type exist isn't wired into the runtime path yet, only into the editor's per-node
   `CredentialPicker`.
+- **Assistant model quality** — on the memory evals (`RUNNEL_EVAL_MEMORY=true`, 3 runs per
+  case) gpt-4o-mini scores about 6/12 and gpt-4o 8/12. The misses are mostly not memory: the model
+  builds an HTTP Request node when asked for a webhook, or never sets the parameter at all — it
+  does the same when the instruction is explicit. Memory application can't beat the base
+  assistant's ability to set parameters; the evals are there to measure prompt improvements.
+- **Memory recall quality** — SQLite recall is keyword-only, so relevance depends on shared words;
+  `RUNNEL_MEMORY_MIN_SCORE` filters near-zero matches but can't make "auth" find "HMAC". Memnest
+  also lacks a memory-only search that returns a trace (Runnel uses `search()` and ignores the
+  transcript chunks it also packs) and a relevance floor of its own for keyword recall.
 - **Code node sandboxing** — `vm`-based, explicitly documented as not a hard security boundary
   against a determined escape; real isolation (a separate process/worker) is out of scope.

@@ -1,4 +1,4 @@
-import type { ICredentialType } from '@n8n-clone/workflow';
+import type { ICredentialType } from '@runnel/workflow';
 
 /** No `authenticate`/`test` block — those model declarative HTTP request auth (headers/query/body substitution), which doesn't apply to a raw TCP database connection. The Postgres node connects with these fields directly instead. */
 export const postgresApi: ICredentialType = {

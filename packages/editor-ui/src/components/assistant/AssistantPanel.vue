@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, watch } from 'vue';
-import { N8nButton, N8nInput } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelInput } from '@runnel/design-system';
 import { useAssistantStore } from '../../stores/assistant.store.js';
 import { credentialSetupId, diffFields, humanizeToolCall } from '../../utils/assistantDisplay.js';
 
@@ -134,14 +134,14 @@ async function onApply(): Promise<void> {
               {{ option.label }}
             </button>
           </div>
-          <N8nInput
+          <RunnelInput
             v-if="question.allowFreeText || !question.options?.length"
             :model-value="answers[question.id] ?? ''"
             placeholder="Type an answer…"
             @update:model-value="(v) => (answers[question.id] = v)"
           />
         </div>
-        <N8nButton :disabled="!allQuestionsAnswered || assistantStore.sending" @click="onSubmitAnswers">Send answers</N8nButton>
+        <RunnelButton :disabled="!allQuestionsAnswered || assistantStore.sending" @click="onSubmitAnswers">Send answers</RunnelButton>
       </div>
 
       <div v-if="assistantStore.session?.status === 'awaiting_approval' && assistantStore.session.pendingApproval" class="assistant-panel__approval">
@@ -150,8 +150,8 @@ async function onApply(): Promise<void> {
           — approve this change?
         </p>
         <div class="assistant-panel__approval-actions">
-          <N8nButton :disabled="assistantStore.sending" @click="onApprove">Approve</N8nButton>
-          <N8nButton variant="secondary" :disabled="assistantStore.sending" @click="onReject">Reject</N8nButton>
+          <RunnelButton :disabled="assistantStore.sending" @click="onApprove">Approve</RunnelButton>
+          <RunnelButton variant="secondary" :disabled="assistantStore.sending" @click="onReject">Reject</RunnelButton>
         </div>
       </div>
     </div>
@@ -182,12 +182,12 @@ async function onApply(): Promise<void> {
           − {{ c.from }} → {{ c.to }}
         </li>
       </ul>
-      <N8nButton :disabled="assistantStore.sending" @click="onApply">Apply to workflow</N8nButton>
+      <RunnelButton :disabled="assistantStore.sending" @click="onApply">Apply to workflow</RunnelButton>
     </div>
 
     <form class="assistant-panel__input" @submit.prevent="onSend">
-      <N8nInput :model-value="draft" placeholder="Describe what you want to automate…" :disabled="inputDisabled" @update:model-value="draft = $event" />
-      <N8nButton :disabled="inputDisabled || !draft.trim()">Send</N8nButton>
+      <RunnelInput :model-value="draft" placeholder="Describe what you want to automate…" :disabled="inputDisabled" @update:model-value="draft = $event" />
+      <RunnelButton :disabled="inputDisabled || !draft.trim()">Send</RunnelButton>
     </form>
   </aside>
 </template>

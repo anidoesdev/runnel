@@ -1,4 +1,4 @@
-import { NodeApiError, NodeOperationError } from '@n8n-clone/workflow';
+import { NodeApiError, NodeOperationError } from '@runnel/workflow';
 import { buildExecuteFunctions } from './execute-context.js';
 import type { ICredentialTypes } from '../credentials/credential-types.js';
 import type {
@@ -14,7 +14,7 @@ import type {
   IWorkflowBase,
   NodeOutput,
   WorkflowExecuteMode,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 import type { INodeTypes } from './node-types.js';
 
 export interface IWorkflowExecuteOptions {

@@ -1,5 +1,5 @@
-import { buildExecuteFunctions, buildPollFunctions, buildTriggerFunctions, buildWebhookFunctions } from '@n8n-clone/core';
-import type { IExecuteFunctionsOptions, IPollOrTriggerFunctionsOptions, ITriggerFunctionsOptions, IWebhookFunctionsOptions } from '@n8n-clone/core';
+import { buildExecuteFunctions, buildPollFunctions, buildTriggerFunctions, buildWebhookFunctions } from '@runnel/core';
+import type { IExecuteFunctionsOptions, IPollOrTriggerFunctionsOptions, ITriggerFunctionsOptions, IWebhookFunctionsOptions } from '@runnel/core';
 import type {
   IExecuteFunctions,
   INode,
@@ -9,7 +9,7 @@ import type {
   IWebhookFunctions,
   IWorkflowBase,
   NodeOutput,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 type NodeFixture = { name: string; type?: string } & Partial<Omit<INode, 'name' | 'type'>>;
 
@@ -28,7 +28,7 @@ export function makeNode(fixture: NodeFixture): INode {
 }
 
 /**
- * Builds a real IExecuteFunctions (via @n8n-clone/core's buildExecuteFunctions) around a
+ * Builds a real IExecuteFunctions (via @runnel/core's buildExecuteFunctions) around a
  * single node with a single input branch of items — the shape every one of these node unit
  * tests needs, without going through the full WorkflowExecute engine.
  */
@@ -52,21 +52,21 @@ function makeWorkflowFor(node: INode): IWorkflowBase {
   return { id: 'wf-1', name: 'Test Workflow', active: false, nodes: [node], connections: {} };
 }
 
-/** Builds a real IPollFunctions (via @n8n-clone/core's buildPollFunctions) around a single node. */
+/** Builds a real IPollFunctions (via @runnel/core's buildPollFunctions) around a single node. */
 export function makePollFunctions(
   overrides: Partial<IPollOrTriggerFunctionsOptions> & { node: INode } = { node: makeNode({ name: 'Node1' }) },
 ): IPollFunctions {
   return buildPollFunctions({ workflow: makeWorkflowFor(overrides.node), mode: 'trigger', ...overrides });
 }
 
-/** Builds a real ITriggerFunctions (via @n8n-clone/core's buildTriggerFunctions) around a single node. */
+/** Builds a real ITriggerFunctions (via @runnel/core's buildTriggerFunctions) around a single node. */
 export function makeTriggerFunctions(
   overrides: Partial<ITriggerFunctionsOptions> & { node: INode; emit: ITriggerFunctionsOptions['emit'] },
 ): ITriggerFunctions {
   return buildTriggerFunctions({ workflow: makeWorkflowFor(overrides.node), mode: 'trigger', ...overrides });
 }
 
-/** Builds a real IWebhookFunctions (via @n8n-clone/core's buildWebhookFunctions) around a single node. */
+/** Builds a real IWebhookFunctions (via @runnel/core's buildWebhookFunctions) around a single node. */
 export function makeWebhookFunctions(
   overrides: Partial<IWebhookFunctionsOptions> & {
     node: INode;

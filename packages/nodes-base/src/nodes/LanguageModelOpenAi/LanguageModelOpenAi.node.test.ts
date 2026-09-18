@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { httpRequest } from '@n8n-clone/core';
+import { httpRequest } from '@runnel/core';
 import { languageModelOpenAi } from './LanguageModelOpenAi.node.js';
 import { makeNode } from '../../test-utils.js';
 import { readRequestBody, startTestServer } from '../../test-server.js';
-import type { IDataObject, ISupplyDataFunctions } from '@n8n-clone/workflow';
+import type { IDataObject, ISupplyDataFunctions } from '@runnel/workflow';
 import type { TestServer } from '../../test-server.js';
 import type { IChatModel } from '../shared/ai-types.js';
 

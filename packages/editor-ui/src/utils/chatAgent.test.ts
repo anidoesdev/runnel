@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { findChatReadyAgents, findChatTriggerNode, hasMainInput } from './chatAgent.js';
-import type { IConnections, INode } from '@n8n-clone/workflow';
+import type { IConnections, INode } from '@runnel/workflow';
 
 function node(name: string, type: string): INode {
   return { id: name, name, type, typeVersion: 1, position: [0, 0], parameters: {} };

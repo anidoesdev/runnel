@@ -1,9 +1,9 @@
-import { encryptCredentialData } from '@n8n-clone/core';
+import { encryptCredentialData } from '@runnel/core';
 import { Delete, Get, Patch, Post, RestController } from '../http/decorators.js';
 import { createCredentialSchema, updateCredentialSchema } from './credential.dto.js';
 import { generateId } from '../db/id.js';
 import { NotFoundError } from '../http/http-errors.js';
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 import type { Repository } from 'typeorm';
 import type { Request, Response } from 'express';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';

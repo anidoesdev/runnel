@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { workflowsApi } from '../api/workflows.js';
-import type { IConnections, IDataObject, INode, NodeConnectionType } from '@n8n-clone/workflow';
+import type { IConnections, IDataObject, INode, NodeConnectionType } from '@runnel/workflow';
 import type { IExecuteWorkflowResult, IWorkflowRecord } from '../api/types.js';
 
 /** Holds the workflow currently open in the editor — the canvas, the NDV, and the top bar all read/write this. */

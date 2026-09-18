@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { createSession } from '@n8n-clone/assistant';
+import { createSession } from '@runnel/assistant';
 import { AssistantSessionRepositoryAdapter } from './assistant-session.repository.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
 import { AssistantSessionEntity } from '../db/entities/AssistantSession.entity.js';
 import type { DataSource, Repository } from 'typeorm';
-import type { IAssistantSession } from '@n8n-clone/assistant';
+import type { IAssistantSession } from '@runnel/assistant';
 
 describe('AssistantSessionRepositoryAdapter', () => {
   let dataSource: DataSource;

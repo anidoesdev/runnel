@@ -5,7 +5,7 @@ import NodeDetailPanel from './NodeDetailPanel.vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 import { workflowsApi } from '../../api/workflows.js';
-import type { INodeTypeDescription } from '@n8n-clone/workflow';
+import type { INodeTypeDescription } from '@runnel/workflow';
 
 vi.mock('../../api/workflows.js', () => ({
   workflowsApi: {

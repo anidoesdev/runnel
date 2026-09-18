@@ -2,7 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useNodeTypesStore } from './nodeTypes.store.js';
 import { credentialTypesApi, nodeTypesApi } from '../api/nodeTypes.js';
-import type { ICredentialType, INodeTypeDescription } from '@n8n-clone/workflow';
+import type { ICredentialType, INodeTypeDescription } from '@runnel/workflow';
 
 vi.mock('../api/nodeTypes.js', () => ({
   nodeTypesApi: { list: vi.fn() },

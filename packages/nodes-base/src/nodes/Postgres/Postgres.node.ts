@@ -1,5 +1,5 @@
 import { Client } from 'pg';
-import type { IDataObject, IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IDataObject, IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 
 interface IPostgresCredentials {
   host: string;

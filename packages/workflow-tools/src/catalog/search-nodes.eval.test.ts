@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { MapNodeTypes } from '@n8n-clone/core';
-import { registerAllNodeTypes } from '@n8n-clone/nodes-base';
+import { MapNodeTypes } from '@runnel/core';
+import { registerAllNodeTypes } from '@runnel/nodes-base';
 import { searchNodeTypes } from './search-nodes.js';
 
 /**

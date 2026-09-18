@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { decryptCredentialData, MapCredentialTypes } from '@n8n-clone/core';
+import { decryptCredentialData, MapCredentialTypes } from '@runnel/core';
 import { CredentialRepositoryAdapter } from './credential-repository.adapter.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';
 import type { DataSource, Repository } from 'typeorm';
-import type { IEncryptedCredentialData } from '@n8n-clone/core';
+import type { IEncryptedCredentialData } from '@runnel/core';
 
 const ENCRYPTION_KEY = 'test-encryption-key';
 

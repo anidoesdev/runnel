@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
-/** `data` holds the JSON-stringified IEncryptedCredentialData (iv/authTag/ciphertext) from @n8n-clone/core's encryption module — the plaintext credential values never touch this table. */
+/** `data` holds the JSON-stringified IEncryptedCredentialData (iv/authTag/ciphertext) from @runnel/core's encryption module — the plaintext credential values never touch this table. */
 @Entity({ name: 'credential' })
 export class CredentialEntity {
   @PrimaryColumn({ type: 'varchar', length: 36 })

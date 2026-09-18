@@ -1,4 +1,4 @@
-import type { INodeType, INodeTypeDescription, VersionedNodeType } from '@n8n-clone/workflow';
+import type { INodeType, INodeTypeDescription, VersionedNodeType } from '@runnel/workflow';
 
 /**
  * Decouples WorkflowExecute from how node types are actually loaded/versioned. The real

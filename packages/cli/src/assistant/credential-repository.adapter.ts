@@ -1,8 +1,8 @@
-import { encryptCredentialData } from '@n8n-clone/core';
+import { encryptCredentialData } from '@runnel/core';
 import { generateId } from '../db/id.js';
-import type { ICredentialTypes } from '@n8n-clone/core';
-import type { ICredentialRepositoryPort, ICredentialSummary } from '@n8n-clone/workflow-tools';
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { ICredentialTypes } from '@runnel/core';
+import type { ICredentialRepositoryPort, ICredentialSummary } from '@runnel/workflow-tools';
+import type { IDataObject } from '@runnel/workflow';
 import type { Repository } from 'typeorm';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
 

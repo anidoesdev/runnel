@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { searchNodeTypes } from './search-nodes.js';
-import type { INodeTypeDescription } from '@n8n-clone/workflow';
+import type { INodeTypeDescription } from '@runnel/workflow';
 
 function description(overrides: Partial<INodeTypeDescription>): INodeTypeDescription {
   return {

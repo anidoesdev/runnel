@@ -1,4 +1,4 @@
-import type { IDataObject, IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IDataObject, IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 
 interface ILoopState {
   items?: INodeExecutionData[];

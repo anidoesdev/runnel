@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { merge } from './Merge.node.js';
 import { makeExecuteFunctions, makeNode } from '../../test-utils.js';
-import type { INodeExecutionData, NodeOutput } from '@n8n-clone/workflow';
+import type { INodeExecutionData, NodeOutput } from '@runnel/workflow';
 
 function run(mode: string, input0: INodeExecutionData[], input1: INodeExecutionData[], key?: string): Promise<NodeOutput> {
   const node = makeNode({ name: 'Merge', type: 'merge', parameters: { mode, key } });

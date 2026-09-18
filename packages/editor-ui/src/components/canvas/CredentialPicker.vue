@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { N8nSelect } from '@n8n-clone/design-system';
+import { RunnelSelect } from '@runnel/design-system';
 import CredentialModal from '../credentials/CredentialModal.vue';
 import { useCredentialsStore } from '../../stores/credentials.store.js';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
@@ -38,7 +38,7 @@ function onCreated(credential: { id: string; name: string }): void {
 <template>
   <div class="property-field">
     <label>{{ credentialTypeName }}</label>
-    <N8nSelect :model-value="selectedId" :options="selectOptions" @update:model-value="onSelect" />
+    <RunnelSelect :model-value="selectedId" :options="selectOptions" @update:model-value="onSelect" />
     <button type="button" class="link-button" @click="modalOpen = true">+ New credential</button>
 
     <CredentialModal v-model="modalOpen" :credential-type-name="credentialTypeName" @created="onCreated" />

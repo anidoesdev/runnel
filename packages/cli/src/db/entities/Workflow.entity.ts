@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
-import type { IConnections, IDataObject, INode, INodeExecutionData, IWorkflowSettings } from '@n8n-clone/workflow';
+import type { IConnections, IDataObject, INode, INodeExecutionData, IWorkflowSettings } from '@runnel/workflow';
 
 /**
  * `simple-json` (TypeORM stores it as TEXT, JSON.stringify/parse in the driver layer) is used

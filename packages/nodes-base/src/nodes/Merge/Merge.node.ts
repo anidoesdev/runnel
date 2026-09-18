@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 
 function appendMode(input0: INodeExecutionData[], input1: INodeExecutionData[]): INodeExecutionData[] {
   return [...input0, ...input1];

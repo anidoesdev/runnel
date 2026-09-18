@@ -27,8 +27,8 @@ async function mountSettings(preferences: IUserPreferences = {}) {
     global: {
       stubs: {
         RouterLink: { template: '<a><slot /></a>' },
-        N8nButton: { template: '<button><slot /></button>' },
-        N8nInput: {
+        RunnelButton: { template: '<button><slot /></button>' },
+        RunnelInput: {
           props: ['modelValue'],
           template: '<input :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
         },
@@ -79,7 +79,7 @@ describe('assistant defaults', () => {
     expect((input.element as HTMLInputElement).value).toBe('50000');
 
     await input.setValue('120000');
-    // N8nButton renders a bare <button>, so it submits its form — same as the real page.
+    // RunnelButton renders a bare <button>, so it submits its form — same as the real page.
     await wrapper.find('.settings-form--inline').trigger('submit');
     await flushPromises();
 

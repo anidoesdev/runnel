@@ -1,4 +1,4 @@
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { IWorkflowBase } from '@runnel/workflow';
 
 /**
  * The only seam between this package and however workflows are actually persisted (TypeORM in

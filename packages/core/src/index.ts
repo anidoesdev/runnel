@@ -39,6 +39,8 @@ export {
   UnknownNodeTypeError,
   IncompatibleConnectionError,
   UnknownCredentialTypeError,
+  UnknownParameterError,
+  InvalidParameterValueError,
 } from './mutation/workflow-mutation.js';
 export { layoutWorkflow } from './mutation/workflow-layout.js';
 export type {

@@ -10,7 +10,7 @@ import type {
   IWorkflowBase,
   NodeOutput,
   WorkflowExecuteMode,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 export interface IPollOrTriggerFunctionsOptions {
   node: INode;
@@ -23,7 +23,7 @@ export interface IPollOrTriggerFunctionsOptions {
 
 /**
  * `IWorkflowBase.staticData` is a flat bag with two reserved top-level buckets — `node`
- * (keyed by node name) and `global` (shared workflow-wide) — mirroring n8n's real
+ * (keyed by node name) and `global` (shared workflow-wide) — mirroring the usual
  * getWorkflowStaticData contract. The returned object is a live reference into
  * `workflow.staticData`, so mutating it (e.g. a poll node recording its last-seen cursor)
  * mutates `workflow` itself; a caller that wants that to survive a restart must persist

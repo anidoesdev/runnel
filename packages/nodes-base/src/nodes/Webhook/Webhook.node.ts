@@ -5,14 +5,14 @@ import type {
   IWebhookFunctions,
   IWebhookResponseData,
   NodeOutput,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 /**
  * Starts the workflow when a matching HTTP request arrives at
  * `/webhook/<path>`. The concrete method/path are this node instance's own `httpMethod`/
  * `path` parameters — ActiveWorkflowManager reads them directly (via getNodeParameter) when
  * registering the workflow's webhooks rather than through `description.webhooks`, which would
- * otherwise need an expression-in-metadata resolution layer (real n8n's
+ * otherwise need an expression-in-metadata resolution layer (a fuller implementation's
  * `={{$parameter["path"]}}` webhook-path syntax) that's out of scope here; "is this a webhook
  * node" is instead determined purely by `typeof nodeType.webhook === 'function'`.
  */

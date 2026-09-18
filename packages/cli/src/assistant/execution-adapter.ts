@@ -1,10 +1,10 @@
-import { firstItem, inferItemSchema, redactSample } from '@n8n-clone/workflow-tools';
+import { firstItem, inferItemSchema, redactSample } from '@runnel/workflow-tools';
 import { runWorkflowDefinition } from '../execution/run-workflow.js';
-import type { INodeOutputSample, IWorkflowExecutionSummary, IWorkflowExecutorPort } from '@n8n-clone/workflow-tools';
-import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
-import type { ITaskData } from '@n8n-clone/workflow';
+import type { INodeOutputSample, IWorkflowExecutionSummary, IWorkflowExecutorPort } from '@runnel/workflow-tools';
+import type { ICredentialTypes, INodeTypes } from '@runnel/core';
+import type { ITaskData } from '@runnel/workflow';
 import type { Repository } from 'typeorm';
-import type { WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import type { WorkflowDraftStore } from '@runnel/workflow-tools';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
 
 function toSample(task: ITaskData): INodeOutputSample {

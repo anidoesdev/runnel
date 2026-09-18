@@ -23,7 +23,7 @@ export interface IExpressionEvalContext {
   parameters?: IDataObject;
   /** Environment variables injected by the host, for `$env`. Never read from `process.env` here. */
   env?: Record<string, string>;
-  /** Whether `$env` access should be blocked (N8N_BLOCK_ENV_ACCESS_IN_NODE, decided by the host). */
+  /** Whether `$env` access should be blocked (RUNNEL_BLOCK_ENV_ACCESS_IN_NODE, decided by the host). */
   blockEnvAccess?: boolean;
   /** Instance variables, for `$vars`. */
   vars?: IDataObject;

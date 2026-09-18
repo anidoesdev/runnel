@@ -1,5 +1,5 @@
 {
-  "name": "@n8n-clone/editor-ui",
+  "name": "@runnel/editor-ui",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,8 +12,8 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@n8n-clone/design-system": "workspace:*",
-    "@n8n-clone/workflow": "workspace:*",
+    "@runnel/design-system": "workspace:*",
+    "@runnel/workflow": "workspace:*",
     "@vue-flow/core": "^1.41.5",
     "pinia": "^2.3.0",
     "vue": "^3.5.13",

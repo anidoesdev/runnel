@@ -1,8 +1,8 @@
 import { createServer } from 'node:http';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
-import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
-import { registerAllCredentialTypes, registerAllNodeTypes } from '@n8n-clone/nodes-base';
-import { WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { MapCredentialTypes, MapNodeTypes } from '@runnel/core';
+import { registerAllCredentialTypes, registerAllNodeTypes } from '@runnel/nodes-base';
+import { WorkflowDraftStore } from '@runnel/workflow-tools';
 import { ExecutionAdapter } from './execution-adapter.js';
 import { WorkflowRepositoryAdapter } from './workflow-repository.adapter.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
@@ -11,7 +11,7 @@ import { CredentialEntity } from '../db/entities/Credential.entity.js';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { DataSource, Repository } from 'typeorm';
-import type { INode } from '@n8n-clone/workflow';
+import type { INode } from '@runnel/workflow';
 
 /**
  * Exercises ExecutionAdapter (grounding's execution seam) against a real local HTTP server and

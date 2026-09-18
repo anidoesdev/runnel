@@ -1,8 +1,8 @@
-import { invokeTool, redactDeep, ToolError } from '@n8n-clone/workflow-tools';
+import { invokeTool, redactDeep, ToolError } from '@runnel/workflow-tools';
 import { ASK_USER_TOOL_DEFINITION, ASK_USER_TOOL_NAME, parseAskUserArguments } from './ask-user.js';
 import { SYSTEM_PROMPT } from './prompts/load-system-prompt.js';
 import { toModelToolDefinitions } from './tool-definitions.js';
-import type { AnyTool, IToolContext, IToolErrorInfo } from '@n8n-clone/workflow-tools';
+import type { AnyTool, IToolContext, IToolErrorInfo } from '@runnel/workflow-tools';
 import type { IModelMessage, IModelProvider, IModelToolCallRef, IModelToolDefinition } from './model-provider.js';
 import type { IAskUserQuestion, IAssistantSession } from './session.js';
 

@@ -1,7 +1,7 @@
-import { decryptCredentialData, WorkflowExecute } from '@n8n-clone/core';
-import { Workflow } from '@n8n-clone/workflow';
-import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
-import type { INodeExecutionData, IRunExecutionData, IWorkflowBase, WorkflowExecuteMode } from '@n8n-clone/workflow';
+import { decryptCredentialData, WorkflowExecute } from '@runnel/core';
+import { Workflow } from '@runnel/workflow';
+import type { ICredentialTypes, INodeTypes } from '@runnel/core';
+import type { INodeExecutionData, IRunExecutionData, IWorkflowBase, WorkflowExecuteMode } from '@runnel/workflow';
 import type { Repository } from 'typeorm';
 import type { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
@@ -116,7 +116,7 @@ export async function runWorkflowDefinition(
 }
 
 /**
- * Shared by the REST "execute workflow" endpoint and the `n8n-clone execute` CLI command —
+ * Shared by the REST "execute workflow" endpoint and the `runnel execute` CLI command —
  * both need the same "resolve start node, build a credentials-aware engine, run it" logic.
  *
  * Credential resolution prefers the specific id a node has assigned for that type

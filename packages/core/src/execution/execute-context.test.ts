@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { NodeOperationError } from '@n8n-clone/workflow';
+import { NodeOperationError } from '@runnel/workflow';
 import { buildExecuteFunctions } from './execute-context.js';
 import { makeNode, makeWorkflow } from './test-utils.js';
 import { MapCredentialTypes } from '../credentials/credential-types.js';
 import { MapNodeTypes } from './node-types.js';
 import type { IExecuteFunctionsOptions } from './execute-context.js';
-import type { ISupplyDataFunctions, INodeType } from '@n8n-clone/workflow';
+import type { ISupplyDataFunctions, INodeType } from '@runnel/workflow';
 
 function baseOptions(overrides: Partial<IExecuteFunctionsOptions> = {}): IExecuteFunctionsOptions {
   const node = overrides.node ?? makeNode({ name: 'Node1', parameters: {} });

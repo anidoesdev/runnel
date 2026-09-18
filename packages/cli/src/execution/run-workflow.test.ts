@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { findStartNodeName } from './run-workflow.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { IWorkflowBase } from '@runnel/workflow';
 
 function makeWorkflow(nodes: string[], connections: IWorkflowBase['connections']): IWorkflowBase {
   return {

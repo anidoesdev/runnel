@@ -30,7 +30,7 @@ export { oAuth2Api } from './credentials/OAuth2Api.credentials.js';
 export { postgresApi } from './credentials/PostgresApi.credentials.js';
 export { openAiApi } from './credentials/OpenAiApi.credentials.js';
 
-import type { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
+import type { MapCredentialTypes, MapNodeTypes } from '@runnel/core';
 import { manualTrigger } from './nodes/ManualTrigger/ManualTrigger.node.js';
 import { chatTrigger } from './nodes/ChatTrigger/ChatTrigger.node.js';
 import { start } from './nodes/Start/Start.node.js';

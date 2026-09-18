@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createSession } from '@n8n-clone/assistant';
+import { createSession } from '@runnel/assistant';
 import { MemnestMemoryAdapter } from './memnest-memory.adapter.js';
-import type { IAssistantSession } from '@n8n-clone/assistant';
+import type { IAssistantSession } from '@runnel/assistant';
 import type { IMemnestForAssistant } from './memnest-memory.adapter.js';
 
 /**

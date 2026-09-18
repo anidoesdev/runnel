@@ -54,7 +54,7 @@
   --color-surface-tint: #3a665c;
   --color-on-primary-container: #f4fffa;
 
-  /* Aliases so the app's existing hand-rolled CSS and @n8n-clone/design-system components
+  /* Aliases so the app's existing hand-rolled CSS and @runnel/design-system components
      (which read `--color-primary`/`--color-border`/`--color-bg`/`--color-text`) pick up the
      Runnel palette without needing every consumer rewritten individually. */
   --color-border: var(--color-outline-variant);
@@ -304,7 +304,7 @@ a {
   color: var(--color-on-surface-variant);
 }
 
-/* Top-bar size — matches N8nButton's 36px height so toolbar rows line up (shadcn's
+/* Top-bar size — matches RunnelButton's 36px height so toolbar rows line up (shadcn's
    `size="icon"` is likewise square at the default button height). The 28px default stays for
    compact panel headers and card menus. */
 .icon-button--lg {
@@ -1205,7 +1205,7 @@ a {
   color: var(--color-error);
 }
 
-/* NDV — the selected node's Input/Output editor, shown in a centered modal (see N8nModal). */
+/* NDV — the selected node's Input/Output editor, shown in a centered modal (see RunnelModal). */
 .ndv {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1363,7 +1363,7 @@ a {
   color: var(--color-on-surface-variant);
 }
 
-/* Node detail modal header (icon + editable name + type) — see N8nModal's #header slot usage in NodeDetailPanel.vue. */
+/* Node detail modal header (icon + editable name + type) — see RunnelModal's #header slot usage in NodeDetailPanel.vue. */
 .node-detail-panel__name {
   font: inherit;
   font-weight: 600;

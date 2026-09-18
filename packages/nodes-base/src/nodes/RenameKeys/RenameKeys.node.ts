@@ -1,4 +1,4 @@
-import type { IDataObject, IExecuteFunctions, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IDataObject, IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
 interface IRename {
   from: string;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MapCredentialTypes, MapNodeTypes } from '@n8n-clone/core';
+import { MapCredentialTypes, MapNodeTypes } from '@runnel/core';
 import { allCredentialTypes, allNodeTypes, registerAllCredentialTypes, registerAllNodeTypes } from './index.js';
 
 describe('registerAllNodeTypes', () => {

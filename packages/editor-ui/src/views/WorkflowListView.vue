@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import { N8nButton } from '@n8n-clone/design-system';
+import { RunnelButton } from '@runnel/design-system';
 import { foldersApi } from '../api/folders.js';
 import { workflowsApi } from '../api/workflows.js';
 import { WORKFLOW_TEMPLATES } from '../data/templates.js';
@@ -231,7 +231,7 @@ onUnmounted(() => {
       </RouterLink>
 
       <div class="workflow-library__topbar-actions">
-        <N8nButton @click="router.push({ name: 'workflow-new' })">Create New</N8nButton>
+        <RunnelButton @click="router.push({ name: 'workflow-new' })">Create New</RunnelButton>
         <TopbarActions />
       </div>
     </header>
@@ -369,7 +369,7 @@ onUnmounted(() => {
               </div>
 
               <div class="workflow-card__footer">
-                <N8nButton @click="useTemplate(template)">Use template</N8nButton>
+                <RunnelButton @click="useTemplate(template)">Use template</RunnelButton>
               </div>
             </article>
           </div>

@@ -7,7 +7,7 @@ export default defineConfig({
   build: {
     lib: {
       entry: resolve(import.meta.dirname, 'src/index.ts'),
-      name: 'N8nCloneDesignSystem',
+      name: 'RunnelDesignSystem',
       fileName: 'index',
       formats: ['es'],
     },

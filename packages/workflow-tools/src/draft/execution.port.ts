@@ -1,7 +1,7 @@
 export interface IWorkflowExecutionNodeSummary {
   itemCount: number;
   error?: string;
-  /** True when this node's real execute() was skipped in favor of a passthrough (see INodeType.dryRunSafety in @n8n-clone/workflow) — its data is not real observed output. */
+  /** True when this node's real execute() was skipped in favor of a passthrough (see INodeType.dryRunSafety in @runnel/workflow) — its data is not real observed output. */
   mocked?: boolean;
 }
 
@@ -22,7 +22,7 @@ export interface INodeOutputSample {
 /**
  * Grounding's execution seam (Part 4 of the build prompt): runs the current draft for real,
  * against real credentials, up to a given node — with `dryRun: true` mocking any node not
- * classified `dryRunSafety => 'safe'` (see @n8n-clone/core's WorkflowExecute). Implemented by
+ * classified `dryRunSafety => 'safe'` (see @runnel/core's WorkflowExecute). Implemented by
  * packages/cli (it alone can decrypt credentials and drive the execution engine); this package
  * only depends on the shape, same pattern as ICredentialRepositoryPort.
  *

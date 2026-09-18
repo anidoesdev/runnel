@@ -1,9 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { MapNodeTypes, WorkflowExecute } from '@n8n-clone/core';
-import { Workflow } from '@n8n-clone/workflow';
+import { MapNodeTypes, WorkflowExecute } from '@runnel/core';
+import { Workflow } from '@runnel/workflow';
 import { registerAllNodeTypes } from './index.js';
 import { startTestServer, readRequestBody } from './test-server.js';
-import type { IDataObject, IWorkflowBase } from '@n8n-clone/workflow';
+import type { IDataObject, IWorkflowBase } from '@runnel/workflow';
 import type { TestServer } from './test-server.js';
 
 /**

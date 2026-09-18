@@ -62,7 +62,7 @@ describe('SQLite migrations', () => {
 
     // Raw SQL rather than the repository API here — TypeORM's generic FindOptionsWhere /
     // QueryDeepPartialEntity types recurse excessively deep against WorkflowEntity's nested
-    // structural types (INode[]/IConnections from @n8n-clone/workflow), which is a type-
+    // structural types (INode[]/IConnections from @runnel/workflow), which is a type-
     // checker-only issue, not a runtime one. This still proves the thing that actually
     // matters here: the "simple-json" column genuinely round-trips through SQLite.
     const nodesJson = JSON.stringify([

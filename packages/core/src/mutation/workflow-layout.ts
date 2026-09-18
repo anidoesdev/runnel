@@ -1,4 +1,4 @@
-import type { IConnection, IWorkflowBase, NodeConnectionType } from '@n8n-clone/workflow';
+import type { IConnection, IWorkflowBase, NodeConnectionType } from '@runnel/workflow';
 
 /**
  * Horizontal distance between successive steps of the main flow, and vertical distance between

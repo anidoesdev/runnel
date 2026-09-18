@@ -1,15 +1,15 @@
 import { createCipheriv, createDecipheriv, randomBytes, scryptSync } from 'node:crypto';
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 
 /**
  * Credential values are encrypted at rest with AES-256-GCM. The key is derived from
- * N8N_ENCRYPTION_KEY via scrypt with a fixed instance-level salt — deliberately not the
+ * RUNNEL_ENCRYPTION_KEY via scrypt with a fixed instance-level salt — deliberately not the
  * salt-less "hash the passphrase directly" approach, and deliberately GCM (authenticated
- * encryption) rather than n8n's real CBC scheme, per the M1 architecture decision.
+ * encryption) rather than a CBC scheme, per the M1 architecture decision.
  */
 const KEY_LENGTH = 32; // AES-256
 const IV_LENGTH = 12; // recommended for GCM
-const SALT = 'n8n-clone-credential-encryption';
+const SALT = 'runnel-credential-encryption';
 
 export interface IEncryptedCredentialData {
   iv: string;

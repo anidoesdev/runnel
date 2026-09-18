@@ -1,4 +1,4 @@
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 
 /**
  * One hand-authored usage example per node type — a realistic `parameters` object, not the

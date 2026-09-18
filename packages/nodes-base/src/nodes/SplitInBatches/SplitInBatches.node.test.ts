@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { splitInBatches } from './SplitInBatches.node.js';
 import { makeExecuteFunctions, makeNode } from '../../test-utils.js';
-import type { INodeExecutionData } from '@n8n-clone/workflow';
+import type { INodeExecutionData } from '@runnel/workflow';
 
 describe('Split In Batches node', () => {
   it('declares iterationNode so the workflow package allows a cycle through it', () => {

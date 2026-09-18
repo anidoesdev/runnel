@@ -1,5 +1,5 @@
-import { createSession, resumeApproval, resumeAskUser, runTurn } from '@n8n-clone/assistant';
-import { createToolRegistry, redactText, WorkflowDraftStore } from '@n8n-clone/workflow-tools';
+import { createSession, resumeApproval, resumeAskUser, runTurn, SYSTEM_PROMPT } from '@runnel/assistant';
+import { createToolRegistry, redactText, WorkflowDraftStore } from '@runnel/workflow-tools';
 import { Get, Post, RestController } from '../http/decorators.js';
 import { NotFoundError } from '../http/http-errors.js';
 import { generateId } from '../db/id.js';
@@ -9,10 +9,11 @@ import { ExecutionAdapter } from './execution-adapter.js';
 import { createModelProviderForSession } from './model-provider.factory.js';
 import { startSseResponse, writeSseEvent } from './sse.js';
 import { disabledAssistantMemory } from './memory/memory.factory.js';
+import { renderMemoryBlock, selectMemoriesToInject } from './memory/memory-block.js';
 import type { IAssistantMemory } from './memory/memory.factory.js';
 import type { AuthenticatedRequest } from '../auth/auth.middleware.js';
-import type { IAssistantSession, IAssistantSessionRepositoryPort, IRunTurnDeps, IRunTurnOptions } from '@n8n-clone/assistant';
-import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
+import type { IAssistantSession, IAssistantSessionRepositoryPort, IRunTurnDeps, IRunTurnOptions } from '@runnel/assistant';
+import type { ICredentialTypes, INodeTypes } from '@runnel/core';
 import type { Request, Response } from 'express';
 import type { Repository } from 'typeorm';
 import type { Logger } from 'pino';
@@ -24,7 +25,7 @@ const DEFAULT_TOKEN_LIMIT = 200_000;
 /**
  * The REST/SSE surface for the Workflow Assistant — the `server/assistant/session.ts` box from
  * the build prompt's architecture diagram, minus the agent loop itself (that's
- * @n8n-clone/assistant; this controller only wires it to HTTP). Every mutating route resolves
+ * @runnel/assistant; this controller only wires it to HTTP). Every mutating route resolves
  * to a streamed turn: it loads the session, builds fresh deps (a new model provider + tool
  * context per call — cheap, and avoids holding a live OpenAI connection open between requests),
  * runs the loop with `onEvent` writing straight to the SSE response, and persists whatever
@@ -93,8 +94,10 @@ export class AssistantController {
   async sendMessage(req: Request, res: Response): Promise<void> {
     const parsed = sendAssistantMessageSchema.parse(req.body);
     const session = await this.findSessionOrThrow(String(req.params.id));
-    await this.recallInShadow(session, parsed.message);
-    await this.streamTurn(res, session, (deps, options) => runTurn(session, parsed.message, deps, options));
+    const systemPrompt = await this.recallForTurn(session, parsed.message);
+    await this.streamTurn(res, session, (deps, options) =>
+      runTurn(session, parsed.message, systemPrompt ? { ...deps, systemPrompt } : deps, options),
+    );
   }
 
   @Post('/sessions/:id/approval')
@@ -197,34 +200,57 @@ export class AssistantController {
    * Recall for a new turn only: resumeApproval/resumeAskUser continue a turn whose system prompt
    * is already fixed, and re-recalling there would change it underneath the model mid-turn.
    *
-   * Shadow mode: the result is logged and discarded. Injecting it into the prompt is milestone R5,
-   * after the recalled results have been read on real transcripts. A failure never affects the turn.
+   * Returns the system prompt to use, or undefined to leave it alone. With recall off this is
+   * shadow mode — the result is logged and discarded — which is how the quality of what would be
+   * injected gets read on real transcripts before it can reach the model. A failure never
+   * affects the turn: memory that can break the assistant is worse than no memory.
    */
-  private async recallInShadow(session: IAssistantSession, message: string): Promise<void> {
+  private async recallForTurn(session: IAssistantSession, message: string): Promise<string | undefined> {
     const { config, port } = this.memory;
-    if (!config.capture && !config.recall) return;
+    if (!config.capture && !config.recall) return undefined;
 
     const started = performance.now();
     try {
       const recalled = await port.recall(message, session.actor, config.tokenBudget);
+      const selected = selectMemoriesToInject(recalled.memories, config);
+      const block = config.recall ? renderMemoryBlock(selected) : undefined;
+
+      if (block) {
+        // The recall budget is a slice of the session's own budget, not extra — so the existing
+        // accounting stays honest, the tokens are charged here rather than quietly added.
+        session.tokenBudget.used += recalled.tokensUsed;
+      }
+
       this.logger.info(
         {
-          event: 'memory.recall.shadow',
+          // Same event name shadow mode has always logged, so a shadow log keeps grepping the same.
+          event: block ? 'memory.recall.injected' : 'memory.recall.shadow',
           sessionId: session.id,
           workflowId: session.workflowId,
           query: redactText(message),
-          injected: false,
+          injected: Boolean(block),
           memoryCount: recalled.memories.length,
+          injectedCount: block ? selected.length : 0,
+          belowFloor: recalled.memories.length - selected.length,
+          minScore: config.minScore,
           // Not "tokensUsed": the logger redacts any key containing "token".
           budgetUsed: recalled.tokensUsed,
+          // Everything recalled, with scores — reading the shadow log means judging what *would*
+          // have been injected, so the ones below the floor matter as much as the ones above it.
           memories: recalled.memories,
+          passedFloorIds: selected.map((memory) => memory.id),
           trace: recalled.trace,
           durationMs: Math.round(performance.now() - started),
         },
-        'Assistant memory recall (shadow mode, not injected)',
+        block ? 'Assistant memory recalled and injected' : 'Assistant memory recall (shadow mode, not injected)',
       );
+
+      return block ? `${SYSTEM_PROMPT}
+
+${block}` : undefined;
     } catch (err) {
       this.logger.warn({ event: 'memory.recall.failed', sessionId: session.id, err }, 'Assistant memory recall failed; continuing without memory');
+      return undefined;
     }
   }
 

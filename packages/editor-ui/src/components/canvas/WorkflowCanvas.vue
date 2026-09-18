@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import CanvasNode from './CanvasNode.vue';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 import type { Connection, Edge, EdgeChange, Node as FlowNode, NodeChange, NodeDragEvent } from '@vue-flow/core';
-import type { IConnection, IConnections, INode, NodeConnectionType } from '@n8n-clone/workflow';
+import type { IConnection, IConnections, INode, NodeConnectionType } from '@runnel/workflow';
 
 const props = defineProps<{
   /** When given, the canvas renders this instead of the live workflow store — a read-only preview of the assistant's in-progress draft (Part 6: "highlight on the canvas in real time"). Drag/connect/delete are no-ops while previewing; edit via chat, not the canvas, until the draft is applied. */
@@ -149,7 +149,7 @@ function onDragOver(event: DragEvent): void {
 function onDrop(event: DragEvent): void {
   event.preventDefault();
   if (readonly.value) return;
-  const nodeType = event.dataTransfer?.getData('application/n8n-node-type');
+  const nodeType = event.dataTransfer?.getData('application/runnel-node-type');
   if (!nodeType) return;
   const bounds = (event.currentTarget as HTMLElement).getBoundingClientRect();
   const position = project({ x: event.clientX - bounds.left, y: event.clientY - bounds.top });

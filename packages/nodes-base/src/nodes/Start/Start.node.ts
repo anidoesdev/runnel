@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
 /** The legacy default-trigger node, superseded by Manual Trigger but kept for workflows saved before it existed. Behaves identically: passes the seeded starting item(s) straight through. */
 export const start: INodeType = {

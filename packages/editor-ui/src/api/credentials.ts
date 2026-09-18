@@ -1,5 +1,5 @@
 import { api } from './http.js';
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 import type { ICredentialRecord } from './types.js';
 
 export interface ICreateCredentialPayload {

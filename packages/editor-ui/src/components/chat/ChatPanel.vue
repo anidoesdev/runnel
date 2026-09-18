@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
-import { N8nButton, N8nInput } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelInput } from '@runnel/design-system';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 
 const props = defineProps<{ agentNodeName: string; chatTriggerNodeName: string }>();
@@ -63,13 +63,13 @@ async function onSend(): Promise<void> {
     </div>
 
     <form class="chat-panel__input" @submit.prevent="onSend">
-      <N8nInput
+      <RunnelInput
         :model-value="draft"
         placeholder="Send a message…"
         :disabled="workflowStore.executing"
         @update:model-value="draft = $event"
       />
-      <N8nButton :disabled="!draft.trim() || workflowStore.executing">Send</N8nButton>
+      <RunnelButton :disabled="!draft.trim() || workflowStore.executing">Send</RunnelButton>
     </form>
   </section>
 </template>

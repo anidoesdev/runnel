@@ -1,5 +1,5 @@
 {
-  "name": "@n8n-clone/workflow-tools",
+  "name": "@runnel/workflow-tools",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -16,16 +16,16 @@
     "typecheck": "tsc -b",
     "lint": "eslint src",
     "test": "vitest run --coverage",
-    "clean": "rimraf dist *.tsbuildinfo"
+    "clean": "rimraf --glob dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@n8n-clone/core": "workspace:*",
-    "@n8n-clone/workflow": "workspace:*",
+    "@runnel/core": "workspace:*",
+    "@runnel/workflow": "workspace:*",
     "gpt-tokenizer": "^4.0.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@n8n-clone/nodes-base": "workspace:*",
+    "@runnel/nodes-base": "workspace:*",
     "@vitest/coverage-v8": "^2.1.8",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

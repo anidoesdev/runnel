@@ -1,5 +1,5 @@
-import { Workflow, WorkflowOperationError } from '@n8n-clone/workflow';
-import type { IConnection, IDataObject, INode, INodeTypeDescription, IWorkflowBase, NodeConnectionType } from '@n8n-clone/workflow';
+import { Workflow, WorkflowOperationError } from '@runnel/workflow';
+import type { IConnection, IDataObject, INode, INodePropertyOptions, INodeTypeDescription, IWorkflowBase, NodeConnectionType } from '@runnel/workflow';
 import type { INodeTypes } from '../execution/node-types.js';
 import { layoutWorkflow } from './workflow-layout.js';
 
@@ -36,6 +36,58 @@ export class IncompatibleConnectionError extends WorkflowOperationError {
   constructor(message: string) {
     super(message);
     this.name = 'IncompatibleConnectionError';
+  }
+}
+
+/**
+ * A parameter name the node type doesn't declare. Stored anyway, it would be silently ignored
+ * at run time — and whoever set it (the assistant, typically, guessing `method` for a Webhook
+ * whose parameter is `httpMethod`) would go on to describe a behaviour the node doesn't have.
+ * The message lists the valid names so the caller can correct itself in one step.
+ */
+export class UnknownParameterError extends WorkflowOperationError {
+  constructor(nodeType: string, unknown: string[], valid: string[]) {
+    super(
+      `Node type "${nodeType}" has no parameter${unknown.length === 1 ? '' : 's'} ${unknown.map((name) => `"${name}"`).join(', ')}. ` +
+        `Valid parameters: ${valid.join(', ') || '(none)'}.`,
+    );
+    this.name = 'UnknownParameterError';
+  }
+}
+
+/** A value an `options` parameter doesn't offer — stored anyway, it would be ignored or misread at run time. */
+export class InvalidParameterValueError extends WorkflowOperationError {
+  constructor(nodeType: string, parameter: string, value: unknown, valid: Array<string | number | boolean>) {
+    super(
+      `"${String(value)}" is not a valid value for "${parameter}" on node type "${nodeType}". ` +
+        `Valid values: ${valid.map((option) => JSON.stringify(option)).join(', ')}.`,
+    );
+    this.name = 'InvalidParameterValueError';
+  }
+}
+
+/**
+ * Only top-level keys are checked: nested values belong to collection/fixedCollection parameters
+ * whose shapes vary by node. An `options` parameter's value must be one it offers — unless it's an
+ * expression (`=...`), which is only known at run time. A name can be declared more than once
+ * (different displayOptions per mode), so its valid values are the union across declarations.
+ */
+function assertKnownParameters(description: INodeTypeDescription, nodeType: string, parameters: INode['parameters'] | undefined): void {
+  if (!parameters) return;
+  const valid = [...new Set(description.properties.map((property) => property.name))];
+  const unknown = Object.keys(parameters).filter((key) => !valid.includes(key));
+  if (unknown.length > 0) throw new UnknownParameterError(nodeType, unknown, valid);
+
+  for (const [name, value] of Object.entries(parameters)) {
+    if (typeof value === 'string' && value.startsWith('=')) continue;
+    const declarations = description.properties.filter((property) => property.name === name && property.type === 'options');
+    if (declarations.length === 0) continue;
+    const allowed = declarations.flatMap((property) =>
+      (property.options ?? []).filter((option): option is INodePropertyOptions => 'value' in option).map((option) => option.value),
+    );
+    if (allowed.length > 0 && !allowed.includes(value as string | number | boolean)) {
+      throw new InvalidParameterValueError(nodeType, name, value, [...new Set(allowed)]);
+    }
   }
 }
 
@@ -95,6 +147,7 @@ export interface IAddNodeResult {
 /** The node type must already be registered — an unknown type is rejected here, before it ever reaches a saved document. Returns the *actual* name used after de-duplication. */
 export function addNode(workflow: IWorkflowBase, nodeTypes: INodeTypes, params: IAddNodeParams): IAddNodeResult {
   const description = describeType(nodeTypes, params.type, params.typeVersion);
+  assertKnownParameters(description, params.type, params.parameters);
 
   const cloned = structuredClone(workflow);
   const name = uniqueNodeName(cloned.nodes, params.name ?? description.defaults.name);
@@ -127,6 +180,11 @@ export function connectNodes(workflow: IWorkflowBase, nodeTypes: INodeTypes, par
 
   const sourceNode = requireNode(workflow, params.from);
   const targetNode = requireNode(workflow, params.to);
+  // A node wired straight into its own input can never run — it would wait on itself forever.
+  // Loops (Split In Batches and friends) always pass through at least one other node.
+  if (params.from === params.to) {
+    throw new IncompatibleConnectionError(`"${params.from}" can't be connected to itself — connect it to a different node.`);
+  }
   const sourceDescription = describeType(nodeTypes, sourceNode.type, sourceNode.typeVersion);
   const targetDescription = describeType(nodeTypes, targetNode.type, targetNode.typeVersion);
 
@@ -194,8 +252,10 @@ export interface ISetNodeParametersParams {
 }
 
 /** Deep-merges into the node's existing parameters — an agent narrowing one field doesn't clobber sibling fields it never mentioned. */
-export function setNodeParameters(workflow: IWorkflowBase, params: ISetNodeParametersParams): IWorkflowBase {
+/** With `nodeTypes`, unknown parameter names are rejected (see UnknownParameterError); without it the merge is unchecked, for callers that have no catalog to check against. */
+export function setNodeParameters(workflow: IWorkflowBase, params: ISetNodeParametersParams, nodeTypes?: INodeTypes): IWorkflowBase {
   const node = requireNode(workflow, params.name);
+  if (nodeTypes) assertKnownParameters(describeType(nodeTypes, node.type, node.typeVersion), node.type, params.parameters);
   const cloned = structuredClone(workflow);
   const target = cloned.nodes.find((n) => n.name === params.name)!;
   target.parameters = deepMerge(node.parameters, params.parameters);

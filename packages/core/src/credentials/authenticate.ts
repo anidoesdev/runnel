@@ -1,5 +1,5 @@
-import { isExpression } from '@n8n-clone/workflow';
-import type { ICredentialType, IDataObject, IHttpRequestOptions } from '@n8n-clone/workflow';
+import { isExpression } from '@runnel/workflow';
+import type { ICredentialType, IDataObject, IHttpRequestOptions } from '@runnel/workflow';
 
 /**
  * Applies a credential type's declarative `authenticate.generic` block to a set of request

@@ -1,4 +1,4 @@
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 
 /**
  * "Render each tool call as a compact collapsible row: `⚙ Added node...` Do not dump raw JSON

@@ -48,7 +48,7 @@ describe('findMonorepoRoot', () => {
 });
 
 describe('generateScaffoldFiles', () => {
-  it('produces a package.json with a file: dependency on @n8n-clone/workflow when a monorepo root is given', () => {
+  it('produces a package.json with a file: dependency on @runnel/workflow when a monorepo root is given', () => {
     const files = generateScaffoldFiles({
       name: 'myApiNode',
       targetDir: '/repo/custom-nodes/myApiNode',
@@ -56,13 +56,13 @@ describe('generateScaffoldFiles', () => {
     });
 
     const pkg = JSON.parse(files['package.json']!) as { dependencies: Record<string, string> };
-    expect(pkg.dependencies['@n8n-clone/workflow']).toBe('file:../../packages/workflow');
+    expect(pkg.dependencies['@runnel/workflow']).toBe('file:../../packages/workflow');
   });
 
   it('falls back to an unresolvable "*" dependency with no monorepo root', () => {
     const files = generateScaffoldFiles({ name: 'myApiNode', targetDir: '/somewhere/myApiNode', monorepoRoot: null });
     const pkg = JSON.parse(files['package.json']!) as { dependencies: Record<string, string> };
-    expect(pkg.dependencies['@n8n-clone/workflow']).toBe('*');
+    expect(pkg.dependencies['@runnel/workflow']).toBe('*');
   });
 
   it('emits a node file, a test file, an index re-export, and a tsconfig, named after the node', () => {

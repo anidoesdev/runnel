@@ -41,16 +41,16 @@ importers:
 
   packages/assistant:
     dependencies:
-      '@n8n-clone/core':
+      '@runnel/core':
         specifier: workspace:*
         version: link:../core
-      '@n8n-clone/nodes-base':
+      '@runnel/nodes-base':
         specifier: workspace:*
         version: link:../nodes-base
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
-      '@n8n-clone/workflow-tools':
+      '@runnel/workflow-tools':
         specifier: workspace:*
         version: link:../workflow-tools
       zod:
@@ -81,22 +81,25 @@ importers:
       '@memnest/providers':
         specifier: ^0.1.2
         version: 0.1.2
+      '@memnest/store-postgres':
+        specifier: ^0.2.0
+        version: 0.2.0
       '@memnest/store-sqlite':
         specifier: ^0.2.0
         version: 0.2.0
-      '@n8n-clone/assistant':
+      '@runnel/assistant':
         specifier: workspace:*
         version: link:../assistant
-      '@n8n-clone/core':
+      '@runnel/core':
         specifier: workspace:*
         version: link:../core
-      '@n8n-clone/nodes-base':
+      '@runnel/nodes-base':
         specifier: workspace:*
         version: link:../nodes-base
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
-      '@n8n-clone/workflow-tools':
+      '@runnel/workflow-tools':
         specifier: workspace:*
         version: link:../workflow-tools
       argon2:
@@ -175,7 +178,7 @@ importers:
 
   packages/core:
     dependencies:
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
     devDependencies:
@@ -224,10 +227,10 @@ importers:
 
   packages/editor-ui:
     dependencies:
-      '@n8n-clone/design-system':
+      '@runnel/design-system':
         specifier: workspace:*
         version: link:../design-system
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
       '@vue-flow/core':
@@ -276,7 +279,7 @@ importers:
 
   packages/node-dev:
     dependencies:
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
     devDependencies:
@@ -295,10 +298,10 @@ importers:
 
   packages/nodes-base:
     dependencies:
-      '@n8n-clone/core':
+      '@runnel/core':
         specifier: workspace:*
         version: link:../core
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
       pg:
@@ -342,10 +345,10 @@ importers:
 
   packages/workflow-tools:
     dependencies:
-      '@n8n-clone/core':
+      '@runnel/core':
         specifier: workspace:*
         version: link:../core
-      '@n8n-clone/workflow':
+      '@runnel/workflow':
         specifier: workspace:*
         version: link:../workflow
       gpt-tokenizer:
@@ -355,7 +358,7 @@ importers:
         specifier: ^3.24.1
         version: 3.25.76
     devDependencies:
-      '@n8n-clone/nodes-base':
+      '@runnel/nodes-base':
         specifier: workspace:*
         version: link:../nodes-base
       '@vitest/coverage-v8':
@@ -807,6 +810,10 @@ packages:
 
   '@memnest/providers@0.1.2':
     resolution: {integrity: sha512-DGzcDgQPsmP1Ix/WkGihdO2T0VnATypE8U+Vl6k226t5eJUalUQi5GeE0SuB2y6kM0Dh75sHEjO1L1sRONKRQg==}
+    engines: {node: '>=20'}
+
+  '@memnest/store-postgres@0.2.0':
+    resolution: {integrity: sha512-u8G+mOg9c0IzC9QeSDZ9LxWFinEVytVidYYi8HHFH22pJKfNYZ9kem69wV/ApX4ga5M2dIKwE6RIqa1xoXKYGw==}
     engines: {node: '>=20'}
 
   '@memnest/store-sqlite@0.2.0':
@@ -3549,6 +3556,14 @@ snapshots:
   '@memnest/providers@0.1.2':
     dependencies:
       '@memnest/core': 0.2.0
+
+  '@memnest/store-postgres@0.2.0':
+    dependencies:
+      '@memnest/core': 0.2.0
+      '@types/pg': 8.21.0
+      pg: 8.23.0
+    transitivePeerDependencies:
+      - pg-native
 
   '@memnest/store-sqlite@0.2.0':
     dependencies:

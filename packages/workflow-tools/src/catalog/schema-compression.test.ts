@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { MapNodeTypes } from '@n8n-clone/core';
-import { registerAllNodeTypes } from '@n8n-clone/nodes-base';
+import { MapNodeTypes } from '@runnel/core';
+import { registerAllNodeTypes } from '@runnel/nodes-base';
 import { compressNodeSchema, getFieldOptions } from './schema-compression.js';
 import { countJsonTokens } from './token-count.js';
-import type { INodeTypeDescription } from '@n8n-clone/workflow';
+import type { INodeTypeDescription } from '@runnel/workflow';
 
 function description(overrides: Partial<INodeTypeDescription>): INodeTypeDescription {
   return {

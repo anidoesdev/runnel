@@ -48,7 +48,7 @@ export function createDataSource(config: IDatabaseConfig): DataSource {
   });
 }
 
-export function sqliteConfig(database = 'n8n-clone.sqlite'): IDatabaseConfig {
+export function sqliteConfig(database = 'runnel.sqlite'): IDatabaseConfig {
   return { type: 'sqlite', database };
 }
 
@@ -59,6 +59,6 @@ export function postgresConfigFromEnv(): IDatabaseConfig {
     port: Number(process.env.DB_POSTGRES_PORT ?? 5432),
     username: process.env.DB_POSTGRES_USER ?? 'postgres',
     password: process.env.DB_POSTGRES_PASSWORD ?? 'postgres',
-    database: process.env.DB_POSTGRES_DATABASE ?? 'n8n_clone',
+    database: process.env.DB_POSTGRES_DATABASE ?? 'runnel',
   };
 }

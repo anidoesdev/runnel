@@ -1,5 +1,6 @@
-import type { IConnections, INode } from '@n8n-clone/workflow';
-import type { ICredentialSummary } from '@n8n-clone/workflow-tools';
+import type { IConnections, INode } from '@runnel/workflow';
+import type { ICredentialSummary } from '@runnel/workflow-tools';
+import type { IRecalledMemory } from '../memory-port.js';
 
 /**
  * Scores outcomes, not structure (Part 7): never "did it call add_node with these exact args",
@@ -47,6 +48,12 @@ export interface IEvalCase {
   seedExecutionOutputs?: Record<string, IEvalSeedExecutionOutput>;
   /** If the turn pauses (ask_user / an approval gate), resolves it once with this before scoring — lets a case exercise the full "ask, then continue" or "gate, then continue" path, not just the pause itself. */
   autoResume?: IEvalAutoResume;
+  /**
+   * Memories recalled from "earlier sessions", appended to the system prompt exactly the way the
+   * server does it. Lets a case check that a remembered preference changes what gets built —
+   * without an engine, since this package never depends on one.
+   */
+  recalledMemories?: IRecalledMemory[];
   assertions: IEvalAssertion[];
 }
 

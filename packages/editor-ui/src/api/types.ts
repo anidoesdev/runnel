@@ -7,7 +7,7 @@ import type {
   IWorkflowSettings,
   NodeConnectionType,
   WorkflowExecuteMode,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 /** WorkflowEntity as it comes back over the REST API — IWorkflowBase's fields plus the row's own timestamps. */
 export interface IWorkflowRecord {
@@ -97,7 +97,7 @@ export interface IMeResponse extends IAuthUser {
   isOwner: boolean;
 }
 
-/** Mirrors @n8n-clone/assistant's IModelToolCallRef — kept as a local hand-typed mirror rather than an import, same reasoning as every other record shape in this file: editor-ui doesn't take the backend packages as a dependency. */
+/** Mirrors @runnel/assistant's IModelToolCallRef — kept as a local hand-typed mirror rather than an import, same reasoning as every other record shape in this file: editor-ui doesn't take the backend packages as a dependency. */
 export interface IAssistantToolCallRef {
   id: string;
   name: string;
@@ -146,7 +146,7 @@ export interface IToolErrorInfo {
   retryable: boolean;
 }
 
-/** Mirrors @n8n-clone/assistant's AgentLoopEvent, plus the one extra `error` frame streamTurn writes when the loop throws outright (a provider failure mid-stream) — see assistant.controller.ts. */
+/** Mirrors @runnel/assistant's AgentLoopEvent, plus the one extra `error` frame streamTurn writes when the loop throws outright (a provider failure mid-stream) — see assistant.controller.ts. */
 export type AgentLoopEvent =
   | { type: 'text_delta'; text: string }
   | { type: 'tool_call'; id: string; name: string; args: unknown }
@@ -173,7 +173,7 @@ export interface IWorkflowDraftDiff {
   removedConnections: IWorkflowDraftDiffConnection[];
 }
 
-/** The draft's current full workflow — what GET .../draft returns, an IWorkflowBase shape (see @n8n-clone/workflow). */
+/** The draft's current full workflow — what GET .../draft returns, an IWorkflowBase shape (see @runnel/workflow). */
 export interface IDraftWorkflow {
   id: string;
   name: string;

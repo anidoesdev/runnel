@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { IDataObject, IDataObjectValue } from '@n8n-clone/workflow';
+import type { IDataObject, IDataObjectValue } from '@runnel/workflow';
 
 /**
  * Mirrors IDataObjectValue's recursive shape exactly (rather than `z.record(z.unknown())`,

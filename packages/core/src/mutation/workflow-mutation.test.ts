@@ -11,7 +11,7 @@ import {
 } from './workflow-mutation.js';
 import { MapNodeTypes } from '../execution/node-types.js';
 import { testNoOpNode } from '../execution/test-nodes.js';
-import type { INodeType, IWorkflowBase } from '@n8n-clone/workflow';
+import type { INodeType, IWorkflowBase } from '@runnel/workflow';
 
 const testSubNode: INodeType = {
   description: {
@@ -37,7 +37,20 @@ const testAgentNode: INodeType = {
     defaults: { name: 'Test Agent' },
     inputs: ['main', 'ai_languageModel'],
     outputs: ['main'],
-    properties: [{ displayName: 'Prompt', name: 'prompt', type: 'string', default: '', required: true }],
+    properties: [
+      { displayName: 'Prompt', name: 'prompt', type: 'string', default: '', required: true },
+      { displayName: 'Options', name: 'nested', type: 'collection', default: {} },
+      {
+        displayName: 'Mode',
+        name: 'mode',
+        type: 'options',
+        default: 'fast',
+        options: [
+          { name: 'Fast', value: 'fast' },
+          { name: 'Careful', value: 'careful' },
+        ],
+      },
+    ],
     credentials: [{ name: 'testApi' }],
   },
 };
@@ -93,6 +106,14 @@ describe('addNode', () => {
 });
 
 describe('connectNodes', () => {
+  it('refuses to connect a node to itself, leaving the workflow unchanged', () => {
+    const nodeTypes = registry();
+    const wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.noOp', name: 'A' }).workflow;
+
+    expect(() => connectNodes(wf, nodeTypes, { from: 'A', to: 'A' })).toThrow(/can't be connected to itself/);
+    expect(wf.connections).toEqual({});
+  });
+
   it('connects two main-compatible nodes', () => {
     const nodeTypes = registry();
     let wf = baseWorkflow();
@@ -176,15 +197,48 @@ describe('setNodeParameters', () => {
   });
 });
 
+describe('unknown parameter names', () => {
+  it('addNode rejects a parameter the node type does not declare, and lists the valid ones', () => {
+    expect(() => addNode(baseWorkflow(), registry(), { type: 'test.agent', parameters: { method: 'POST' } })).toThrow(
+      /no parameter "method"\. Valid parameters: prompt, nested, mode/,
+    );
+  });
+
+  it('setNodeParameters rejects unknown names when given the catalog, and leaves the node untouched', () => {
+    const nodeTypes = registry();
+    const wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.agent', name: 'Agent', parameters: { prompt: 'hi' } }).workflow;
+
+    expect(() => setNodeParameters(wf, { name: 'Agent', parameters: { promt: 'typo' } }, nodeTypes)).toThrow(/no parameter "promt"/);
+    expect(wf.nodes[0]!.parameters).toEqual({ prompt: 'hi' });
+  });
+
+  it('rejects a value an options parameter does not offer, listing the ones it does', () => {
+    expect(() => addNode(baseWorkflow(), registry(), { type: 'test.agent', parameters: { mode: 'immediate' } })).toThrow(
+      /"immediate" is not a valid value for "mode".*Valid values: "fast", "careful"/,
+    );
+  });
+
+  it('lets an expression through an options parameter, since its value is only known at run time', () => {
+    const { workflow } = addNode(baseWorkflow(), registry(), { type: 'test.agent', parameters: { mode: '={{ $json.mode }}' } });
+    expect(workflow.nodes[0]!.parameters.mode).toBe('={{ $json.mode }}');
+  });
+
+  it('accepts declared names', () => {
+    const nodeTypes = registry();
+    const wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.agent', name: 'Agent' }).workflow;
+    expect(setNodeParameters(wf, { name: 'Agent', parameters: { prompt: 'ok' } }, nodeTypes).nodes[0]!.parameters).toEqual({ prompt: 'ok' });
+  });
+});
+
 describe('renameNode', () => {
   it('renames the node and rewrites connections and expressions (delegates to Workflow.renameNode)', () => {
     const nodeTypes = registry();
     let wf = baseWorkflow();
     wf = addNode(wf, nodeTypes, { type: 'test.noOp', name: 'A' }).workflow;
     wf = addNode(wf, nodeTypes, {
-      type: 'test.noOp',
+      type: 'test.agent',
       name: 'B',
-      parameters: { text: '={{ $node["A"].json.value }}' },
+      parameters: { prompt: '={{ $node["A"].json.value }}' },
     }).workflow;
     wf = connectNodes(wf, nodeTypes, { from: 'A', to: 'B' });
 
@@ -193,7 +247,7 @@ describe('renameNode', () => {
     expect(wf.nodes.map((n) => n.name)).toEqual(['Start', 'B']);
     expect(wf.connections.Start?.main?.[0]).toEqual([{ node: 'B', type: 'main', index: 0 }]);
     expect(wf.connections.A).toBeUndefined();
-    expect(wf.nodes.find((n) => n.name === 'B')!.parameters.text).toBe('={{ $node["Start"].json.value }}');
+    expect(wf.nodes.find((n) => n.name === 'B')!.parameters.prompt).toBe('={{ $node["Start"].json.value }}');
   });
 });
 

@@ -41,7 +41,7 @@ Report on these before writing code:
 
 ## PART 1 — ARCHITECTURE
 
-Runnel already uses ports and adapters for exactly this shape: `workflow-repository.adapter.ts`, `credential-repository.adapter.ts`, `execution-adapter.ts` in `packages/cli/src/assistant/` implement ports declared in `@n8n-clone/assistant`. Follow that pattern exactly.
+Runnel already uses ports and adapters for exactly this shape: `workflow-repository.adapter.ts`, `credential-repository.adapter.ts`, `execution-adapter.ts` in `packages/cli/src/assistant/` implement ports declared in `@runnel/assistant`. Follow that pattern exactly.
 
 ```
 packages/assistant/src/memory-port.ts       NEW. Interface only. No memnest import, ever.
@@ -53,7 +53,7 @@ packages/cli/src/config.ts                  EXTEND. Memory flags.
 packages/cli/src/assistant/assistant.controller.ts   EXTEND. Two call sites.
 ```
 
-**Hard rule: `@n8n-clone/assistant` must not depend on Memnest.** It declares the port; the CLI supplies the implementation. The assistant package stays testable with a fake and Runnel stays buildable if Memnest is removed. If you find yourself adding `memnest-*` to `packages/assistant/package.json`, you have made a mistake.
+**Hard rule: `@runnel/assistant` must not depend on Memnest.** It declares the port; the CLI supplies the implementation. The assistant package stays testable with a fake and Runnel stays buildable if Memnest is removed. If you find yourself adding `memnest-*` to `packages/assistant/package.json`, you have made a mistake.
 
 ### The port
 
@@ -203,7 +203,7 @@ Tool traffic is node JSON, parameter blobs and API responses. It is the bulk of 
 
 ### Redaction is mandatory and comes first
 
-Every message goes through `redact()` from `@n8n-clone/workflow-tools` before it reaches Memnest. Memnest has its own redaction, and you should still not rely on it — defence in depth, and Runnel knows its own credential shapes better than a general library does.
+Every message goes through `redact()` from `@runnel/workflow-tools` before it reaches Memnest. Memnest has its own redaction, and you should still not rely on it — defence in depth, and Runnel knows its own credential shapes better than a general library does.
 
 `packages/assistant/src/agent-loop.redaction.test.ts` already exists. Mirror its fixtures in a new `memory-capture.redaction.test.ts`: capture a session containing known credential values, assert they never appear in what is handed to the port.
 

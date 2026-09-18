@@ -1,4 +1,4 @@
-import type { INodeType, ISupplyDataFunctions } from '@n8n-clone/workflow';
+import type { INodeType, ISupplyDataFunctions } from '@runnel/workflow';
 import type { IAiTool } from '../shared/ai-types.js';
 
 /**

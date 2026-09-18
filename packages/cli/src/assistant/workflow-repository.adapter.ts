@@ -1,7 +1,7 @@
 import { toWorkflowBase } from '../execution/run-workflow.js';
 import { NotFoundError } from '../http/http-errors.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
-import type { IWorkflowRepositoryPort } from '@n8n-clone/workflow-tools';
+import type { IWorkflowBase } from '@runnel/workflow';
+import type { IWorkflowRepositoryPort } from '@runnel/workflow-tools';
 import type { Repository } from 'typeorm';
 import type { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 

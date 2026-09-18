@@ -1,12 +1,12 @@
 import { z } from 'zod';
-import { UnknownNodeTypeError } from '@n8n-clone/core';
+import { UnknownNodeTypeError } from '@runnel/core';
 import { searchNodeTypes } from '../catalog/search-nodes.js';
 import { compressNodeSchema, getFieldOptions } from '../catalog/schema-compression.js';
 import { dataObjectSchema } from '../json-schema.js';
 import type { AnyTool, IToolContext, ITool } from './tool.js';
 import type { INodeSearchResult } from '../catalog/search-nodes.js';
 import type { ICompressedNodeSchema, INodeOptionEntry } from '../catalog/schema-compression.js';
-import type { IDataObject, INodeTypeDescription } from '@n8n-clone/workflow';
+import type { IDataObject, INodeTypeDescription } from '@runnel/workflow';
 
 /** Same "wrap the raw registry error" pattern as packages/core's mutation module — MapNodeTypes throws a plain Error, not one of core's typed subclasses, so it's translated here at the one seam that calls it directly. */
 function describeType(ctx: IToolContext, type: string, typeVersion?: number): INodeTypeDescription {

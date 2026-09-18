@@ -1,11 +1,11 @@
-import { WorkflowOperationError } from '@n8n-clone/workflow';
+import { WorkflowOperationError } from '@runnel/workflow';
 import { NODE_USAGE_EXAMPLES } from './node-examples.js';
-import type { IDataObject, INodeProperties, INodePropertyOptions, INodeTypeDescription } from '@n8n-clone/workflow';
+import type { IDataObject, INodeProperties, INodePropertyOptions, INodeTypeDescription } from '@runnel/workflow';
 
 const MAX_INLINE_OPTIONS = 30;
 
 /**
- * Mirrors n8n's displayOptions.show/hide semantics. Duplicated from
+ * The displayOptions show/hide semantics. Duplicated from
  * packages/editor-ui/src/utils/displayOptions.ts — that copy is Vue-component-facing and
  * editor-ui isn't a dependency workflow-tools can take (or should: it would drag Vue into a
  * server-side package). Worth promoting to packages/workflow if a third copy ever shows up.

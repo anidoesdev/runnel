@@ -1,4 +1,4 @@
-import type { ICredentialType } from '@n8n-clone/workflow';
+import type { ICredentialType } from '@runnel/workflow';
 
 /**
  * Basic Auth's header value (`Basic base64(user:password)`) needs an actual base64

@@ -4,11 +4,11 @@ import {
   buildTriggerFunctions,
   buildWebhookFunctions,
   decryptCredentialData,
-} from '@n8n-clone/core';
+} from '@runnel/core';
 import { generateId } from '../db/id.js';
 import { toWorkflowBase } from '../execution/run-workflow.js';
-import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
-import type { IDataObject, INode, INodeType, IRunExecutionData, IWorkflowBase, NodeOutput, WorkflowExecuteMode } from '@n8n-clone/workflow';
+import type { ICredentialTypes, INodeTypes } from '@runnel/core';
+import type { IDataObject, INode, INodeType, IRunExecutionData, IWorkflowBase, NodeOutput, WorkflowExecuteMode } from '@runnel/workflow';
 import type { Repository } from 'typeorm';
 import type { Logger } from 'pino';
 import type { NotificationService } from '../notifications/notification.service.js';

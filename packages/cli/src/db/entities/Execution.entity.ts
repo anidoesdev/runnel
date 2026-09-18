@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
-import type { ExecutionStatus, IRunExecutionData, WorkflowExecuteMode } from '@n8n-clone/workflow';
+import type { ExecutionStatus, IRunExecutionData, WorkflowExecuteMode } from '@runnel/workflow';
 
 @Entity({ name: 'execution' })
 export class ExecutionEntity {

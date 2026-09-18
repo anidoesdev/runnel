@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue';
-import { N8nButton, N8nInput, N8nModal } from '@n8n-clone/design-system';
+import { RunnelButton, RunnelInput, RunnelModal } from '@runnel/design-system';
 import PropertyField from '../canvas/PropertyField.vue';
 import { useCredentialsStore } from '../../stores/credentials.store.js';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
-import type { IDataObject, IDataObjectValue } from '@n8n-clone/workflow';
+import type { IDataObject, IDataObjectValue } from '@runnel/workflow';
 
 const props = defineProps<{ modelValue: boolean; credentialTypeName: string }>();
 const emit = defineEmits<{ 'update:modelValue': [value: boolean]; created: [credential: { id: string; name: string }] }>();
@@ -57,14 +57,14 @@ async function onSave(): Promise<void> {
 </script>
 
 <template>
-  <N8nModal
+  <RunnelModal
     :model-value="modelValue"
     :title="`New ${credentialType?.displayName ?? credentialTypeName} credential`"
     @update:model-value="close"
   >
     <label class="property-field">
       Name
-      <N8nInput v-model="name" />
+      <RunnelInput v-model="name" />
     </label>
 
     <PropertyField
@@ -76,6 +76,6 @@ async function onSave(): Promise<void> {
     />
 
     <p v-if="error" class="auth-error">{{ error }}</p>
-    <N8nButton :disabled="saving" @click="onSave">{{ saving ? 'Saving…' : 'Save' }}</N8nButton>
-  </N8nModal>
+    <RunnelButton :disabled="saving" @click="onSave">{{ saving ? 'Saving…' : 'Save' }}</RunnelButton>
+  </RunnelModal>
 </template>

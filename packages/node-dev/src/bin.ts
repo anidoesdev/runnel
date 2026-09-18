@@ -14,7 +14,7 @@ async function main(): Promise<void> {
   if (command === 'new') {
     const name = rest.find((arg) => !arg.startsWith('--'));
     if (!name) {
-      console.error('Usage: n8n-node-dev new <name> [--display-name="My Node"] [--dir=<path>]');
+      console.error('Usage: runnel-node-dev new <name> [--display-name="My Node"] [--dir=<path>]');
       process.exitCode = 1;
       return;
     }
@@ -32,7 +32,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  console.error('Usage: n8n-node-dev <new <name> | build [dir]>');
+  console.error('Usage: runnel-node-dev <new <name> | build [dir]>');
   process.exitCode = 1;
 }
 

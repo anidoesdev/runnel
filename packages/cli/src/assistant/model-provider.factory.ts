@@ -1,6 +1,6 @@
-import { decryptCredentialData } from '@n8n-clone/core';
-import { OpenAiModelProvider } from '@n8n-clone/assistant';
-import type { IModelProvider } from '@n8n-clone/assistant';
+import { decryptCredentialData } from '@runnel/core';
+import { OpenAiModelProvider } from '@runnel/assistant';
+import type { IModelProvider } from '@runnel/assistant';
 import type { Repository } from 'typeorm';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
 

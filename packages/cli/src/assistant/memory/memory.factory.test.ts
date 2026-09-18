@@ -71,7 +71,7 @@ describe('createAssistantMemory', () => {
     const { file, dataSource } = await migratedDatabaseFile();
     const before = await tableNames(dataSource);
 
-    const { memory } = await build({ capture: false, recall: false, tokenBudget: 400 }, dataSource, { type: 'sqlite', database: file });
+    const { memory } = await build({ capture: false, recall: false, tokenBudget: 400, minScore: 1 }, dataSource, { type: 'sqlite', database: file });
 
     expect(memory.port).toBeInstanceOf(NullMemoryAdapter);
     expect(await tableNames(dataSource)).toEqual(before);
@@ -81,7 +81,7 @@ describe('createAssistantMemory', () => {
     const { file, dataSource } = await migratedDatabaseFile();
     const before = await tableNames(dataSource);
 
-    const { memory } = await build({ capture: true, recall: false, tokenBudget: 400 }, dataSource, { type: 'sqlite', database: file });
+    const { memory } = await build({ capture: true, recall: false, tokenBudget: 400, minScore: 1 }, dataSource, { type: 'sqlite', database: file });
 
     expect(memory.port).toBeInstanceOf(MemnestMemoryAdapter);
     const after = await tableNames(dataSource);
@@ -96,24 +96,33 @@ describe('createAssistantMemory', () => {
 
   it('recall on without capture: still starts, with a warning', async () => {
     const { file, dataSource } = await migratedDatabaseFile();
-    const { memory, log } = await build({ capture: false, recall: true, tokenBudget: 400 }, dataSource, { type: 'sqlite', database: file });
+    const { memory, log } = await build({ capture: false, recall: true, tokenBudget: 400, minScore: 1 }, dataSource, { type: 'sqlite', database: file });
 
     expect(memory.port).toBeInstanceOf(MemnestMemoryAdapter);
     expect(log.lines().some((line) => line.level === 40 && line.msg.includes('RUNNEL_MEMORY_CAPTURE is off'))).toBe(true);
   });
 
-  it('Postgres: stays disabled with a warning until the Postgres store is wired (R6)', async () => {
+  it('an unreachable Postgres disables memory instead of failing the server', async () => {
     const { dataSource } = await migratedDatabaseFile();
-    const { memory, log } = await build({ capture: true, recall: false, tokenBudget: 400 }, dataSource, { type: 'postgres' });
+    const log = capturingLogger();
+    const memory = await createAssistantMemory({
+      memory: { capture: true, recall: false, tokenBudget: 400, minScore: 1 },
+      db: { type: 'postgres' },
+      logger: log.logger,
+      credentials: dataSource.getRepository(CredentialEntity),
+      encryptionKey: 'test-encryption-key',
+      postgresUrl: 'postgres://nobody:nothing@127.0.0.1:1/none',
+    });
+    cleanups.push(() => memory.close());
 
     expect(memory.port).toBeInstanceOf(NullMemoryAdapter);
-    expect(log.lines().some((line) => line.level === 40 && line.msg.includes('Postgres'))).toBe(true);
+    expect(log.lines().some((line) => line.level === 50 && line.msg.includes('failed to start'))).toBe(true);
   });
 
   it('a Memnest startup failure disables memory instead of failing the server', async () => {
     const { dataSource } = await migratedDatabaseFile();
     const unopenable = join(tmpdir(), 'runnel-memory-missing-dir', 'nested', 'db.sqlite');
-    const { memory, log } = await build({ capture: true, recall: false, tokenBudget: 400 }, dataSource, { type: 'sqlite', database: unopenable });
+    const { memory, log } = await build({ capture: true, recall: false, tokenBudget: 400, minScore: 1 }, dataSource, { type: 'sqlite', database: unopenable });
 
     expect(memory.port).toBeInstanceOf(NullMemoryAdapter);
     expect(log.lines().some((line) => line.level === 50 && line.msg.includes('failed to start'))).toBe(true);

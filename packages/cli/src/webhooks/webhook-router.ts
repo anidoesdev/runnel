@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import type { ActiveWorkflowManager } from '../active-workflows/active-workflow-manager.js';
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IDataObject } from '@runnel/workflow';
 
 /**
  * Mounted at /webhook — dispatches any HTTP method/path to whichever active workflow's

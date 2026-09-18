@@ -8,6 +8,7 @@ import { APPROVAL_GATE_CASES } from './approval-gates.js';
 import { CREDENTIAL_CASES } from './credentials.js';
 import { FIX_THIS_CASES } from './fix-this.js';
 import { GROUNDING_CASES } from './grounding.js';
+import { MEMORY_CASES } from './memory.js';
 
 export const ALL_EVAL_CASES: IEvalCase[] = [
   ...SINGLE_NODE_BUILD_CASES,
@@ -31,4 +32,5 @@ export {
   CREDENTIAL_CASES,
   FIX_THIS_CASES,
   GROUNDING_CASES,
+  MEMORY_CASES,
 };

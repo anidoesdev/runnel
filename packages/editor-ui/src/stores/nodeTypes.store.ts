@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { credentialTypesApi, nodeTypesApi } from '../api/nodeTypes.js';
-import type { ICredentialType, INodeTypeDescription } from '@n8n-clone/workflow';
+import type { ICredentialType, INodeTypeDescription } from '@runnel/workflow';
 
 export const useNodeTypesStore = defineStore('nodeTypes', {
   state: () => ({

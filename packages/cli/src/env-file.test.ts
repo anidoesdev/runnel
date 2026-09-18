@@ -4,8 +4,8 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { loadEnvFile } from './env-file.js';
 
-const TEST_KEY = 'N8N_CLONE_ENV_FILE_TEST_VAR';
-const OTHER_KEY = 'N8N_CLONE_ENV_FILE_TEST_ALREADY_SET';
+const TEST_KEY = 'RUNNEL_ENV_FILE_TEST_VAR';
+const OTHER_KEY = 'RUNNEL_ENV_FILE_TEST_ALREADY_SET';
 
 describe('loadEnvFile', () => {
   let tmpDir: string;

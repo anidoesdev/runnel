@@ -48,7 +48,7 @@ describe('buildAccessLogMiddleware', () => {
     app.use(buildAccessLogMiddleware(createLogger({ destination: stream })));
     app.get('/ping', (_req, res) => res.json({ ok: true }));
 
-    await request(app).get('/ping').set('Cookie', 'n8n-clone-auth=super-secret-session-token');
+    await request(app).get('/ping').set('Cookie', 'runnel-auth=super-secret-session-token');
 
     const lines = output()
       .trim()

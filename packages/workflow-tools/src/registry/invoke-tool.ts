@@ -1,15 +1,15 @@
-import { WorkflowOperationError } from '@n8n-clone/workflow';
+import { WorkflowOperationError } from '@runnel/workflow';
 import {
   IncompatibleConnectionError,
   NodeNotFoundError,
   UnknownCredentialTypeError,
   UnknownNodeTypeError,
-} from '@n8n-clone/core';
+} from '@runnel/core';
 import { ToolError } from '../errors.js';
 import type { AnyTool, IToolContext } from './tool.js';
 
 /**
- * Maps the typed error subclasses @n8n-clone/core's mutation ops throw into the tool-facing
+ * Maps the typed error subclasses @runnel/core's mutation ops throw into the tool-facing
  * taxonomy — by `instanceof`, not by sniffing message text, so this stays correct even if a
  * message wording changes. A plain (un-subclassed) WorkflowOperationError — e.g. from
  * Workflow.renameNode, which lives in packages/workflow and can't depend on packages/core's

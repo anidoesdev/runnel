@@ -1,5 +1,5 @@
 import { NotFoundError } from '../http/http-errors.js';
-import type { IAssistantSession, IAssistantSessionRepositoryPort } from '@n8n-clone/assistant';
+import type { IAssistantSession, IAssistantSessionRepositoryPort } from '@runnel/assistant';
 import type { Repository } from 'typeorm';
 import type { AssistantSessionEntity } from '../db/entities/AssistantSession.entity.js';
 

@@ -2,8 +2,8 @@ import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import type { MapNodeTypes } from '@n8n-clone/core';
-import type { INodeType } from '@n8n-clone/workflow';
+import type { MapNodeTypes } from '@runnel/core';
+import type { INodeType } from '@runnel/workflow';
 import type { Logger } from 'pino';
 
 function isNodeTypeShaped(value: unknown): value is INodeType {
@@ -19,7 +19,7 @@ function isNodeTypeShaped(value: unknown): value is INodeType {
   );
 }
 
-/** A scaffolded custom node package (see @n8n-clone/node-dev) may export its node(s) as the default export, a named export, or several named exports — anything shaped like an INodeType counts, deduplicated in case default and a named export point at the same object. */
+/** A scaffolded custom node package (see @runnel/node-dev) may export its node(s) as the default export, a named export, or several named exports — anything shaped like an INodeType counts, deduplicated in case default and a named export point at the same object. */
 function extractNodeTypes(mod: Record<string, unknown>): INodeType[] {
   const candidates = new Set<unknown>(Object.values(mod));
   return [...candidates].filter(isNodeTypeShaped);
@@ -27,9 +27,9 @@ function extractNodeTypes(mod: Record<string, unknown>): INodeType[] {
 
 /**
  * Scans every immediate subdirectory of `dir` for a built package (`dist/index.js`, matching
- * what `n8n-node-dev new` scaffolds and `npm run build` produces) and dynamically imports it.
+ * what `runnel-node-dev new` scaffolds and `npm run build` produces) and dynamically imports it.
  * A subdirectory with no `dist/index.js` yet (not built) is silently skipped rather than
- * treated as an error — that's the normal state right after `n8n-node-dev new`, before the
+ * treated as an error — that's the normal state right after `runnel-node-dev new`, before the
  * user has run a build.
  */
 export async function loadCustomNodeTypes(dir: string, logger: Logger): Promise<INodeType[]> {

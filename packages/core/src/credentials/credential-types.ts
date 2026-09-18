@@ -1,4 +1,4 @@
-import type { ICredentialType } from '@n8n-clone/workflow';
+import type { ICredentialType } from '@runnel/workflow';
 
 export interface ICredentialTypes {
   getByName(name: string): ICredentialType;

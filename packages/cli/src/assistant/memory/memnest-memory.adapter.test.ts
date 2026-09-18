@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createMemnest, scopeOf } from '@memnest/core';
 import { createSqliteStore } from '@memnest/store-sqlite';
-import { createSession } from '@n8n-clone/assistant';
+import { createSession } from '@runnel/assistant';
 import { MemnestMemoryAdapter } from './memnest-memory.adapter.js';
 import type { Memnest } from '@memnest/core';
 import type { SqliteStore } from '@memnest/store-sqlite';

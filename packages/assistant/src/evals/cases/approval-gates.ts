@@ -1,5 +1,5 @@
 import type { IEvalCase } from '../types.js';
-import type { INode } from '@n8n-clone/workflow';
+import type { INode } from '@runnel/workflow';
 
 const httpNode: INode = { id: 'n1', name: 'Fetch Orders', type: 'httpRequest', typeVersion: 1, position: [0, 0], parameters: {} };
 const staleNode: INode = { id: 'n2', name: 'Old Step', type: 'noOp', typeVersion: 1, position: [260, 0], parameters: {} };

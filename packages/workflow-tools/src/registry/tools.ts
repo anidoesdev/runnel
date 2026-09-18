@@ -8,14 +8,14 @@ import {
   renameNode as coreRenameNode,
   setNodeCredential as coreSetNodeCredential,
   setNodeParameters as coreSetNodeParameters,
-} from '@n8n-clone/core';
+} from '@runnel/core';
 import { dataObjectSchema } from '../json-schema.js';
 import { createCatalogTools } from './catalog-tools.js';
 import { createCredentialTools } from './credential-tools.js';
 import { createExecutionTools } from './execution-tools.js';
 import type { AnyTool, IToolContext, ITool } from './tool.js';
-import type { IWorkflowOutline } from '@n8n-clone/core';
-import type { IDataObject } from '@n8n-clone/workflow';
+import type { IWorkflowOutline } from '@runnel/core';
+import type { IDataObject } from '@runnel/workflow';
 
 const connectionTypeSchema = z.enum(['main', 'ai_languageModel', 'ai_tool']);
 
@@ -88,7 +88,7 @@ const setNodeParametersTool: ITool<{ name: string; parameters: IDataObject }, { 
   description: 'Deep-merge new values into a node\'s parameters. Untouched fields are preserved — only pass the fields you want to change.',
   parameters: z.object({ name: z.string(), parameters: dataObjectSchema }),
   handler: (params, ctx) => {
-    const workflow = coreSetNodeParameters(currentWorkflow(ctx), params);
+    const workflow = coreSetNodeParameters(currentWorkflow(ctx), params, ctx.nodeTypes);
     ctx.draftStore.mutate(ctx.draftId, () => workflow);
     return { updated: true };
   },

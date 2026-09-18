@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { applyCredentialAuthentication } from './authenticate.js';
-import type { ICredentialType } from '@n8n-clone/workflow';
+import type { ICredentialType } from '@runnel/workflow';
 
 describe('applyCredentialAuthentication', () => {
   it('returns the options unchanged when the credential type has no authenticate block', () => {

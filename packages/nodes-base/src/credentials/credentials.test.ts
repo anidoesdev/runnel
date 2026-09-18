@@ -6,7 +6,7 @@ import { httpBearerAuth } from './HttpBearerAuth.credentials.js';
 import { oAuth2Api } from './OAuth2Api.credentials.js';
 import { postgresApi } from './PostgresApi.credentials.js';
 import { openAiApi } from './OpenAiApi.credentials.js';
-import type { ICredentialType } from '@n8n-clone/workflow';
+import type { ICredentialType } from '@runnel/workflow';
 
 const allTypes: ICredentialType[] = [httpBasicAuth, httpHeaderAuth, httpQueryAuth, httpBearerAuth, oAuth2Api, postgresApi, openAiApi];
 

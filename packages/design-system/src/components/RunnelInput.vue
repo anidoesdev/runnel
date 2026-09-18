@@ -14,7 +14,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
 
 <template>
   <input
-    class="n8n-input"
+    class="runnel-input"
     :type="type"
     :value="modelValue"
     :placeholder="placeholder"
@@ -24,7 +24,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
 </template>
 
 <style scoped>
-.n8n-input {
+.runnel-input {
   border: 1px solid var(--color-border, #ccc);
   border-radius: 4px;
   padding: 6px 8px;
@@ -32,7 +32,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
   width: 100%;
   box-sizing: border-box;
 }
-.n8n-input:disabled {
+.runnel-input:disabled {
   background: var(--color-surface-container-high, #f5f5f5);
 }
 </style>

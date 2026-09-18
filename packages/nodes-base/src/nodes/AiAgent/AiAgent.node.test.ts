@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { NodeOperationError } from '@n8n-clone/workflow';
-import { MapNodeTypes } from '@n8n-clone/core';
+import { NodeOperationError } from '@runnel/workflow';
+import { MapNodeTypes } from '@runnel/core';
 import { aiAgent } from './AiAgent.node.js';
 import { makeExecuteFunctions, makeNode } from '../../test-utils.js';
-import type { IDataObject, INode, INodeType, ISupplyDataFunctions, IWorkflowBase } from '@n8n-clone/workflow';
+import type { IDataObject, INode, INodeType, ISupplyDataFunctions, IWorkflowBase } from '@runnel/workflow';
 import type { IAiTool, IChatModel, IChatToolCall } from '../shared/ai-types.js';
 
 function makeFakeChatModel(responses: Array<{ content: string | null; toolCalls: IChatToolCall[] }>): INodeType {

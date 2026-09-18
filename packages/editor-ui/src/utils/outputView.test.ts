@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { inferSchema, tableCell, tableColumns } from './outputView.js';
-import type { IDataObject, INodeExecutionData } from '@n8n-clone/workflow';
+import type { IDataObject, INodeExecutionData } from '@runnel/workflow';
 
 function items(...jsons: IDataObject[]): INodeExecutionData[] {
   return jsons.map((json) => ({ json }));

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { scoreAssertion, scoreCase } from './scorer.js';
 import { createSession } from '../session.js';
-import type { IWorkflowBase } from '@n8n-clone/workflow';
+import type { IWorkflowBase } from '@runnel/workflow';
 import type { IAssistantSession } from '../session.js';
 
 function baseSession(overrides: Partial<IAssistantSession> = {}): IAssistantSession {

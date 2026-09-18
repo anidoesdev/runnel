@@ -1,4 +1,4 @@
-import type { IExecuteFunctions, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
 /**
  * The trigger that feeds a typed chat message into whatever it's wired to. Dropping an AI Agent

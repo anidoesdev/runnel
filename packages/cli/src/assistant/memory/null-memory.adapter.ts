@@ -1,4 +1,4 @@
-import type { IAssistantMemoryPort, IRecallResult } from '@n8n-clone/assistant';
+import type { IAssistantMemoryPort, IRecallResult } from '@runnel/assistant';
 
 /** The default: memory disabled. Recalls nothing, captures nothing, touches no storage. */
 export class NullMemoryAdapter implements IAssistantMemoryPort {

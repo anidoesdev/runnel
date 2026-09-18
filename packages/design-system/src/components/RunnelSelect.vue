@@ -13,7 +13,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
 
 <template>
   <select
-    class="n8n-select"
+    class="runnel-select"
     :value="modelValue"
     :disabled="disabled"
     @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
@@ -23,7 +23,7 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
 </template>
 
 <style scoped>
-.n8n-select {
+.runnel-select {
   border: 1px solid var(--color-border, #ccc);
   border-radius: 4px;
   padding: 6px 8px;

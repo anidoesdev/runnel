@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import { PassThrough } from 'node:stream';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SYSTEM_PROMPT } from '@n8n-clone/assistant';
+import { SYSTEM_PROMPT } from '@runnel/assistant';
 import { createApp } from '../../app.js';
 import { loadConfig } from '../../config.js';
 import { createDataSource, sqliteConfig } from '../../db/data-source.js';
@@ -12,7 +12,7 @@ import { NullMemoryAdapter } from './null-memory.adapter.js';
 import type { IncomingMessage, Server, ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import type { DataSource } from 'typeorm';
-import type { IAssistantMemoryPort, IRecallResult } from '@n8n-clone/assistant';
+import type { IAssistantMemoryPort, IRecallResult } from '@runnel/assistant';
 import type { IMemoryConfig } from '../../config.js';
 
 /**
@@ -66,6 +66,7 @@ function spyMemoryPort(overrides: Partial<IAssistantMemoryPort> = {}) {
 
 interface IHarness {
   agent: ReturnType<typeof request.agent>;
+  sessionId: string;
   openAi: IFakeOpenAi;
   logLines: () => Array<Record<string, unknown>>;
   sendMessage: (message: string) => Promise<{ status: number; events: Array<Record<string, unknown>> }>;
@@ -108,6 +109,7 @@ async function createHarness(port: IAssistantMemoryPort, config: IMemoryConfig):
 
   return {
     agent,
+    sessionId,
     openAi,
     logLines: () =>
       logText
@@ -133,7 +135,7 @@ function systemPromptOf(openAiRequest: IFakeOpenAi['requests'][number] | undefin
 describe('assistant memory — default off', () => {
   it('with no memory env vars, sends the byte-identical system prompt and never calls the memory port', async () => {
     const config = loadConfig({}).memory;
-    expect(config).toEqual({ capture: false, recall: false, tokenBudget: 400 });
+    expect(config).toEqual({ capture: false, recall: false, tokenBudget: 400, minScore: 1 });
 
     const port = spyMemoryPort();
     const h = await createHarness(port, config);
@@ -168,7 +170,7 @@ async function waitFor(condition: () => boolean, timeoutMs = 2000): Promise<void
   }
 }
 
-const SHADOW: IMemoryConfig = { capture: true, recall: false, tokenBudget: 400 };
+const SHADOW: IMemoryConfig = { capture: true, recall: false, tokenBudget: 400, minScore: 1 };
 
 describe('assistant memory — shadow mode (capture on, recall off)', () => {
   it('recalls and logs, but the system prompt stays byte-identical', async () => {
@@ -260,5 +262,69 @@ describe('assistant memory — failures never break a turn', () => {
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
     expect(events.some((event) => event.type === 'error')).toBe(false);
     await waitFor(() => h.logLines().some((line) => line.event === 'memory.capture.failed' && line.level === 40));
+  });
+});
+
+const LIVE: IMemoryConfig = { capture: true, recall: true, tokenBudget: 400, minScore: 1 };
+
+function recalling(memories: IRecallResult['memories'], tokensUsed = 12): Partial<IAssistantMemoryPort> {
+  return { recall: async () => ({ memories, trace: { candidates: [] }, tokensUsed }) };
+}
+
+describe('assistant memory — recall on (injection)', () => {
+  it('appends the memories that clear the floor to the system prompt, and only those', async () => {
+    const port = spyMemoryPort(
+      recalling([
+        { id: 'strong', content: 'Webhook nodes must verify HMAC signatures.', kind: 'preference', score: 3.4 },
+        { id: 'weak', content: 'The user added an HTTP Request node.', kind: 'fact', score: 0.05 },
+      ]),
+    );
+    const h = await createHarness(port, LIVE);
+
+    const { events } = await h.sendMessage('Add a webhook trigger.');
+
+    expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
+    const system = systemPromptOf(h.openAi.requests[0])!;
+    expect(system.startsWith(`${SYSTEM_PROMPT}\n\n## What you know about this user`)).toBe(true);
+    expect(system).toContain('- Webhook nodes must verify HMAC signatures.');
+    expect(system).not.toContain('HTTP Request node');
+
+    const logged = h.logLines().find((line) => line.event === 'memory.recall.injected');
+    expect(logged).toMatchObject({ injected: true, memoryCount: 2, injectedCount: 1, belowFloor: 1, passedFloorIds: ['strong'] });
+  });
+
+  it('leaves the prompt byte-identical when nothing clears the floor', async () => {
+    const port = spyMemoryPort(recalling([{ id: 'weak', content: 'The user said hello.', kind: 'fact', score: 0.2 }]));
+    const h = await createHarness(port, LIVE);
+
+    await h.sendMessage('Add a webhook trigger.');
+
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
+    expect(h.logLines().find((line) => line.event === 'memory.recall.shadow')).toMatchObject({ injected: false, belowFloor: 1 });
+  });
+
+  it("charges injected memory to the session's own token budget, and nothing when not injected", async () => {
+    const injected = await createHarness(
+      spyMemoryPort(recalling([{ id: 'm', content: 'Nodes are named in snake_case.', kind: 'preference', score: 5 }], 37)),
+      LIVE,
+    );
+    await injected.sendMessage('Add a node.');
+    const session = (await injected.agent.get(`/rest/assistant/sessions/${injected.sessionId}`)).body as { tokenBudget: { used: number } };
+    // The fake model reports no usage of its own, so everything used is the recalled memory.
+    expect(session.tokenBudget.used).toBe(37);
+  });
+
+  it('a recall failure with injection on still completes the turn with the plain prompt', async () => {
+    const port = spyMemoryPort({
+      recall: async () => {
+        throw new Error('store locked');
+      },
+    });
+    const h = await createHarness(port, LIVE);
+
+    const { events } = await h.sendMessage('Add a node.');
+
+    expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
   });
 });

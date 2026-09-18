@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { ScriptedModelProvider } from '../test-utils/scripted-model-provider.js';
 import { runEvalCase, runEvalSuite } from './runner.js';
+import { MEMORY_CASES } from './cases/index.js';
+import { renderMemoryBlock } from '../memory-block.js';
+import { SYSTEM_PROMPT } from '../prompts/load-system-prompt.js';
 import type { IEvalCase } from './types.js';
+import type { IModelProvider } from '../model-provider.js';
 
 /**
  * Smoke-tests the runner mechanics themselves — wiring a fresh draft store, node catalog, and
@@ -119,5 +123,52 @@ describe('eval runner', () => {
     expect(scorecard.total).toBe(2);
     expect(scorecard.passed).toBe(2);
     expect(scorecard.passRate).toBe(1);
+  });
+});
+
+describe('eval runner — recalled memories', () => {
+  /** Records the system prompt each model call received, around a scripted provider. */
+  function recordingProvider(script: ConstructorParameters<typeof ScriptedModelProvider>[0]) {
+    const inner = new ScriptedModelProvider(script);
+    const systems: string[] = [];
+    return {
+      systems,
+      provider: {
+        stream: (_messages, _tools, system) => {
+          systems.push(system);
+          return inner.stream();
+        },
+      } satisfies IModelProvider,
+    };
+  }
+
+  it('appends the rendered memory block to the system prompt when a case recalls memories', async () => {
+    const { systems, provider } = recordingProvider([{ text: 'Done.' }]);
+
+    await runEvalCase(
+      {
+        id: 'smoke-memory',
+        prompt: 'add a webhook',
+        recalledMemories: [{ id: 'm1', kind: 'preference', content: 'Webhooks accept POST only.' }],
+        assertions: [],
+      },
+      provider,
+    );
+
+    expect(systems[0]).toBe(`${SYSTEM_PROMPT}\n\n${renderMemoryBlock([{ id: 'm1', kind: 'preference', content: 'Webhooks accept POST only.' }])}`);
+  });
+
+  it('leaves the system prompt untouched for a case without memories', async () => {
+    const { systems, provider } = recordingProvider([{ text: 'Done.' }]);
+
+    await runEvalCase({ id: 'smoke-no-memory', prompt: 'add a webhook', assertions: [] }, provider);
+
+    expect(systems[0]).toBe(SYSTEM_PROMPT);
+  });
+
+  it('every memory case targets a non-default value, so passing requires using the memory', () => {
+    for (const evalCase of MEMORY_CASES) {
+      expect(evalCase.recalledMemories?.length, evalCase.id).toBeGreaterThan(0);
+    }
   });
 });

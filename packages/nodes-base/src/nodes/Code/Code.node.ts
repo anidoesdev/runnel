@@ -1,7 +1,7 @@
-import { runCode } from '@n8n-clone/core';
-import { NodeOperationError } from '@n8n-clone/workflow';
-import type { CodeExecutionMode } from '@n8n-clone/core';
-import type { IExecuteFunctions, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import { runCode } from '@runnel/core';
+import { NodeOperationError } from '@runnel/workflow';
+import type { CodeExecutionMode } from '@runnel/core';
+import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
 export const codeNode: INodeType = {
   description: {
@@ -42,7 +42,7 @@ export const codeNode: INodeType = {
         default: 'return items;',
         typeOptions: { rows: 10 },
         // Deliberately not expression-resolved by getNodeParameter — code content is read
-        // raw so a script that happens to start with "=" isn't misread as an n8n expression.
+        // raw so a script that happens to start with "=" isn't misread as an expression.
         noDataExpression: true,
       },
     ],

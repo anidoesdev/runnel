@@ -1,6 +1,6 @@
-# n8n-clone
+# runnel
 
-A workflow-automation platform in the spirit of [n8n](https://n8n.io): a node-based canvas
+A workflow-automation platform: a node-based canvas
 editor, a REST/SSE backend that persists and executes workflows, a real execution engine with
 an expression language and encrypted credentials, and an in-app AI agent — the **Workflow
 Assistant** — that builds and repairs workflows by calling the same tool layer a human would
@@ -33,7 +33,7 @@ TypeScript end to end. pnpm workspaces + Turborepo, 11 packages, ~120 test files
 - **Execution engine** — walks the graph in dependency order, threads item data between nodes,
   supports retries, error routing, and dry-run mocking of unsafe nodes.
 - **Expression language** — a hand-written lexer/parser/evaluator for `{{ $json.field }}`-style
-  templates, with n8n-like extension functions and a JMESPath-lite subset.
+  templates, with a library of extension functions and a JMESPath-lite subset.
 - **Triggers** — manual, schedule (cron), webhook (`/webhook/<path>`), polling, and chat.
 - **Credentials** — encrypted at rest with AES-256-GCM, never returned to the client in cleartext.
 - **Library** — star workflows, organise them into folders, and recover deleted ones from a trash
@@ -43,7 +43,7 @@ TypeScript end to end. pnpm workspaces + Turborepo, 11 packages, ~120 test files
 - **AI Workflow Assistant** — an agent that edits a copy-on-write draft of your workflow through
   validated tools, asks clarifying questions, gates destructive actions behind human approval,
   and grounds itself in real node output.
-- **Custom nodes** — scaffold and build third-party node packages with `n8n-node-dev`, load them
+- **Custom nodes** — scaffold and build third-party node packages with `runnel-node-dev`, load them
   via `CUSTOM_NODES_DIR`.
 - **SQLite or Postgres** — TypeORM entities with migrations for both.
 
@@ -59,7 +59,7 @@ pnpm install
 pnpm build
 ```
 
-Start the backend (defaults to SQLite at `./n8n-clone.sqlite`, listening on port **5679**):
+Start the backend (defaults to SQLite at `./runnel.sqlite`, listening on port **5679**):
 
 ```bash
 node packages/cli/dist/bin.js start
@@ -69,14 +69,14 @@ In a second terminal, start the editor's dev server (Vite, port **5173**, proxyi
 `/webhook` to the backend):
 
 ```bash
-pnpm --filter @n8n-clone/editor-ui dev
+pnpm --filter @runnel/editor-ui dev
 ```
 
 Open <http://localhost:5173>. The first visit shows a setup screen — it creates the single owner
 account, and only succeeds once.
 
-> The server listens on **5679**, not n8n's usual 5678, so it won't collide with a real n8n
-> instance on the same machine.
+> The server listens on **5679**, not 5678, so it won't collide with another workflow tool
+> on the same machine.
 
 To run a saved workflow from the command line:
 
@@ -96,7 +96,7 @@ cp .env.example .env    # then fill in real values
 docker compose up --build
 ```
 
-`N8N_ENCRYPTION_KEY` and `N8N_JWT_SECRET` are **required** — compose fails fast with a clear
+`RUNNEL_ENCRYPTION_KEY` and `RUNNEL_JWT_SECRET` are **required** — compose fails fast with a clear
 message rather than silently falling back to the insecure dev defaults. Generate them with
 `openssl rand -hex 32`. The editor is then at <http://localhost:8080> and the API at
 <http://localhost:5679>.
@@ -116,7 +116,7 @@ a package imports "sideways" or "up" the stack.
 | `workflow-tools` | The agent's tool layer: registry, `invokeTool`, the draft/overlay model, BM25 node-catalog search, schema compression, redaction. Framework-agnostic. |
 | `assistant` | The agent loop: streaming, tool dispatch, budgets, pause/resume, system prompt, eval harness. |
 | `cli` | Express server — REST controllers, TypeORM entities and migrations, JWT auth, active-workflow management, and the composition root wiring everything together. |
-| `design-system` | Presentational Vue primitives (`N8nButton`, `N8nInput`, `N8nSelect`, `N8nCheckbox`, `N8nModal`). |
+| `design-system` | Presentational Vue primitives (`RunnelButton`, `RunnelInput`, `RunnelSelect`, `RunnelCheckbox`, `RunnelModal`). |
 | `editor-ui` | The Vue 3 + Pinia SPA. Deliberately cannot depend on `core`/`cli`/`assistant` — server-side types are mirrored in [`src/api/types.ts`](packages/editor-ui/src/api/types.ts) so the bundle never pulls in Node-only code. |
 | `node-dev` | Scaffolding and build tooling for third-party node packages. |
 
@@ -161,7 +161,7 @@ against a live graph — not a chatbot that emits workflow-shaped text.
 
 To use it, either set `OPENAI_API_KEY` in `.env`, or create an `openAiApi` credential through the
 editor. Evals live in [`packages/assistant/src/evals`](packages/assistant/src/evals) and run with
-`pnpm --filter @n8n-clone/assistant evals` against a built `dist`.
+`pnpm --filter @runnel/assistant evals` against a built `dist`.
 
 ---
 
@@ -203,7 +203,7 @@ pnpm test        # vitest with v8 coverage, per package
 pnpm clean
 ```
 
-Scope any of them to one package with `pnpm --filter @n8n-clone/<pkg> <script>`.
+Scope any of them to one package with `pnpm --filter @runnel/<pkg> <script>`.
 
 CI ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)) runs install → build → typecheck →
 lint → test against a Postgres service container, then the assistant eval suite if an
@@ -221,14 +221,16 @@ most likely to need:
 
 | Variable | Default | Notes |
 |---|---|---|
-| `N8N_ENCRYPTION_KEY` | insecure dev value | Encrypts stored credentials. **Set this** anywhere reachable by anyone but you. Changing it makes existing credentials undecryptable. |
-| `N8N_JWT_SECRET` | insecure dev value | Signs session cookies. Changing it invalidates every session. |
+| `RUNNEL_ENCRYPTION_KEY` | insecure dev value | Encrypts stored credentials. **Set this** anywhere reachable by anyone but you. Changing it makes existing credentials undecryptable. |
+| `RUNNEL_JWT_SECRET` | insecure dev value | Signs session cookies. Changing it invalidates every session. |
 | `PORT` | `5679` | Backend HTTP port. |
 | `DB_TYPE` | `sqlite` | `sqlite` or `postgres`. |
-| `DB_SQLITE_DATABASE` | `n8n-clone.sqlite` | SQLite file path. |
-| `DB_POSTGRES_*` | `localhost:5432`, `postgres`/`postgres`, `n8n_clone` | Postgres connection. |
+| `DB_SQLITE_DATABASE` | `runnel.sqlite` | SQLite file path. |
+| `DB_POSTGRES_*` | `localhost:5432`, `postgres`/`postgres`, `runnel` | Postgres connection. |
 | `CUSTOM_NODES_DIR` | unset | Directory of built custom node packages. |
 | `OPENAI_API_KEY` / `OPENAI_BASE_URL` / `OPENAI_MODEL` | unset / OpenAI / `gpt-4o-mini` | The assistant's model credential. Takes priority over any stored `openAiApi` credential. |
+| `RUNNEL_MEMORY_CAPTURE` / `RUNNEL_MEMORY_RECALL` | `false` / `false` | Assistant memory. Capture alone is shadow mode (remembered and logged, never sent to the model); recall sends relevant memories to the model. |
+| `RUNNEL_MEMORY_MIN_SCORE` | `1` | Relevance floor for memories sent to the model. |
 | `VITE_API_PROXY_TARGET` | `http://localhost:5679` | Dev-server proxy target. |
 
 Never commit real secrets — `.env` is gitignored; `.env.example` is the template.

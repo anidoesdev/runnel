@@ -4,7 +4,7 @@ import type {
   INodeExecutionData,
   INodeType,
   NodeOutput,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 /**
  * Synthetic node types used only by the execution-engine test suite. Real node

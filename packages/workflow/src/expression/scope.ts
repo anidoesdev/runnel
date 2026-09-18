@@ -117,7 +117,7 @@ export const EXPRESSION_SCOPE_DEFINITIONS: IExpressionScopeDefinition[] = [
   {
     key: '$env',
     kind: 'value',
-    description: 'Environment variables (gated by N8N_BLOCK_ENV_ACCESS_IN_NODE).',
+    description: 'Environment variables (gated by RUNNEL_BLOCK_ENV_ACCESS_IN_NODE).',
     resolve: (ctx) => {
       if (ctx.blockEnvAccess) {
         throw new ExpressionError('Access to $env is blocked by the instance configuration.', {

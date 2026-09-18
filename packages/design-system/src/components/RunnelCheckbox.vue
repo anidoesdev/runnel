@@ -9,7 +9,7 @@ defineEmits<{ 'update:modelValue': [value: boolean] }>();
 </script>
 
 <template>
-  <label class="n8n-checkbox">
+  <label class="runnel-checkbox">
     <input
       type="checkbox"
       :checked="modelValue"
@@ -21,7 +21,7 @@ defineEmits<{ 'update:modelValue': [value: boolean] }>();
 </template>
 
 <style scoped>
-.n8n-checkbox {
+.runnel-checkbox {
   display: inline-flex;
   align-items: center;
   gap: 6px;

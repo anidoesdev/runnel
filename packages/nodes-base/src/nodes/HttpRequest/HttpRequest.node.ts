@@ -5,7 +5,7 @@ import type {
   INodeExecutionData,
   INodeType,
   NodeOutput,
-} from '@n8n-clone/workflow';
+} from '@runnel/workflow';
 
 interface INameValue {
   name: string;

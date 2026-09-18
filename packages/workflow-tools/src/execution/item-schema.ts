@@ -1,5 +1,5 @@
 import { redactDeep } from '../redact.js';
-import type { IDataObject, INodeExecutionData } from '@n8n-clone/workflow';
+import type { IDataObject, INodeExecutionData } from '@runnel/workflow';
 
 function coarseType(value: unknown): string {
   if (value === null) return 'null';

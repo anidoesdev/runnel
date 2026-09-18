@@ -4,7 +4,7 @@ import { NOT_TRASHED, purgeExpiredTrash, TRASHED } from './trash.js';
 import { generateId } from '../db/id.js';
 import { BadRequestError, NotFoundError } from '../http/http-errors.js';
 import { runWorkflow } from '../execution/run-workflow.js';
-import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
+import type { ICredentialTypes, INodeTypes } from '@runnel/core';
 import type { Repository } from 'typeorm';
 import type { Request, Response } from 'express';
 import type { WorkflowEntity } from '../db/entities/Workflow.entity.js';

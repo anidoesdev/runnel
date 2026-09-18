@@ -1,5 +1,5 @@
 import { combinatorProperty, conditionsProperty, evaluateConditions } from '../shared/conditions.js';
-import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@n8n-clone/workflow';
+import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 import type { ICondition } from '../shared/conditions.js';
 
 /** Keeps only the items matching the given conditions; everything else is dropped (single output — unlike If, there's no "false" branch to route to). */

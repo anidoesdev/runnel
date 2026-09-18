@@ -1,5 +1,5 @@
-export { default as N8nButton } from './components/N8nButton.vue';
-export { default as N8nInput } from './components/N8nInput.vue';
-export { default as N8nSelect } from './components/N8nSelect.vue';
-export { default as N8nCheckbox } from './components/N8nCheckbox.vue';
-export { default as N8nModal } from './components/N8nModal.vue';
+export { default as RunnelButton } from './components/RunnelButton.vue';
+export { default as RunnelInput } from './components/RunnelInput.vue';
+export { default as RunnelSelect } from './components/RunnelSelect.vue';
+export { default as RunnelCheckbox } from './components/RunnelCheckbox.vue';
+export { default as RunnelModal } from './components/RunnelModal.vue';
