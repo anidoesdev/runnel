@@ -35,6 +35,16 @@ export class WorkflowEntity {
   @Column({ type: 'simple-json', nullable: true })
   pinData!: Record<string, INodeExecutionData[]> | null;
 
+  @Column({ type: 'boolean', default: false })
+  starred!: boolean;
+
+  /** ISO timestamp when the workflow was moved to trash; null means it's live. Set by a soft delete, cleared by a restore, and purged for good after TRASH_RETENTION_DAYS. */
+  @Column({ type: 'varchar', nullable: true })
+  deletedAt!: string | null;
+
+  @Column({ type: 'varchar', length: 36, nullable: true })
+  folderId!: string | null;
+
   @CreateDateColumn()
   createdAt!: Date;
 

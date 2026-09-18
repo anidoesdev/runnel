@@ -33,6 +33,6 @@ defineEmits<{ 'update:modelValue': [value: string] }>();
   box-sizing: border-box;
 }
 .n8n-input:disabled {
-  background: #f5f5f5;
+  background: var(--color-surface-container-high, #f5f5f5);
 }
 </style>

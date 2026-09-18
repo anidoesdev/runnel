@@ -36,6 +36,10 @@ TypeScript end to end. pnpm workspaces + Turborepo, 11 packages, ~120 test files
   templates, with n8n-like extension functions and a JMESPath-lite subset.
 - **Triggers** — manual, schedule (cron), webhook (`/webhook/<path>`), polling, and chat.
 - **Credentials** — encrypted at rest with AES-256-GCM, never returned to the client in cleartext.
+- **Library** — star workflows, organise them into folders, and recover deleted ones from a trash
+  that keeps them for 30 days. Starter templates create a working workflow in one click.
+- **Notifications and settings** — a bell for failed unattended runs and activation changes, plus a
+  settings page for your password, a light/dark theme, assistant defaults and read-only server info.
 - **AI Workflow Assistant** — an agent that edits a copy-on-write draft of your workflow through
   validated tools, asks clarifying questions, gates destructive actions behind human approval,
   and grounds itself in real node output.
@@ -169,8 +173,13 @@ All routes are under `/rest`, authenticated by a JWT session cookie except where
 |---|---|
 | `GET/POST /rest/auth/setup` | First-run owner account (public) |
 | `POST /rest/auth/login`, `POST /rest/auth/logout`, `GET /rest/auth/me` | Sessions |
-| `GET/POST /rest/workflows`, `GET/PATCH/DELETE /rest/workflows/:id` | Workflow CRUD |
+| `GET/POST /rest/workflows`, `GET/PATCH/DELETE /rest/workflows/:id` | Workflow CRUD. `DELETE` is a soft delete (trash); list takes `?view=all\|starred\|trash` and `?folderId=` |
+| `POST /rest/workflows/:id/restore`, `DELETE /rest/workflows/:id/permanent` | Restore from the trash, or destroy for good |
 | `POST /rest/workflows/:id/execute` | Run a workflow |
+| `GET/POST /rest/folders`, `PATCH/DELETE /rest/folders/:id` | Folders for organising the library |
+| `GET /rest/notifications`, `POST /rest/notifications/read`, `DELETE /rest/notifications` | Failed unattended runs and activation changes |
+| `GET /rest/settings/system`, `GET/PATCH /rest/settings/preferences` | Read-only server info; per-user assistant defaults |
+| `POST /rest/auth/password` | Change your own password |
 | `GET/POST /rest/credentials`, `GET/PATCH/DELETE /rest/credentials/:id` | Credential CRUD |
 | `GET /rest/credential-types`, `GET /rest/node-types` | Catalog for the editor |
 | `GET /rest/executions`, `GET /rest/executions/:id` | Execution history |

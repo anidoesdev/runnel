@@ -17,6 +17,7 @@ import type { Request, Response } from 'express';
 import type { Repository } from 'typeorm';
 import type { Logger } from 'pino';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
+import type { UserEntity } from '../db/entities/User.entity.js';
 
 const DEFAULT_TOKEN_LIMIT = 200_000;
 
@@ -39,6 +40,7 @@ export class AssistantController {
     private readonly credentialTypes: ICredentialTypes,
     private readonly encryptionKey: string,
     private readonly logger: Logger,
+    private readonly users: Repository<UserEntity>,
     private readonly memory: IAssistantMemory = disabledAssistantMemory(),
   ) {}
 
@@ -53,7 +55,8 @@ export class AssistantController {
       workflowId: parsed.workflowId,
       draftId: draft.id,
       actor: { userId, scopes: [] },
-      tokenLimit: parsed.tokenLimit ?? DEFAULT_TOKEN_LIMIT,
+      // Explicit request wins, then the user's own settings-page default, then the server's.
+      tokenLimit: parsed.tokenLimit ?? (await this.userTokenLimit(userId)) ?? DEFAULT_TOKEN_LIMIT,
     });
     return this.sessions.create(session);
   }
@@ -106,6 +109,11 @@ export class AssistantController {
     const parsed = resumeAskUserSchema.parse(req.body);
     const session = await this.findSessionOrThrow(String(req.params.id));
     await this.streamTurn(res, session, (deps, options) => resumeAskUser(session, parsed.answers, deps, options));
+  }
+
+  private async userTokenLimit(userId: string): Promise<number | undefined> {
+    const user = await this.users.findOneBy({ id: userId });
+    return user?.settings?.assistant?.tokenLimit;
   }
 
   private async findSessionOrThrow(id: string): Promise<IAssistantSession> {

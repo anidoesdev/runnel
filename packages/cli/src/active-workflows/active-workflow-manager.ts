@@ -11,6 +11,7 @@ import type { ICredentialTypes, INodeTypes } from '@n8n-clone/core';
 import type { IDataObject, INode, INodeType, IRunExecutionData, IWorkflowBase, NodeOutput, WorkflowExecuteMode } from '@n8n-clone/workflow';
 import type { Repository } from 'typeorm';
 import type { Logger } from 'pino';
+import type { NotificationService } from '../notifications/notification.service.js';
 import type { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import type { ExecutionEntity } from '../db/entities/Execution.entity.js';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
@@ -71,6 +72,7 @@ export class ActiveWorkflowManager {
     private readonly credentials: Repository<CredentialEntity>,
     private readonly encryptionKey: string,
     private readonly logger: Logger,
+    private readonly notifications?: NotificationService,
   ) {}
 
   /** Loads and activates every workflow already marked active — called once at server startup. */
@@ -316,6 +318,15 @@ export class ActiveWorkflowManager {
       data: result,
     });
     await this.executions.save(executionEntity);
+
+    // Unattended run: nobody is watching this one finish, so a failure goes to the bell.
+    if (executionEntity.status === 'error') {
+      await this.notifications?.recordExecutionFailed(
+        workflow,
+        executionEntity.id,
+        result.resultData.error?.message,
+      );
+    }
 
     return result;
   }

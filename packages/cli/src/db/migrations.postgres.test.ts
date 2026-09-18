@@ -67,16 +67,18 @@ async function tableNames(ds: DataSource): Promise<string[]> {
 }
 
 describe.skipIf(!postgresAvailable)('Postgres migrations', () => {
-  it('creates all four tables on up, and drops them all on down', async () => {
+  it('creates every table on up, and drops them all on down', async () => {
     dataSource = createDataSource(postgresConfig);
     await dataSource.initialize();
 
     await dataSource.runMigrations();
     const afterUp = (await tableNames(dataSource)).sort();
-    expect(afterUp).toEqual(['assistant_session', 'credential', 'execution', 'migrations', 'user', 'workflow']);
+    expect(afterUp).toEqual(['assistant_session', 'credential', 'execution', 'folder', 'migrations', 'notification', 'user', 'workflow']);
 
-    // Two migrations now (InitialSchema, AddAssistantSession) — undoLastMigration only reverts
-    // the most recently applied one, so a full teardown needs one call per migration.
+    // Three migrations now (InitialSchema, AddAssistantSession, AddWorkflowLibrary) —
+    // undoLastMigration only reverts the most recently applied one, so a full teardown needs
+    // one call per migration.
+    await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
     const afterDown = await tableNames(dataSource);
@@ -85,6 +87,8 @@ describe.skipIf(!postgresAvailable)('Postgres migrations', () => {
     expect(afterDown).not.toContain('credential');
     expect(afterDown).not.toContain('execution');
     expect(afterDown).not.toContain('assistant_session');
+    expect(afterDown).not.toContain('folder');
+    expect(afterDown).not.toContain('notification');
   });
 
   it('round-trips a real row through the workflow table (simple-json column)', async () => {
@@ -108,6 +112,7 @@ describe.skipIf(!postgresAvailable)('Postgres migrations', () => {
 
     await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
+    await dataSource.undoLastMigration();
   });
 
   it('can migrate up, down, and back up again cleanly (idempotent in both directions)', async () => {
@@ -117,11 +122,13 @@ describe.skipIf(!postgresAvailable)('Postgres migrations', () => {
     await dataSource.runMigrations();
     await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
+    await dataSource.undoLastMigration();
     await dataSource.runMigrations();
 
     const names = (await tableNames(dataSource)).sort();
-    expect(names).toEqual(['assistant_session', 'credential', 'execution', 'migrations', 'user', 'workflow']);
+    expect(names).toEqual(['assistant_session', 'credential', 'execution', 'folder', 'migrations', 'notification', 'user', 'workflow']);
 
+    await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
     await dataSource.undoLastMigration();
   });

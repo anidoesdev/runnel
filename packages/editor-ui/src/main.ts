@@ -6,5 +6,9 @@ import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router/index.js';
+import { useTheme } from './composables/useTheme.js';
+
+// Before mount, so the first paint is already in the right palette rather than flashing light.
+useTheme().initTheme();
 
 createApp(App).use(createPinia()).use(router).mount('#app');

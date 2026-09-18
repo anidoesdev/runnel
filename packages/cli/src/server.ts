@@ -5,6 +5,8 @@ import { loadConfig } from './config.js';
 import { loadCustomNodeTypes } from './custom-nodes/load-custom-nodes.js';
 import { createAssistantMemory } from './assistant/memory/memory.factory.js';
 import { CredentialEntity } from './db/entities/Credential.entity.js';
+import { WorkflowEntity } from './db/entities/Workflow.entity.js';
+import { purgeExpiredTrash, TRASH_RETENTION_DAYS } from './workflows/trash.js';
 import type { Server } from 'node:http';
 import type { DataSource } from 'typeorm';
 import type { Logger } from 'pino';
@@ -45,6 +47,11 @@ export async function startServer(): Promise<IRunningServer> {
     encryptionKey: config.encryptionKey,
   });
 
+  // Trash also purges when it is listed; doing it at boot means a server that runs daily
+  // cleans up even if nobody ever opens the trash view.
+  const purged = await purgeExpiredTrash(dataSource.getRepository(WorkflowEntity));
+  if (purged > 0) logger.info(`Purged ${purged} workflow(s) deleted more than ${TRASH_RETENTION_DAYS} days ago`);
+
   const { app, activeWorkflowManager } = createApp({
     dataSource,
     encryptionKey: config.encryptionKey,
@@ -52,6 +59,7 @@ export async function startServer(): Promise<IRunningServer> {
     logger,
     customNodeTypes,
     memory,
+    systemInfo: { database: config.db.type, customNodesDir: config.customNodesDir ?? null },
   });
 
   const server = await new Promise<Server>((resolve) => {

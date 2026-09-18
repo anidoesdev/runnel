@@ -13,6 +13,10 @@ import { ExecutionsController } from './executions/executions.controller.js';
 import { NodeTypesController } from './node-types/node-types.controller.js';
 import { CredentialTypesController } from './credential-types/credential-types.controller.js';
 import { AssistantController } from './assistant/assistant.controller.js';
+import { FoldersController } from './folders/folders.controller.js';
+import { NotificationsController } from './notifications/notifications.controller.js';
+import { NotificationService } from './notifications/notification.service.js';
+import { SettingsController } from './settings/settings.controller.js';
 import { WorkflowRepositoryAdapter } from './assistant/workflow-repository.adapter.js';
 import { AssistantSessionRepositoryAdapter } from './assistant/assistant-session.repository.js';
 import { disabledAssistantMemory } from './assistant/memory/memory.factory.js';
@@ -28,11 +32,14 @@ import { WorkflowEntity } from './db/entities/Workflow.entity.js';
 import { CredentialEntity } from './db/entities/Credential.entity.js';
 import { ExecutionEntity } from './db/entities/Execution.entity.js';
 import { AssistantSessionEntity } from './db/entities/AssistantSession.entity.js';
+import { FolderEntity } from './db/entities/Folder.entity.js';
+import { NotificationEntity } from './db/entities/Notification.entity.js';
 import type { Express } from 'express';
 import type { DataSource } from 'typeorm';
 import type { Logger } from 'pino';
 import type { INodeType } from '@n8n-clone/workflow';
 import type { IAssistantMemory } from './assistant/memory/memory.factory.js';
+import type { ISystemInfo } from './settings/settings.controller.js';
 
 export interface ICreateAppOptions {
   dataSource: DataSource;
@@ -43,6 +50,8 @@ export interface ICreateAppOptions {
   customNodeTypes?: INodeType[];
   /** Assistant memory, already built (see assistant/memory/memory.factory.ts) — omitted means disabled. */
   memory?: IAssistantMemory;
+  /** What the settings page reports about this server; server.ts fills it in from the real config. */
+  systemInfo?: Partial<ISystemInfo>;
 }
 
 export interface ICreatedApp {
@@ -83,6 +92,19 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
   const credentialRepo = dataSource.getRepository(CredentialEntity);
   const executionRepo = dataSource.getRepository(ExecutionEntity);
   const assistantSessionRepo = dataSource.getRepository(AssistantSessionEntity);
+  const folderRepo = dataSource.getRepository(FolderEntity);
+  const notificationRepo = dataSource.getRepository(NotificationEntity);
+
+  const notifications = new NotificationService(notificationRepo);
+  const memory = options.memory ?? disabledAssistantMemory();
+  const systemInfo: ISystemInfo = {
+    version: '0.1.0',
+    nodeVersion: process.version,
+    database: dataSource.options.type === 'postgres' ? 'postgres' : 'sqlite',
+    customNodesDir: null,
+    memory: { capture: memory.config.capture, recall: memory.config.recall, tokenBudget: memory.config.tokenBudget },
+    ...options.systemInfo,
+  };
 
   // One instance for the app's lifetime — a draft is an in-memory copy-on-write overlay (see
   // WorkflowDraftStore's own doc comment on why), so every request that touches the assistant
@@ -97,6 +119,7 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
     credentialRepo,
     encryptionKey,
     logger,
+    notifications,
   );
 
   const app = express();
@@ -119,6 +142,7 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
       credentialTypes,
       encryptionKey,
       activeWorkflowManager,
+      notifications,
     ),
     new CredentialsController(credentialRepo, encryptionKey),
     new ExecutionsController(executionRepo),
@@ -132,8 +156,12 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
       credentialTypes,
       encryptionKey,
       logger,
-      options.memory ?? disabledAssistantMemory(),
+      userRepo,
+      memory,
     ),
+    new FoldersController(folderRepo, workflowRepo),
+    new NotificationsController(notifications),
+    new SettingsController(userRepo, systemInfo),
   ];
 
   for (const controller of controllers) {

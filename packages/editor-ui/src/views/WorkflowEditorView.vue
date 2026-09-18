@@ -8,10 +8,10 @@ import NodeDetailPanel from '../components/canvas/NodeDetailPanel.vue';
 import ExecutionResultPanel from '../components/execution/ExecutionResultPanel.vue';
 import ChatPanel from '../components/chat/ChatPanel.vue';
 import AssistantPanel from '../components/assistant/AssistantPanel.vue';
+import TopbarActions from '../components/app/TopbarActions.vue';
 import { useNodeTypesStore } from '../stores/nodeTypes.store.js';
 import { useWorkflowStore } from '../stores/workflow.store.js';
 import { useAssistantStore } from '../stores/assistant.store.js';
-import { useAuthStore } from '../stores/auth.store.js';
 import { findChatReadyAgents, findChatTriggerNode, hasMainInput } from '../utils/chatAgent.js';
 
 const route = useRoute();
@@ -19,25 +19,6 @@ const router = useRouter();
 const workflowStore = useWorkflowStore();
 const nodeTypesStore = useNodeTypesStore();
 const assistantStore = useAssistantStore();
-const authStore = useAuthStore();
-
-/** Same account-menu pattern as the workflow library's top bar (avatar + email + Log out), so
- * the two screens read as one product rather than two different chrome styles. */
-const avatarMenuOpen = ref(false);
-const avatarMenuRoot = ref<HTMLElement | null>(null);
-const userInitial = computed(() => (authStore.user?.email ?? '?').charAt(0).toUpperCase());
-
-function onDocumentClick(event: MouseEvent): void {
-  if (avatarMenuOpen.value && !avatarMenuRoot.value?.contains(event.target as Node)) {
-    avatarMenuOpen.value = false;
-  }
-}
-
-async function logout(): Promise<void> {
-  avatarMenuOpen.value = false;
-  await authStore.logout();
-  await router.push({ name: 'login' });
-}
 
 /**
  * Undefined (not just falsy) whenever the assistant panel is closed or has no draft yet, so
@@ -107,7 +88,6 @@ watch(
 );
 
 onMounted(async () => {
-  document.addEventListener('click', onDocumentClick);
   await nodeTypesStore.load();
   const id = route.params.id;
   if (typeof id === 'string') {
@@ -149,7 +129,6 @@ watch(
 
 onUnmounted(() => {
   if (autosaveTimer) clearTimeout(autosaveTimer);
-  document.removeEventListener('click', onDocumentClick);
 });
 
 /** Dropping an AI Agent node auto-attaches a Chat trigger to its main input, unless something else is already wired in there. */
@@ -243,32 +222,7 @@ async function onExecute(): Promise<void> {
           {{ workflowStore.executing ? 'Running…' : 'Execute' }}
         </N8nButton>
 
-        <button type="button" class="icon-button icon-button--lg" disabled aria-disabled="true" title="Notifications (coming soon)">
-          <span class="material-symbols-outlined text-[20px]">notifications</span>
-        </button>
-        <button type="button" class="icon-button icon-button--lg" disabled aria-disabled="true" title="Settings (coming soon)">
-          <span class="material-symbols-outlined text-[20px]">settings</span>
-        </button>
-
-        <div ref="avatarMenuRoot" class="app-avatar-wrap">
-          <button
-            type="button"
-            class="app-avatar"
-            :aria-expanded="avatarMenuOpen"
-            aria-label="Account menu"
-            :title="authStore.user?.email"
-            @click="avatarMenuOpen = !avatarMenuOpen"
-          >
-            {{ userInitial }}
-          </button>
-          <div v-if="avatarMenuOpen" class="app-avatar-menu" role="menu">
-            <div v-if="authStore.user" class="app-avatar-email">{{ authStore.user.email }}</div>
-            <button type="button" class="app-avatar-menu-item" role="menuitem" @click="logout">
-              <span class="material-symbols-outlined text-[16px]">logout</span>
-              Log out
-            </button>
-          </div>
-        </div>
+        <TopbarActions />
       </div>
     </header>
     <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>

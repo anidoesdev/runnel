@@ -110,6 +110,59 @@
   color-scheme: light;
 }
 
+/**
+ * Dark theme. Only the palette is redefined — every component already paints itself from these
+ * tokens, so nothing else needs a dark-specific rule. Set by useTheme() as data-theme on <html>;
+ * the derived tokens (--color-bg/--color-text/--color-border) follow their sources automatically.
+ */
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-background: #111412;
+  --color-surface: #111412;
+  --color-surface-bright: #1a1e1c;
+  --color-surface-dim: #0b0e0d;
+  --color-surface-elevated: #17201a;
+  --color-surface-base: #16231a;
+  --color-surface-variant: #404846;
+  --color-surface-container-lowest: #0c0f0e;
+  --color-surface-container-low: #151917;
+  --color-surface-container: #191d1b;
+  --color-surface-container-high: #232725;
+  --color-surface-container-highest: #2d312f;
+
+  --color-on-background: #e1e3e0;
+  --color-on-surface: #e1e3e0;
+  --color-on-surface-variant: #bfc9c4;
+  --color-outline: #8a938f;
+  --color-outline-variant: #3f4946;
+  --color-border-muted: #3a443c;
+
+  --color-primary: #a1d0c4;
+  --color-on-primary: #0b352d;
+  --color-primary-container: #24504a;
+  --color-on-primary-container: #bdecdf;
+  --color-secondary: #9cd2b8;
+  --color-on-secondary: #073527;
+  --color-secondary-container: #22503c;
+  --color-on-secondary-container: #b8eed4;
+  --color-tertiary: #adcfb5;
+  --color-on-tertiary: #18351f;
+  --color-tertiary-container: #2f4d39;
+  --color-on-tertiary-container: #c8ebd0;
+
+  --color-error: #ffb4ab;
+  --color-on-error: #690005;
+  --color-error-container: #93000a;
+  --color-on-error-container: #ffdad6;
+
+  --color-inverse-surface: #e1e3e0;
+  --color-inverse-on-surface: #2f3130;
+  --color-inverse-primary: #38645a;
+  --color-surface-tint: #a1d0c4;
+  --color-code-accent: #8fc6b8;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -1668,4 +1721,420 @@ a {
 .workflow-canvas__edge--pulse .vue-flow__edge-path {
   stroke: var(--color-primary);
   animation: canvas-edge-pulse 1s ease-out 2;
+}
+
+/* Topbar notifications bell (components/app/TopbarActions.vue) */
+.topbar-bell {
+  position: relative;
+  display: inline-flex;
+}
+
+.topbar-bell__badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--color-error);
+  color: var(--color-on-error);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 16px;
+  text-align: center;
+}
+
+.topbar-bell__panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  width: 340px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface-container-lowest);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+}
+
+.topbar-bell__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+}
+
+.topbar-bell__clear {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-primary);
+}
+
+.topbar-bell__empty {
+  margin: 0;
+  padding: 16px 10px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.topbar-bell__item {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-on-surface);
+}
+
+.topbar-bell__item:hover {
+  background: var(--color-surface-container);
+}
+
+.topbar-bell__item--unread {
+  background: var(--color-surface-container-low);
+}
+
+.topbar-bell__item--error .material-symbols-outlined {
+  color: var(--color-error);
+}
+
+.topbar-bell__item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.topbar-bell__item-title {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.topbar-bell__item-detail {
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topbar-bell__item-time {
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+  white-space: nowrap;
+}
+
+/* Settings (views/SettingsView.vue) */
+.settings-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-background);
+}
+
+.settings-view__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface-container-lowest);
+}
+
+.settings-view__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-on-surface);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.settings-view__topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-view__main {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+.settings-view__main h1 {
+  font-size: var(--text-headline-lg, 32px);
+  margin: 0 0 20px;
+}
+
+.settings-card {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-container-lowest);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.settings-card h2 {
+  margin: 0 0 4px;
+  font-size: 16px;
+}
+
+.settings-card__hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.settings-card__error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-error);
+}
+
+.settings-card__ok {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-primary);
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 360px;
+}
+
+.settings-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.settings-form--inline {
+  flex-direction: row;
+  align-items: flex-end;
+  max-width: none;
+}
+
+.settings-form--inline input {
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  font: inherit;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+}
+
+.settings-theme {
+  display: flex;
+  gap: 8px;
+}
+
+.settings-theme__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+}
+
+.settings-theme__option--active {
+  border-color: var(--color-primary);
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+.settings-system {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 8px 16px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.settings-system dt {
+  color: var(--color-on-surface-variant);
+}
+
+.settings-system dd {
+  margin: 0;
+}
+
+/* Library: folders, trash and template cards (views/WorkflowListView.vue) */
+.workflow-library__nav-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.workflow-library__nav-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--color-on-surface-variant);
+}
+
+.workflow-library__nav-add:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+}
+
+.workflow-library__nav-empty {
+  margin: 0;
+  padding: 4px 10px 8px;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.workflow-library__folder-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.workflow-library__folder-row .icon-button {
+  opacity: 0;
+  flex: none;
+}
+
+.workflow-library__folder-row:hover .icon-button,
+.workflow-library__folder-row:focus-within .icon-button {
+  opacity: 1;
+}
+
+.workflow-library__nav-item--folder {
+  flex: 1;
+  min-width: 0;
+}
+
+.workflow-library__folder-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.workflow-library__folder-count {
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+}
+
+.workflow-card__star {
+  flex: none;
+  color: var(--color-on-surface-variant);
+}
+
+.workflow-card__star--on {
+  color: #d9a400;
+}
+
+.workflow-card--trashed {
+  cursor: default;
+  opacity: 0.92;
+}
+
+.workflow-card__menu-label {
+  margin: 6px 10px 2px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-on-surface-variant);
+}
+
+.workflow-card__menu-empty {
+  margin: 0 10px 6px;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.workflow-card__trash-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.workflow-card__trash-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  padding: 4px 10px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.workflow-card__trash-action:hover {
+  background: var(--color-surface-container);
+}
+
+.workflow-card__trash-action--danger {
+  color: var(--color-error);
+  border-color: var(--color-error);
+}
+
+.template-card {
+  cursor: default;
+}
+
+.template-card__description {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.template-card__steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+.template-card__arrow {
+  margin: 0 4px;
+  opacity: 0.6;
+}
+
+a.workflow-library__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  text-decoration: none;
 }

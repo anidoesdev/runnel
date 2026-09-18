@@ -19,8 +19,49 @@ export interface IWorkflowRecord {
   settings: IWorkflowSettings | null;
   staticData: IDataObject | null;
   pinData: Record<string, unknown> | null;
+  starred: boolean;
+  /** ISO timestamp while the workflow sits in the trash; null when it's live. */
+  deletedAt: string | null;
+  folderId: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface IFolderRecord {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type NotificationType = 'execution_failed' | 'workflow_activated' | 'workflow_deactivated';
+
+export interface INotificationRecord {
+  id: string;
+  type: NotificationType;
+  workflowId: string | null;
+  workflowName: string;
+  executionId: string | null;
+  message: string;
+  createdAt: string;
+  readAt: string | null;
+}
+
+export interface INotificationFeed {
+  items: INotificationRecord[];
+  unreadCount: number;
+}
+
+export interface ISystemInfo {
+  version: string;
+  nodeVersion: string;
+  database: 'sqlite' | 'postgres';
+  customNodesDir: string | null;
+  memory: { capture: boolean; recall: boolean; tokenBudget: number };
+}
+
+export interface IUserPreferences {
+  assistant?: { tokenLimit?: number };
 }
 
 export interface ICredentialRecord {

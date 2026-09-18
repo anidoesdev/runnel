@@ -8,6 +8,8 @@ import { generateId } from '../db/id.js';
 import { WorkflowEntity } from '../db/entities/Workflow.entity.js';
 import { ExecutionEntity } from '../db/entities/Execution.entity.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';
+import { NotificationEntity } from '../db/entities/Notification.entity.js';
+import { NotificationService } from '../notifications/notification.service.js';
 import type { DataSource, Repository } from 'typeorm';
 import type { INode } from '@n8n-clone/workflow';
 
@@ -16,6 +18,7 @@ describe('ActiveWorkflowManager', () => {
   let manager: ActiveWorkflowManager;
   let workflows: Repository<WorkflowEntity>;
   let executions: Repository<ExecutionEntity>;
+  let notifications: Repository<NotificationEntity>;
 
   beforeEach(async () => {
     dataSource = createDataSource(sqliteConfig(':memory:'));
@@ -24,6 +27,7 @@ describe('ActiveWorkflowManager', () => {
 
     workflows = dataSource.getRepository(WorkflowEntity);
     executions = dataSource.getRepository(ExecutionEntity);
+    notifications = dataSource.getRepository(NotificationEntity);
     const credentials = dataSource.getRepository(CredentialEntity);
 
     manager = new ActiveWorkflowManager(
@@ -34,6 +38,7 @@ describe('ActiveWorkflowManager', () => {
       credentials,
       'test-encryption-key',
       createLogger({ level: 'silent' }),
+      new NotificationService(notifications),
     );
   });
 
@@ -110,6 +115,31 @@ describe('ActiveWorkflowManager', () => {
       expect(runs).toHaveLength(2);
       expect(runs[0]!.mode).toBe('trigger');
       expect(runs[0]!.status).toBe('success');
+      // A successful unattended run is not news: nothing reaches the bell.
+      expect(await notifications.find()).toEqual([]);
+    });
+
+    it('notifies when an unattended run fails', async () => {
+      const failing: INode = {
+        id: 'n2',
+        name: 'Boom',
+        type: 'code',
+        typeVersion: 1,
+        position: [1, 0],
+        parameters: { mode: 'runOnceForAllItems', jsCode: "throw new Error('boom');" },
+      };
+      const entity = await saveWorkflow([scheduleTriggerNode(), failing], {
+        Schedule: { main: [[{ node: 'Boom', type: 'main', index: 0 }]] },
+      });
+      await manager.activate(entity);
+
+      await vi.advanceTimersByTimeAsync(5000);
+
+      const recorded = await notifications.find();
+      expect(recorded).toHaveLength(1);
+      expect(recorded[0]).toMatchObject({ type: 'execution_failed', workflowId: entity.id, workflowName: 'Test Workflow', readAt: null });
+      expect(recorded[0]!.message).toContain('boom');
+      expect(recorded[0]!.executionId).toBe((await executions.find())[0]!.id);
     });
 
     it('stops ticking once deactivated', async () => {

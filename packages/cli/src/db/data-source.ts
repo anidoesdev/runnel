@@ -5,10 +5,12 @@ import { WorkflowEntity } from './entities/Workflow.entity.js';
 import { CredentialEntity } from './entities/Credential.entity.js';
 import { ExecutionEntity } from './entities/Execution.entity.js';
 import { AssistantSessionEntity } from './entities/AssistantSession.entity.js';
+import { FolderEntity } from './entities/Folder.entity.js';
+import { NotificationEntity } from './entities/Notification.entity.js';
 import { sqliteMigrations } from './migrations/sqlite/index.js';
 import { postgresMigrations } from './migrations/postgres/index.js';
 
-const entities = [UserEntity, WorkflowEntity, CredentialEntity, ExecutionEntity, AssistantSessionEntity];
+const entities = [UserEntity, WorkflowEntity, CredentialEntity, ExecutionEntity, AssistantSessionEntity, FolderEntity, NotificationEntity];
 
 export type IDatabaseConfig =
   | { type: 'sqlite'; database: string }

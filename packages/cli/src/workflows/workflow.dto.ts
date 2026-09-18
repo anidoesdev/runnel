@@ -51,13 +51,24 @@ const connectionsSchema = z.record(
 
 export const createWorkflowSchema = z.object({
   name: z.string().min(1),
+  folderId: z.string().nullable().optional(),
   active: z.boolean().optional().default(false),
   nodes: z.array(nodeSchema),
   connections: connectionsSchema,
   settings: dataObjectSchema.nullable().optional(),
 });
 
-export const updateWorkflowSchema = createWorkflowSchema.partial();
+export const updateWorkflowSchema = createWorkflowSchema.partial().extend({
+  starred: z.boolean().optional(),
+  /** null moves the workflow out of every folder; a string moves it into that folder. */
+  folderId: z.string().nullable().optional(),
+});
+
+/** The library's sidebar views. `all` hides trashed workflows; `trash` shows only those. */
+export const listWorkflowsQuerySchema = z.object({
+  view: z.enum(['all', 'starred', 'trash']).optional().default('all'),
+  folderId: z.string().optional(),
+});
 
 export const executeWorkflowSchema = z.object({
   startNodeName: z.string().optional(),

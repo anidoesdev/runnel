@@ -286,6 +286,9 @@ describe('assistant store', () => {
         settings: null,
         staticData: null,
         pinData: null,
+    starred: false,
+    deletedAt: null,
+    folderId: null,
         createdAt: 't',
         updatedAt: 't',
       });

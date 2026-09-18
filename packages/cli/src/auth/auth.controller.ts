@@ -11,6 +11,7 @@ import type { Request, Response } from 'express';
 import type { UserEntity } from '../db/entities/User.entity.js';
 
 const credentialsSchema = z.object({ email: z.string().email(), password: z.string().min(8) });
+const changePasswordSchema = z.object({ currentPassword: z.string().min(1), newPassword: z.string().min(8) });
 
 const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -56,6 +57,33 @@ export class AuthController {
     if (!user || !(await verifyPassword(user.passwordHash, parsed.data.password))) {
       throw new UnauthorizedError('Invalid email or password');
     }
+    await this.issueSession(res, user);
+    return { id: user.id, email: user.email };
+  }
+
+  /**
+   * Changes the signed-in user's own password, re-verifying the current one first — a stolen
+   * session cookie alone must not be enough to lock the real owner out. A fresh session cookie
+   * is issued on success so the caller stays logged in.
+   */
+  @Post('/password')
+  async changePassword(req: Request, res: Response) {
+    const parsed = changePasswordSchema.safeParse(req.body);
+    if (!parsed.success) throw new BadRequestError(parsed.error.issues[0]?.message ?? 'Invalid request body');
+
+    const id = (req as Partial<AuthenticatedRequest>).user?.id;
+    if (!id) throw new UnauthorizedError();
+    const user = await this.users.findOneByOrFail({ id });
+
+    if (!(await verifyPassword(user.passwordHash, parsed.data.currentPassword))) {
+      throw new UnauthorizedError('Current password is incorrect');
+    }
+    if (parsed.data.newPassword === parsed.data.currentPassword) {
+      throw new BadRequestError('The new password must be different from the current one');
+    }
+
+    user.passwordHash = await hashPassword(parsed.data.newPassword);
+    await this.users.save(user);
     await this.issueSession(res, user);
     return { id: user.id, email: user.email };
   }
