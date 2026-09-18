@@ -354,11 +354,26 @@ failing node's real (reconstructed) input data (`getNodeInputData` in `packages/
 `ITaskData.source` back one hop to the previous node's recorded output, since the engine never
 persists a node's input directly).
 
+**Grounding the model in what exists** — three changes measured on the eval suite:
+- The first model call for each new message is made with `tool_choice: "required"`. Left free,
+  models answered build requests with a clarifying question typed as prose: nothing got built and
+  nothing paused. Forced, the model either starts working or asks through `ask_user`. Later calls
+  in the turn, and resumes, are unforced, so the summary is still plain text.
+- Every call's system prompt ends with the full node catalog (`node-catalog.ts`), generated from
+  the registry so custom nodes appear. `search_nodes` only finds what the model thinks to search
+  for; asked to remove duplicates, it searched "filter" and "merge" and never met Remove Duplicates.
+- `add_node` returns what was actually added (display name and description), its parameters with
+  exact names and allowed values, which required ones are unset, and its credential types. The
+  model no longer needs a separate `get_node_schema` call to know `httpMethod` isn't `method`.
+
 **Guard rails in the graph operations** (`core/src/mutation/`): `add_node`/`set_node_parameters`
 reject parameter names the node type doesn't declare, listing the valid ones. Before this, a model
 guessing `method` for a Webhook (whose parameter is `httpMethod`) had the key stored and silently
 ignored, and then told the user the webhook "accepts POST". With the error it corrects itself on
-the next call. The same goes for an `options` parameter given a value it doesn't offer (a model
+the next call. `list_credentials`/`request_credential` likewise reject a credential type no node
+uses (a model guessing `openai` for `openAiApi` got an empty list, concluded there was no
+credential and created a duplicate), and `set_node_credential` names the types a node does take.
+The same goes for an `options` parameter given a value it doesn't offer (a model
 setting a Webhook's response mode to `"immediate"`), except for expressions, which are only known
 at run time. `connect_nodes` likewise refuses to wire a node into its own input.
 
@@ -394,6 +409,9 @@ HTTP mocked at the model-endpoint layer via a scripted local server in tests, or
 CI) so results are deterministic and free unless `OPENAI_API_KEY` is actually configured. Four
 memory cases (`cases/memory.ts`) give the model recalled memories and check a non-default parameter
 ends up set; they are opt-in (`RUNNEL_EVAL_MEMORY=true`) so the default suite's score doesn't move.
+When the model asks a question a case didn't script an answer for, the runner replies "No
+preference — use a sensible default." instead of aborting — asking an extra, reasonable question is
+legitimate behaviour, not a case-authoring bug.
 
 ---
 
@@ -437,11 +455,13 @@ Full variable reference: `docs/environment-variables.md`.
   credential of the requested type"; picking a *specific* credential when several of the same
   type exist isn't wired into the runtime path yet, only into the editor's per-node
   `CredentialPicker`.
-- **Assistant model quality** — on the memory evals (`RUNNEL_EVAL_MEMORY=true`, 3 runs per
-  case) gpt-4o-mini scores about 6/12 and gpt-4o 8/12. The misses are mostly not memory: the model
-  builds an HTTP Request node when asked for a webhook, or never sets the parameter at all — it
-  does the same when the instruction is explicit. Memory application can't beat the base
-  assistant's ability to set parameters; the evals are there to measure prompt improvements.
+- **Assistant model quality** — on the full eval suite (52 cases, 2 runs each, gpt-4o-mini) the
+  assistant passes 50% of runs strictly, up from 23% before the grounding changes above. Another
+  26% build the right workflow but fail only `no_tool_errors`, because the model guessed a
+  parameter or credential name, was told the valid ones and corrected itself — 76% on outcome
+  alone. gpt-4.1-mini scored about the same (52%) at roughly 2.7× the price, so gpt-4o-mini stays
+  the default. Remaining misses: over-asking on requests that have sensible defaults, credential
+  flows (the model skips `list_credentials`), and choosing `execute_live` where a dry run would do.
 - **Memory recall quality** — SQLite recall is keyword-only, so relevance depends on shared words;
   `RUNNEL_MEMORY_MIN_SCORE` filters near-zero matches but can't make "auth" find "HMAC". Memnest
   also lacks a memory-only search that returns a trace (Runnel uses `search()` and ignores the

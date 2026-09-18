@@ -159,7 +159,7 @@ function postgresUrlFromEnv(): string {
 async function lazyOpenAiCompletion(resolve: () => Promise<IOpenAiConfig>): Promise<CompletionProvider> {
   const { openAICompatibleCompletion } = await import('@memnest/providers');
   return {
-    id: `openai:${process.env.OPENAI_MODEL ?? 'gpt-4o-mini'}`,
+    id: `openai:${process.env.OPENAI_MODEL || 'gpt-4o-mini'}`,
     async complete(request) {
       const config = await resolve();
       return openAICompatibleCompletion({ apiKey: config.apiKey, baseURL: config.baseUrl, model: config.model }).complete(request);

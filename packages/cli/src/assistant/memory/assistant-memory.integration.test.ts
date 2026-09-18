@@ -2,7 +2,9 @@ import { createServer } from 'node:http';
 import { PassThrough } from 'node:stream';
 import request from 'supertest';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { SYSTEM_PROMPT } from '@runnel/assistant';
+import { composeSystemPrompt, SYSTEM_PROMPT } from '@runnel/assistant';
+import { MapNodeTypes } from '@runnel/core';
+import { registerAllNodeTypes } from '@runnel/nodes-base';
 import { createApp } from '../../app.js';
 import { loadConfig } from '../../config.js';
 import { createDataSource, sqliteConfig } from '../../db/data-source.js';
@@ -128,6 +130,9 @@ async function createHarness(port: IAssistantMemoryPort, config: IMemoryConfig):
   };
 }
 
+/** Exactly what the model gets with no memory involved: the base prompt plus the node catalog every call carries. */
+const PLAIN_PROMPT = composeSystemPrompt(SYSTEM_PROMPT, registerAllNodeTypes(new MapNodeTypes()));
+
 function systemPromptOf(openAiRequest: IFakeOpenAi['requests'][number] | undefined): string | undefined {
   return openAiRequest?.messages.find((m) => m.role === 'system')?.content;
 }
@@ -144,7 +149,7 @@ describe('assistant memory — default off', () => {
 
     expect(status).toBe(200);
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
-    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(PLAIN_PROMPT);
     expect(port.recall).not.toHaveBeenCalled();
     expect(port.capture).not.toHaveBeenCalled();
     expect(h.logLines().some((line) => typeof line.event === 'string' && line.event.startsWith('memory.'))).toBe(false);
@@ -180,7 +185,7 @@ describe('assistant memory — shadow mode (capture on, recall off)', () => {
     const { events } = await h.sendMessage('Build me a webhook.');
 
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
-    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(PLAIN_PROMPT);
     expect(port.recall).toHaveBeenCalledWith('Build me a webhook.', expect.objectContaining({ userId: expect.any(String) }), 400);
 
     const shadow = h.logLines().find((line) => line.event === 'memory.recall.shadow');
@@ -235,7 +240,7 @@ describe('assistant memory — failures never break a turn', () => {
     expect(status).toBe(200);
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
     expect(events.some((event) => event.type === 'error')).toBe(false);
-    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(PLAIN_PROMPT);
     expect(h.logLines().some((line) => line.event === 'memory.recall.failed' && line.level === 40)).toBe(true);
   });
 
@@ -286,8 +291,10 @@ describe('assistant memory — recall on (injection)', () => {
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
     const system = systemPromptOf(h.openAi.requests[0])!;
     expect(system.startsWith(`${SYSTEM_PROMPT}\n\n## What you know about this user`)).toBe(true);
-    expect(system).toContain('- Webhook nodes must verify HMAC signatures.');
-    expect(system).not.toContain('HTTP Request node');
+    // Just the memory section: after the base prompt, before the node catalog that every call carries.
+    const block = system.slice(SYSTEM_PROMPT.length, system.indexOf('## Node types available here'));
+    expect(block).toContain('- Webhook nodes must verify HMAC signatures.');
+    expect(block).not.toContain('HTTP Request node');
 
     const logged = h.logLines().find((line) => line.event === 'memory.recall.injected');
     expect(logged).toMatchObject({ injected: true, memoryCount: 2, injectedCount: 1, belowFloor: 1, passedFloorIds: ['strong'] });
@@ -299,7 +306,7 @@ describe('assistant memory — recall on (injection)', () => {
 
     await h.sendMessage('Add a webhook trigger.');
 
-    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(PLAIN_PROMPT);
     expect(h.logLines().find((line) => line.event === 'memory.recall.shadow')).toMatchObject({ injected: false, belowFloor: 1 });
   });
 
@@ -325,6 +332,6 @@ describe('assistant memory — recall on (injection)', () => {
     const { events } = await h.sendMessage('Add a node.');
 
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
-    expect(systemPromptOf(h.openAi.requests[0])).toBe(SYSTEM_PROMPT);
+    expect(systemPromptOf(h.openAi.requests[0])).toBe(PLAIN_PROMPT);
   });
 });

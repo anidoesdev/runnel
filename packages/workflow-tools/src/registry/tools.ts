@@ -10,6 +10,7 @@ import {
   setNodeParameters as coreSetNodeParameters,
 } from '@runnel/core';
 import { dataObjectSchema } from '../json-schema.js';
+import { compressNodeSchema } from '../catalog/schema-compression.js';
 import { createCatalogTools } from './catalog-tools.js';
 import { createCredentialTools } from './credential-tools.js';
 import { createExecutionTools } from './execution-tools.js';
@@ -24,12 +25,67 @@ function currentWorkflow(ctx: IToolContext) {
   return ctx.draftStore.get(ctx.draftId).current;
 }
 
-const addNodeTool: ITool<
-  { type: string; typeVersion?: number; name?: string; parameters?: IDataObject },
-  { name: string }
-> = {
+/** Longest parameter description echoed back by add_node — enough to tell two modes apart, not a manual. */
+const PARAMETER_DESCRIPTION_CHARS = 100;
+
+export interface IAddNodeResult {
+  name: string;
+  /** What was actually added — worth checking against what you meant (a Webhook trigger that receives requests is not an HTTP Request node that sends them). */
+  added: { type: string; displayName: string; description: string };
+  /** Every parameter this node takes given what's set so far: exact names, and allowed values where there's a fixed list. Set them with set_node_parameters. */
+  parameters: Array<{
+    name: string;
+    type: string;
+    required: boolean;
+    default: unknown;
+    options?: Array<string | number | boolean>;
+    description?: string;
+  }>;
+  /** Required parameters still empty on this node. */
+  unsetRequired: string[];
+  /** Credential types this node takes — the exact values for list_credentials/request_credential/set_node_credential. */
+  credentialTypes: string[];
+}
+
+/**
+ * The result carries the node's own parameter list, not just its name. In live evals the model
+ * routinely skipped get_node_schema, guessed `method` for a Webhook's `httpMethod`, and never set
+ * the parameter at all — handing it the exact names and allowed values at the moment it has just
+ * added the node closes that gap without an extra round trip, and echoing the node's display name
+ * and description lets it notice when it picked the wrong type.
+ */
+function describeAddedNode(ctx: IToolContext, name: string): IAddNodeResult {
+  const node = currentWorkflow(ctx).nodes.find((candidate) => candidate.name === name)!;
+  const description = ctx.nodeTypes.getByNameAndVersion(node.type, node.typeVersion).description;
+  const schema = compressNodeSchema(description, node.parameters);
+  const parameters = schema.properties.map((property) => ({
+    name: property.name,
+    type: property.type,
+    required: property.required,
+    default: property.default,
+    ...(property.options ? { options: property.options.map((option) => option.value) } : {}),
+    ...(property.description ? { description: property.description.slice(0, PARAMETER_DESCRIPTION_CHARS) } : {}),
+  }));
+  const unsetRequired = schema.properties
+    .filter((property) => property.required)
+    .filter((property) => {
+      const value = node.parameters[property.name];
+      return value === undefined || value === null || value === '';
+    })
+    .map((property) => property.name);
+  return {
+    name,
+    added: { type: node.type, displayName: description.displayName, description: description.description },
+    parameters,
+    unsetRequired,
+    credentialTypes: schema.credentials,
+  };
+}
+
+const addNodeTool: ITool<{ type: string; typeVersion?: number; name?: string; parameters?: IDataObject }, IAddNodeResult> = {
   name: 'add_node',
-  description: 'Add a node of the given type to the workflow draft. Returns the ACTUAL name used after de-duplication — use that, not the requested name, in subsequent connect_nodes calls. Canvas position is placed automatically from the connection graph once you connect_nodes — there is no position to set here.',
+  description:
+    'Add a node of the given type to the workflow draft. Returns the ACTUAL name used after de-duplication — use that, not the requested name, in subsequent connect_nodes calls — plus what was added and its parameters (exact names, allowed values, which required ones are still unset): check it is the node you meant, then set what the user asked for with set_node_parameters. Canvas position is placed automatically from the connection graph once you connect_nodes — there is no position to set here.',
   parameters: z.object({
     type: z.string().describe('The node type name, e.g. "httpRequest" — get this from search_nodes, never guess it.'),
     typeVersion: z.number().optional(),
@@ -39,7 +95,7 @@ const addNodeTool: ITool<
   handler: (params, ctx) => {
     const { workflow, name } = coreAddNode(currentWorkflow(ctx), ctx.nodeTypes, params);
     ctx.draftStore.mutate(ctx.draftId, () => workflow);
-    return { name };
+    return describeAddedNode(ctx, name);
   },
 };
 

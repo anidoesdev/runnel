@@ -81,7 +81,9 @@ describe('agent loop — end to end (Milestone 4)', () => {
       //    node from before (gated) — in the same batch, so the gate must pause mid-batch.
       {
         toolCalls: [
-          { id: 'call_2', name: 'request_credential', arguments: JSON.stringify({ type: 'slackApi' }) },
+          // httpHeaderAuth: Slack is reached through the HTTP Request node, and request_credential
+          // only accepts a type some registered node actually uses.
+          { id: 'call_2', name: 'request_credential', arguments: JSON.stringify({ type: 'httpHeaderAuth' }) },
           { id: 'call_3', name: 'remove_node', arguments: JSON.stringify({ name: 'Old Node' }) },
         ],
       },
@@ -102,7 +104,7 @@ describe('agent loop — end to end (Milestone 4)', () => {
 
     // request_credential (ungated) ran immediately; remove_node (gated) paused the batch.
     expect(credentialRepo.created).toHaveLength(1);
-    expect(credentialRepo.created[0]!.type).toBe('slackApi');
+    expect(credentialRepo.created[0]!.type).toBe('httpHeaderAuth');
     expect(afterAnswer.status).toBe('awaiting_approval');
     expect(afterAnswer.pendingApproval).toMatchObject({ toolName: 'remove_node', args: { name: 'Old Node' } });
     expect(draftStore.get(draft.id).current.nodes).toHaveLength(1); // not removed yet — still pending approval

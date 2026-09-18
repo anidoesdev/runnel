@@ -39,6 +39,11 @@ export type ModelStreamEvent =
 
 export interface IModelStreamOptions {
   signal?: AbortSignal;
+  /**
+   * 'required' makes the model answer with at least one tool call instead of text. Providers
+   * without the concept may ignore it. Default: the model chooses.
+   */
+  toolChoice?: 'auto' | 'required';
 }
 
 /**

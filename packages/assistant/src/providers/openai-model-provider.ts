@@ -94,7 +94,7 @@ export class OpenAiModelProvider implements IModelProvider {
     system: string,
     options: IModelStreamOptions,
   ): AsyncGenerator<ModelStreamEvent> {
-    const baseUrl = this.config.baseUrl ?? 'https://api.openai.com/v1';
+    const baseUrl = this.config.baseUrl || 'https://api.openai.com/v1';
     const response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: { Authorization: `Bearer ${this.config.apiKey}`, 'Content-Type': 'application/json' },
@@ -106,6 +106,7 @@ export class OpenAiModelProvider implements IModelProvider {
         stream_options: { include_usage: true },
         messages: [{ role: 'system', content: system }, ...messages.map(toApiMessage)],
         ...(tools.length > 0 ? { tools: tools.map(toApiTool) } : {}),
+        ...(tools.length > 0 && options?.toolChoice === 'required' ? { tool_choice: 'required' } : {}),
       }),
     });
 

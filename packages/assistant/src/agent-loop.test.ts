@@ -8,6 +8,7 @@ import { ScriptedModelProvider } from './test-utils/scripted-model-provider.js';
 import type { AnyTool, ITool, IToolContext } from '@runnel/workflow-tools';
 import type { IWorkflowBase } from '@runnel/workflow';
 import type { AgentLoopEvent } from './agent-loop.js';
+import type { IModelProvider } from './model-provider.js';
 
 function fakeRepository() {
   const workflow: IWorkflowBase = { id: 'wf-1', name: 'Test', active: false, nodes: [], connections: {} };
@@ -351,5 +352,45 @@ describe('ask_user', () => {
     expect(session.status).toBe('idle');
     expect(JSON.parse(session.messages.find((m) => m.role === 'tool')!.content)).toMatchObject({ code: 'INVALID_ARGS' });
     expect(session.messages.at(-1)).toEqual({ role: 'assistant', content: 'Retrying with the right shape.' });
+  });
+});
+
+describe('agent loop — first reply must be a tool call', () => {
+  /** Records the toolChoice of every model call, around a scripted provider. */
+  function recording(script: ConstructorParameters<typeof ScriptedModelProvider>[0]) {
+    const inner = new ScriptedModelProvider(script);
+    const choices: Array<string | undefined> = [];
+    const provider: IModelProvider = {
+      stream: (_messages, _tools, _system, options) => {
+        choices.push(options?.toolChoice);
+        return inner.stream();
+      },
+    };
+    return { provider, choices };
+  }
+
+  it("requires a tool call on a new message's first model call, and leaves the rest free", async () => {
+    const { provider, choices } = recording([
+      { toolCalls: [{ id: 'c1', name: 'echo', arguments: '{"value":"x"}' }] },
+      { text: 'Done.' },
+    ]);
+
+    await runTurn(newSession(), 'do the thing', { modelProvider: provider, tools: toolRegistry(), toolContext: await makeToolContext() });
+
+    expect(choices).toEqual(['required', 'auto']);
+  });
+
+  it('does not require a tool call when resuming a paused turn', async () => {
+    const { provider, choices } = recording([
+      { toolCalls: [{ id: 'c1', name: 'delete_thing', arguments: '{"name":"a"}' }] },
+      { text: 'Deleted.' },
+    ]);
+    const deps = { modelProvider: provider, tools: toolRegistryWithGate(), toolContext: await makeToolContext() };
+
+    const paused = await runTurn(newSession(), 'delete a', deps);
+    expect(paused.status).toBe('awaiting_approval');
+    await resumeApproval(paused, 'approve', deps);
+
+    expect(choices).toEqual(['required', 'auto']);
   });
 });

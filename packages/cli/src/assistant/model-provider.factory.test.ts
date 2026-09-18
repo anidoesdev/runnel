@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { encryptCredentialData } from '@runnel/core';
 import { OpenAiModelProvider } from '@runnel/assistant';
-import { createModelProviderForSession } from './model-provider.factory.js';
+import { createModelProviderForSession, resolveOpenAiConfig } from './model-provider.factory.js';
 import { createDataSource, sqliteConfig } from '../db/data-source.js';
 import { CredentialEntity } from '../db/entities/Credential.entity.js';
 import type { DataSource, Repository } from 'typeorm';
@@ -56,6 +56,17 @@ describe('createModelProviderForSession', () => {
 
     expect(provider).toBeInstanceOf(OpenAiModelProvider);
     expect(findSpy).not.toHaveBeenCalled();
+  });
+
+  it('treats empty OPENAI_BASE_URL/OPENAI_MODEL (as docker-compose passes them) as unset', async () => {
+    process.env.OPENAI_API_KEY = 'sk-from-env';
+    process.env.OPENAI_BASE_URL = '';
+    process.env.OPENAI_MODEL = '';
+
+    const config = await resolveOpenAiConfig(credentials, ENCRYPTION_KEY);
+
+    expect(config.baseUrl).toBeUndefined();
+    expect(config.model).toBe('gpt-4o-mini');
   });
 
   it('falls back to the stored credential when OPENAI_API_KEY is unset', async () => {

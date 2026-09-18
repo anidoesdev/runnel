@@ -5,7 +5,7 @@ import { createToolRegistry } from './tools.js';
 import { WorkflowDraftStore } from '../draft/workflow-draft.store.js';
 import type { ICredentialRepositoryPort, ICredentialSummary } from '../draft/credential-repository.port.js';
 import type { IToolContext } from './tool.js';
-import type { IWorkflowBase } from '@runnel/workflow';
+import type { INodeType, IWorkflowBase } from '@runnel/workflow';
 import type { IWorkflowRepositoryPort } from '../draft/workflow-repository.port.js';
 
 function fakeWorkflowRepository(): IWorkflowRepositoryPort {
@@ -37,10 +37,32 @@ function fakeCredentialRepository(seed: ICredentialSummary[] = []): ICredentialR
   };
 }
 
+/** A node per credential type the tests use — a type only counts once some node uses it. */
+function nodeUsing(name: string, credential: string): INodeType {
+  return {
+    description: {
+      displayName: name,
+      name,
+      group: ['transform'],
+      version: 1,
+      description: `uses ${credential}`,
+      defaults: { name },
+      inputs: ['main'],
+      outputs: ['main'],
+      properties: [],
+      credentials: [{ name: credential }],
+    },
+  };
+}
+
 async function makeContext(credentials?: ICredentialRepositoryPort): Promise<IToolContext> {
   const draftStore = new WorkflowDraftStore(fakeWorkflowRepository());
   const draft = await draftStore.open('wf-1');
-  return { draftId: draft.id, nodeTypes: new MapNodeTypes(), draftStore, credentials };
+  const nodeTypes = new MapNodeTypes()
+    .register(nodeUsing('chatModel', 'openAiApi'))
+    .register(nodeUsing('postgres', 'postgresApi'))
+    .register(nodeUsing('slack', 'slackApi'));
+  return { draftId: draft.id, nodeTypes, draftStore, credentials };
 }
 
 describe('credential tools', () => {
@@ -75,6 +97,24 @@ describe('credential tools', () => {
     expect(result.credentialId).toBe(credentials.created[0]!.id);
     expect(result.setupUrl).toContain(result.credentialId);
     expect(JSON.stringify(result)).not.toMatch(/apiKey|secret|password/i);
+  });
+
+  it('rejects a credential type no node uses, naming the real ones, instead of an empty list', async () => {
+    const credentials = fakeCredentialRepository([{ id: 'c1', name: 'My OpenAI', type: 'openAiApi' }]);
+    const ctx = await makeContext(credentials);
+
+    await expect(invokeTool(createToolRegistry(), 'list_credentials', { type: 'openai' }, ctx)).rejects.toMatchObject({
+      code: 'INVALID_ARGS',
+      message: expect.stringContaining('Credential types in use: openAiApi, postgresApi, slackApi'),
+    });
+  });
+
+  it('refuses to create a placeholder of a type no node could use', async () => {
+    const credentials = fakeCredentialRepository();
+    const ctx = await makeContext(credentials);
+
+    await expect(invokeTool(createToolRegistry(), 'request_credential', { type: 'openai' }, ctx)).rejects.toMatchObject({ code: 'INVALID_ARGS' });
+    expect(credentials.created).toEqual([]);
   });
 
   it('rejects both tools with a clear error when the session has no credential access configured', async () => {

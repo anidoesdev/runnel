@@ -70,31 +70,37 @@ function fakeExecutor(seeds: Record<string, IEvalSeedExecutionOutput>): IWorkflo
   };
 }
 
+/** What a user who only cares about the case's key point says to any other question. */
+export const UNSCRIPTED_ANSWER = 'No preference — use a sensible default.';
+
 /**
- * Picks the answer for one pending ask_user question. The case author writes `autoResume.answers`
- * keyed by a semantic name they chose (e.g. `query`), but the real question `id` is whatever the
- * live model generated at runtime and can't be known ahead of time. When there's exactly one
- * pending question and exactly one authored answer, we apply it regardless of key — the common
- * case for every case in clarifying-questions.ts. Anything more ambiguous is a case-authoring
- * error, not something to guess at silently.
+ * Answers the questions the model actually asked. Question ids are the model's own invention, so a
+ * scripted answer is matched to a question by id, then by its key appearing in the id or the
+ * question text; with a single question, the first scripted answer is used whatever its key. Any
+ * question left over — the model asking something the case didn't anticipate, which is a
+ * legitimate thing for it to do — gets UNSCRIPTED_ANSWER rather than aborting the case.
  */
-function resolveAskUserAnswers(questionIds: string[], authored: Record<string, string>): Record<string, string> {
-  const authoredValues = Object.values(authored);
-  if (questionIds.length === 1 && authoredValues.length >= 1) {
-    return { [questionIds[0]!]: authoredValues[0]! };
+function resolveAskUserAnswers(questions: Array<{ id: string; question: string }>, authored: Record<string, string>): Record<string, string> {
+  const authoredEntries = Object.entries(authored);
+  if (questions.length === 1 && authoredEntries.length >= 1) {
+    return { [questions[0]!.id]: authoredEntries[0]![1] };
   }
-  const byId: Record<string, string> = {};
-  for (const id of questionIds) {
-    if (authored[id] !== undefined) byId[id] = authored[id]!;
+  const answers: Record<string, string> = {};
+  const unused = new Map(authoredEntries);
+  for (const question of questions) {
+    const haystack = `${question.id} ${question.question}`.toLowerCase();
+    const key = unused.has(question.id) ? question.id : [...unused.keys()].find((candidate) => haystack.includes(candidate.toLowerCase()));
+    if (key !== undefined) {
+      answers[question.id] = unused.get(key)!;
+      unused.delete(key);
+    } else {
+      answers[question.id] = UNSCRIPTED_ANSWER;
+    }
   }
-  const missing = questionIds.filter((id) => !(id in byId));
-  if (missing.length > 0) {
-    throw new Error(`autoResume.answers doesn't cover pending question id(s): ${missing.join(', ')}. Authored keys: ${Object.keys(authored).join(', ') || '(none)'}.`);
-  }
-  return byId;
+  return answers;
 }
 
-/** Runs one eval case against a real (or scripted, for smoke-testing the runner itself) model provider, then scores the result. Never throws for a failure that belongs in the scorecard — only for a case-authoring bug (autoResume that doesn't match what actually paused). */
+/** Runs one eval case against a real (or scripted, for smoke-testing the runner itself) model provider, then scores the result. Never throws for a failure that belongs in the scorecard. */
 export async function runEvalCase(evalCase: IEvalCase, modelProvider: IModelProvider): Promise<IEvalCaseResult> {
   const startedAt = Date.now();
   const nodeTypes = registerAllNodeTypes(new MapNodeTypes());
@@ -121,8 +127,7 @@ ${memoryBlock}` } : {}),
     finished = await runTurn(session, evalCase.prompt, deps);
 
     if (evalCase.autoResume && finished.status === 'awaiting_user' && finished.pendingQuestions) {
-      const questionIds = finished.pendingQuestions.questions.map((q) => q.id);
-      const answers = resolveAskUserAnswers(questionIds, evalCase.autoResume.answers ?? {});
+      const answers = resolveAskUserAnswers(finished.pendingQuestions.questions, evalCase.autoResume.answers ?? {});
       finished = await resumeAskUser(finished, answers, deps);
     } else if (evalCase.autoResume?.decision && finished.status === 'awaiting_approval') {
       finished = await resumeApproval(finished, evalCase.autoResume.decision, deps);

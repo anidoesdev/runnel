@@ -28,6 +28,7 @@ export type {
 
 export type { IAssistantMemoryPort, IRecallResult, IRecalledMemory } from './memory-port.js';
 export { renderMemoryBlock } from './memory-block.js';
+export { composeSystemPrompt, renderNodeCatalog } from './node-catalog.js';
 
 export { ASK_USER_TOOL_DEFINITION, ASK_USER_TOOL_NAME, parseAskUserArguments } from './ask-user.js';
 

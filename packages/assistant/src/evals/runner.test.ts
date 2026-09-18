@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { ScriptedModelProvider } from '../test-utils/scripted-model-provider.js';
-import { runEvalCase, runEvalSuite } from './runner.js';
+import { runEvalCase, runEvalSuite, UNSCRIPTED_ANSWER } from './runner.js';
 import { MEMORY_CASES } from './cases/index.js';
 import { renderMemoryBlock } from '../memory-block.js';
 import { SYSTEM_PROMPT } from '../prompts/load-system-prompt.js';
+import { composeSystemPrompt } from '../node-catalog.js';
+import { MapNodeTypes } from '@runnel/core';
+import { registerAllNodeTypes } from '@runnel/nodes-base';
 import type { IEvalCase } from './types.js';
 import type { IModelProvider } from '../model-provider.js';
 
@@ -67,6 +70,45 @@ describe('eval runner', () => {
 
     expect(result.passed).toBe(true);
     expect(result.finalStatus).toBe('idle');
+  });
+
+  it('matches scripted answers by question text and answers unanticipated questions with a sensible-default reply', async () => {
+    const inner = new ScriptedModelProvider([
+      {
+        toolCalls: [
+          {
+            id: 'c1',
+            name: 'ask_user',
+            arguments: JSON.stringify({
+              questions: [
+                { id: 'db', question: 'Which database?' },
+                { id: 'sql', question: 'What query should run?' },
+              ],
+            }),
+          },
+        ],
+      },
+      { text: 'Done.' },
+    ]);
+    const seenAfterResume: string[] = [];
+    let calls = 0;
+    const provider: IModelProvider = {
+      stream: (messages) => {
+        if (calls++ === 1) seenAfterResume.push(...messages.filter((m) => m.role === 'tool').map((m) => m.content));
+        return inner.stream();
+      },
+    };
+
+    const result = await runEvalCase(
+      { id: 'smoke-two-questions', prompt: 'query my db', autoResume: { answers: { query: 'SELECT 1' } }, assertions: [{ type: 'ends_idle' }] },
+      provider,
+    );
+
+    expect(result.error).toBeUndefined();
+    expect(result.passed).toBe(true);
+    const answers = seenAfterResume.join('\n');
+    expect(answers).toContain('SELECT 1');
+    expect(answers).toContain(UNSCRIPTED_ANSWER);
   });
 
   it('resolves an approval-gate autoResume and lets the mutation through', async () => {
@@ -155,7 +197,8 @@ describe('eval runner — recalled memories', () => {
       provider,
     );
 
-    expect(systems[0]).toBe(`${SYSTEM_PROMPT}\n\n${renderMemoryBlock([{ id: 'm1', kind: 'preference', content: 'Webhooks accept POST only.' }])}`);
+    const withMemory = `${SYSTEM_PROMPT}\n\n${renderMemoryBlock([{ id: 'm1', kind: 'preference', content: 'Webhooks accept POST only.' }])}`;
+    expect(systems[0]).toBe(composeSystemPrompt(withMemory, registerAllNodeTypes(new MapNodeTypes())));
   });
 
   it('leaves the system prompt untouched for a case without memories', async () => {
@@ -163,7 +206,7 @@ describe('eval runner — recalled memories', () => {
 
     await runEvalCase({ id: 'smoke-no-memory', prompt: 'add a webhook', assertions: [] }, provider);
 
-    expect(systems[0]).toBe(SYSTEM_PROMPT);
+    expect(systems[0]).toBe(composeSystemPrompt(SYSTEM_PROMPT, registerAllNodeTypes(new MapNodeTypes())));
   });
 
   it('every memory case targets a non-default value, so passing requires using the memory', () => {

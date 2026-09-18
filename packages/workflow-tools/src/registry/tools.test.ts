@@ -142,3 +142,58 @@ describe('Milestone 1 tool set — builds a workflow end to end and applies it',
     expect(outline.connections).toEqual([]);
   });
 });
+
+describe('add_node result', () => {
+  const webhookLike: INodeType = {
+    description: {
+      displayName: 'Webhook',
+      name: 'webhook',
+      group: ['trigger'],
+      version: 1,
+      description: 'Starts the workflow when an HTTP request arrives',
+      defaults: { name: 'Webhook' },
+      inputs: [],
+      outputs: ['main'],
+      properties: [
+        {
+          displayName: 'HTTP Method',
+          name: 'httpMethod',
+          type: 'options',
+          default: 'GET',
+          options: [
+            { name: 'GET', value: 'GET' },
+            { name: 'POST', value: 'POST' },
+          ],
+        },
+        { displayName: 'Path', name: 'path', type: 'string', default: '', required: true, description: 'The URL path to listen on' },
+      ],
+    },
+  };
+
+  async function addWebhook(parameters?: Record<string, unknown>) {
+    const draftStore = new WorkflowDraftStore(fakeRepository());
+    const draft = await draftStore.open('wf-1');
+    const ctx: IToolContext = { draftId: draft.id, nodeTypes: new MapNodeTypes().register(webhookLike), draftStore };
+    return invokeTool(createToolRegistry(), 'add_node', { type: 'webhook', ...(parameters ? { parameters } : {}) }, ctx);
+  }
+
+  it('echoes what was added, so a wrong node type is visible straight away', async () => {
+    expect(await addWebhook()).toMatchObject({
+      name: 'Webhook',
+      added: { type: 'webhook', displayName: 'Webhook', description: 'Starts the workflow when an HTTP request arrives' },
+    });
+  });
+
+  it('lists every parameter with its exact name and allowed values', async () => {
+    const result = (await addWebhook()) as { parameters: Array<Record<string, unknown>> };
+    expect(result.parameters).toEqual([
+      { name: 'httpMethod', type: 'options', required: false, default: 'GET', options: ['GET', 'POST'] },
+      { name: 'path', type: 'string', required: true, default: '', description: 'The URL path to listen on' },
+    ]);
+  });
+
+  it('reports which required parameters are still unset', async () => {
+    expect(await addWebhook()).toMatchObject({ unsetRequired: ['path'] });
+    expect(await addWebhook({ path: 'orders' })).toMatchObject({ unsetRequired: [] });
+  });
+});

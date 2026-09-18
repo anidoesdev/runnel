@@ -297,7 +297,11 @@ export function setNodeCredential(workflow: IWorkflowBase, nodeTypes: INodeTypes
   const node = requireNode(workflow, params.name);
   const description = describeType(nodeTypes, node.type, node.typeVersion);
   if (!description.credentials?.some((c) => c.name === params.credentialType)) {
-    throw new UnknownCredentialTypeError(`Node "${params.name}" (${node.type}) does not use a "${params.credentialType}" credential.`);
+    const accepted = (description.credentials ?? []).map((credential) => credential.name);
+    throw new UnknownCredentialTypeError(
+      `Node "${params.name}" (${node.type}) does not use a "${params.credentialType}" credential. ` +
+        (accepted.length > 0 ? `It uses: ${accepted.join(', ')}.` : 'It takes no credentials.'),
+    );
   }
 
   const cloned = structuredClone(workflow);

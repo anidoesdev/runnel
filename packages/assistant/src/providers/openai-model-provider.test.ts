@@ -153,6 +153,22 @@ describe('OpenAiModelProvider', () => {
     expect(body.tools).toEqual([{ type: 'function', function: { name: 'search_nodes', description: 'find nodes', parameters: { type: 'object' } } }]);
   });
 
+  it("sends tool_choice 'required' only when asked, and only with tools to choose from", async () => {
+    const tools = [{ name: 'search_nodes', description: 'find nodes', parameters: { type: 'object' } }];
+    const stop = [JSON.stringify({ choices: [{ delta: {}, finish_reason: 'stop' }] })];
+
+    server = await startSseServer(stop);
+    const provider = new OpenAiModelProvider({ apiKey: 'test-key', baseUrl: server.url });
+    await collect(provider.stream([{ role: 'user', content: 'hi' }], tools, 'sys', { toolChoice: 'required' }));
+    expect((JSON.parse(server.lastRequestBody) as Record<string, unknown>).tool_choice).toBe('required');
+
+    await collect(provider.stream([{ role: 'user', content: 'hi' }], tools, 'sys'));
+    expect(JSON.parse(server.lastRequestBody)).not.toHaveProperty('tool_choice');
+
+    await collect(provider.stream([{ role: 'user', content: 'hi' }], [], 'sys', { toolChoice: 'required' }));
+    expect(JSON.parse(server.lastRequestBody)).not.toHaveProperty('tool_choice');
+  });
+
   it('throws a descriptive error on a non-OK response instead of yielding events', async () => {
     server = await startSseServer([], { status: 401 });
     const provider = new OpenAiModelProvider({ apiKey: 'bad-key', baseUrl: server.url });

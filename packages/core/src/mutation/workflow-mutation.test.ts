@@ -267,6 +267,20 @@ describe('removeNode', () => {
 });
 
 describe('setNodeCredential', () => {
+  it('names the credential types a node does take when given the wrong one', () => {
+    const nodeTypes = registry();
+    const wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.agent', name: 'Agent' }).workflow;
+    expect(() => setNodeCredential(wf, nodeTypes, { name: 'Agent', credentialType: 'openai', credentialId: 'c1' })).toThrow(
+      /does not use a "openai" credential\. It uses: testApi\./,
+    );
+  });
+
+  it('says so when the node takes no credentials at all', () => {
+    const nodeTypes = registry();
+    const wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.noOp', name: 'A' }).workflow;
+    expect(() => setNodeCredential(wf, nodeTypes, { name: 'A', credentialType: 'testApi', credentialId: 'c1' })).toThrow(/It takes no credentials\./);
+  });
+
   it('attaches a credential type the node declares', () => {
     const nodeTypes = registry();
     let wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.agent', name: 'Agent' }).workflow;

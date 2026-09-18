@@ -1,6 +1,7 @@
 import { invokeTool, redactDeep, ToolError } from '@runnel/workflow-tools';
 import { ASK_USER_TOOL_DEFINITION, ASK_USER_TOOL_NAME, parseAskUserArguments } from './ask-user.js';
 import { SYSTEM_PROMPT } from './prompts/load-system-prompt.js';
+import { composeSystemPrompt } from './node-catalog.js';
 import { toModelToolDefinitions } from './tool-definitions.js';
 import type { AnyTool, IToolContext, IToolErrorInfo } from '@runnel/workflow-tools';
 import type { IModelMessage, IModelProvider, IModelToolCallRef, IModelToolDefinition } from './model-provider.js';
@@ -87,13 +88,14 @@ async function runOneModelCall(
   options: IRunTurnOptions,
   modelTools: IModelToolDefinition[],
   systemPrompt: string,
+  toolChoice: 'auto' | 'required' = 'auto',
 ): Promise<{ toolCalls: IModelToolCallRef[]; stopReason: 'end_turn' | 'tool_use' | 'max_tokens' | 'aborted' }> {
   const pendingCalls = new Map<string, IPendingToolCall>();
   const callOrder: string[] = [];
   let assistantText = '';
   let modelStopReason: 'end_turn' | 'tool_use' | 'max_tokens' | 'aborted' = 'end_turn';
 
-  for await (const event of deps.modelProvider.stream(session.messages, modelTools, systemPrompt, { signal: options.signal })) {
+  for await (const event of deps.modelProvider.stream(session.messages, modelTools, systemPrompt, { signal: options.signal, toolChoice })) {
     switch (event.type) {
       case 'text_delta':
         assistantText += event.text;
@@ -239,17 +241,18 @@ async function driveLoop(
   options: IRunTurnOptions,
   budget: ILoopBudget,
   deadline: number,
+  requireToolCall = false,
 ): Promise<AgentLoopStopReason> {
   if (options.signal?.aborted) return 'aborted';
   if (Date.now() > deadline) return 'wall_clock_exceeded';
   if (session.tokenBudget.used >= session.tokenBudget.limit) return 'token_budget_exceeded';
 
   const modelTools = buildModelTools(deps.tools);
-  const systemPrompt = deps.systemPrompt ?? SYSTEM_PROMPT;
+  const systemPrompt = composeSystemPrompt(deps.systemPrompt ?? SYSTEM_PROMPT, deps.toolContext.nodeTypes);
 
   let modelResult;
   try {
-    modelResult = await runOneModelCall(session, deps, options, modelTools, systemPrompt);
+    modelResult = await runOneModelCall(session, deps, options, modelTools, systemPrompt, requireToolCall ? 'required' : 'auto');
   } catch (err) {
     session.status = 'error';
     session.updatedAt = new Date().toISOString();
@@ -290,7 +293,12 @@ export async function runTurn(
   const budget: ILoopBudget = { used: 0, max: options.maxToolCalls ?? DEFAULT_MAX_TOOL_CALLS };
   const deadline = Date.now() + (options.wallClockMs ?? DEFAULT_WALL_CLOCK_MS);
 
-  const stopReason = await driveLoop(session, deps, options, budget, deadline);
+  // The first reply to a new message must be a tool call. Left free, models routinely answer a
+  // build request with a clarifying question typed as prose — which ends the turn with nothing
+  // built, and isn't the pausable ask_user either. Forced, the model either starts working
+  // (search_nodes) or asks properly (ask_user). Every later call in the turn is free, so the
+  // final summary is still plain text.
+  const stopReason = await driveLoop(session, deps, options, budget, deadline, true);
   finalize(session, stopReason, options);
   return session;
 }

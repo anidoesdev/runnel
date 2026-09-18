@@ -32,7 +32,9 @@ export async function resolveOpenAiConfig(
 ): Promise<IOpenAiConfig> {
   const envApiKey = process.env.OPENAI_API_KEY;
   if (envApiKey) {
-    return { apiKey: envApiKey, baseUrl: process.env.OPENAI_BASE_URL, model: process.env.OPENAI_MODEL ?? model };
+    // `||`, not `??`: docker-compose.yml passes these through as `${OPENAI_BASE_URL:-}`, so an
+    // unset var arrives as '' — which `??` keeps, producing "Failed to parse URL from /chat/completions".
+    return { apiKey: envApiKey, baseUrl: process.env.OPENAI_BASE_URL || undefined, model: process.env.OPENAI_MODEL || model };
   }
 
   const credential = await credentials.findOneBy({ type: 'openAiApi' });
@@ -46,7 +48,7 @@ export async function resolveOpenAiConfig(
     encryptionKey,
   ) as { apiKey: string; baseUrl?: string };
 
-  return { apiKey, baseUrl, model };
+  return { apiKey, baseUrl: baseUrl || undefined, model };
 }
 
 /** The model provider for one assistant turn, resolved as described on resolveOpenAiConfig. */
