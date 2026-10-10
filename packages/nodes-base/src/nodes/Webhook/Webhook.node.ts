@@ -10,7 +10,7 @@ import type {
 /**
  * Starts the workflow when a matching HTTP request arrives at
  * `/webhook/<path>`. The concrete method/path are this node instance's own `httpMethod`/
- * `path` parameters — ActiveWorkflowManager reads them directly (via getNodeParameter) when
+ * `path` parameters - ActiveWorkflowManager reads them directly (via getNodeParameter) when
  * registering the workflow's webhooks rather than through `description.webhooks`, which would
  * otherwise need an expression-in-metadata resolution layer (a fuller implementation's
  * `={{$parameter["path"]}}` webhook-path syntax) that's out of scope here; "is this a webhook
@@ -47,7 +47,7 @@ export const webhook: INodeType = {
         type: 'string',
         default: '',
         required: true,
-        description: 'The URL segment after /webhook/ — e.g. "my-hook" registers /webhook/my-hook',
+        description: 'The URL segment after /webhook/ - e.g. "my-hook" registers /webhook/my-hook',
       },
       {
         displayName: 'Response Mode',
@@ -63,7 +63,7 @@ export const webhook: INodeType = {
     ],
   },
   dryRunSafety: () => 'safe',
-  /** See ScheduleTrigger.node.ts — WorkflowExecute always calls execute() on the node it starts from. */
+  /** See ScheduleTrigger.node.ts - WorkflowExecute always calls execute() on the node it starts from. */
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     return [this.getInputData()];
   },

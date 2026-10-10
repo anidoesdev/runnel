@@ -8,7 +8,7 @@ import type {
 
 /**
  * Synthetic node types used only by the execution-engine test suite. Real node
- * implementations (Set, IF, Merge, Split In Batches, ...) land in M5 — these exist purely to
+ * implementations (Set, IF, Merge, Split In Batches, ...) land in M5 - these exist purely to
  * exercise WorkflowExecute's graph-walking, branching, multi-input-wait, loop, and error
  * semantics without depending on unbuilt node infrastructure (property schemas, credentials).
  */
@@ -75,7 +75,7 @@ export const testMergeNode: INodeType = {
  * A Split-In-Batches-style loop: on first entry it snapshots the input batch into node
  * context; each subsequent run emits exactly one item on output 0 (loop back to the body)
  * until the batch is exhausted, then emits the whole batch on output 1 (done) with an empty
- * output 0 — which naturally stops the loop, since nothing is left to feed the body.
+ * output 0 - which naturally stops the loop, since nothing is left to feed the body.
  */
 export const testLoopNode: INodeType = {
   description: description({ name: 'test.loop', outputs: ['main', 'main'] }),
@@ -104,7 +104,7 @@ export const testThrowingNode: INodeType = {
   },
 };
 
-/** Fails on its first two invocations (tracked via node context) then succeeds — for retryOnFail tests. */
+/** Fails on its first two invocations (tracked via node context) then succeeds - for retryOnFail tests. */
 export const testFlakyNode: INodeType = {
   description: description({ name: 'test.flaky' }),
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
@@ -124,7 +124,7 @@ export const testNoOutputNode: INodeType = {
   },
 };
 
-/** Tags every item with `ranReal: true` and declares itself dry-run safe — used to prove a dry run actually calls execute() for a node classified 'safe'. */
+/** Tags every item with `ranReal: true` and declares itself dry-run safe - used to prove a dry run actually calls execute() for a node classified 'safe'. */
 export const testDryRunSafeNode: INodeType = {
   description: description({ name: 'test.dryRunSafe' }),
   dryRunSafety: () => 'safe',
@@ -133,7 +133,7 @@ export const testDryRunSafeNode: INodeType = {
   },
 };
 
-/** Same body as testDryRunSafeNode but declares no dryRunSafety (defaults to 'mock') — used to prove a dry run never calls this execute() at all, instead recording a passthrough. */
+/** Same body as testDryRunSafeNode but declares no dryRunSafety (defaults to 'mock') - used to prove a dry run never calls this execute() at all, instead recording a passthrough. */
 export const testDryRunUnsafeNode: INodeType = {
   description: description({ name: 'test.dryRunUnsafe' }),
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {

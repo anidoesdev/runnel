@@ -30,7 +30,7 @@ describe('toModelToolDefinitions', () => {
     expect(limit.exclusiveMinimum).toBe(0);
   });
 
-  it('strips the $schema metadata key — a parameters object should contain only the schema itself', () => {
+  it('strips the $schema metadata key - a parameters object should contain only the schema itself', () => {
     const tool: ITool<{ value: string }, unknown> = {
       name: 'echo',
       description: 'test',

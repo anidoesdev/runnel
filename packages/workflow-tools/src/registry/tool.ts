@@ -4,13 +4,13 @@ import type { ICredentialRepositoryPort } from '../draft/credential-repository.p
 import type { IWorkflowExecutorPort } from '../draft/execution.port.js';
 import type { WorkflowDraftStore } from '../draft/workflow-draft.store.js';
 
-/** Everything a tool handler is allowed to touch — never the raw repository, never anything outside the current draft. `credentials`/`executor` are optional: a caller that never wires one simply can't use the tools that need it, and gets a clear error instead of a crash if it tries. */
+/** Everything a tool handler is allowed to touch - never the raw repository, never anything outside the current draft. `credentials`/`executor` are optional: a caller that never wires one simply can't use the tools that need it, and gets a clear error instead of a crash if it tries. */
 export interface IToolContext {
   draftId: string;
   nodeTypes: INodeTypes;
   draftStore: WorkflowDraftStore;
   credentials?: ICredentialRepositoryPort;
-  /** Grounding's execution seam (execute_dry_run/execute_live/get_node_output) — see IWorkflowExecutorPort. */
+  /** Grounding's execution seam (execute_dry_run/execute_live/get_node_output) - see IWorkflowExecutorPort. */
   executor?: IWorkflowExecutorPort;
 }
 
@@ -29,5 +29,5 @@ export interface ITool<TParams, TResult> {
   requiresApproval?: boolean;
 }
 
-/** Type-erases a tool for storage in a registry map — invokeTool restores the connection between validated params and the handler that expects them via the parse step itself, so this is safe. */
+/** Type-erases a tool for storage in a registry map - invokeTool restores the connection between validated params and the handler that expects them via the parse step itself, so this is safe. */
 export type AnyTool = ITool<unknown, unknown>;

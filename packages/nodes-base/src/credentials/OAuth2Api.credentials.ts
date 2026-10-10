@@ -3,7 +3,7 @@ import type { ICredentialType } from '@runnel/workflow';
 /**
  * The credential type/field schema only. The actual OAuth2 authorization-code flow
  * (authorize redirect, callback handler, token storage, automatic refresh on 401) needs a
- * running Express server to receive the redirect — that's explicitly M6 work per the
+ * running Express server to receive the redirect - that's explicitly M6 work per the
  * project spec. Selecting this credential type on a node is safe to model now; it just
  * can't successfully authenticate a request yet.
  */

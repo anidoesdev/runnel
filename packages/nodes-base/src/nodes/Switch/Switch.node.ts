@@ -13,8 +13,8 @@ const FALLBACK_OUTPUT = 3;
 
 /**
  * Routes each item to the output of the *first* rule it matches (rules are evaluated in
- * order); an item matching no rule goes to the fallback output. Outputs are a fixed 4 —
- * 3 rule slots (outputIndex 0-2) plus the fallback (3) — because INodeTypeDescription.outputs
+ * order); an item matching no rule goes to the fallback output. Outputs are a fixed 4 -
+ * 3 rule slots (outputIndex 0-2) plus the fallback (3) - because INodeTypeDescription.outputs
  * is a static array per node *type*, not something a node instance can resize.
  */
 export const switchNode: INodeType = {

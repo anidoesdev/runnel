@@ -138,7 +138,7 @@ export const EXPRESSION_SCOPE_DEFINITIONS: IExpressionScopeDefinition[] = [
   {
     key: '$ifEmpty',
     kind: 'function',
-    description: '$ifEmpty(value, fallback) — returns fallback when value is null/undefined/""/empty.',
+    description: '$ifEmpty(value, fallback) - returns fallback when value is null/undefined/""/empty.',
     resolve: () => (value: unknown, fallback: unknown) => (isEmptyValue(value) ? fallback : value),
   },
   {
@@ -156,7 +156,7 @@ export const EXPRESSION_SCOPE_DEFINITIONS: IExpressionScopeDefinition[] = [
   {
     key: '$jmespath',
     kind: 'function',
-    description: '$jmespath(data, expression) — a documented subset of JMESPath (see jmespath-lite.ts).',
+    description: '$jmespath(data, expression) - a documented subset of JMESPath (see jmespath-lite.ts).',
     resolve: () => (data: unknown, expression: string) => jmespathLite(data, expression),
   },
 ];
@@ -167,7 +167,7 @@ export function getScopeDefinition(key: string): IExpressionScopeDefinition | un
   return DEFINITIONS_BY_KEY.get(key);
 }
 
-/** Resolves a single identifier lazily against the context — `$env` only throws if the expression actually references it. */
+/** Resolves a single identifier lazily against the context - `$env` only throws if the expression actually references it. */
 export function createScopeResolver(ctx: IExpressionEvalContext): (name: string) => unknown {
   return (name: string) => {
     const definition = getScopeDefinition(name);

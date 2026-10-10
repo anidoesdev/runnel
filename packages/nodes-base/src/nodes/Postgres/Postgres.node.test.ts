@@ -5,7 +5,7 @@ import { makeExecuteFunctions, makeNode } from '../../test-utils.js';
 
 /**
  * Runs against the same real Postgres used by packages/cli's migration tests (see
- * migrations.postgres.test.ts for the full rationale) — proving the node actually talks to a
+ * migrations.postgres.test.ts for the full rationale) - proving the node actually talks to a
  * database, not just that it compiles. Skips with a clear message when no Postgres is
  * reachable, so `pnpm test` stays green on machines without one; CI always has the service
  * container from .github/workflows/ci.yml.
@@ -33,7 +33,7 @@ async function checkPostgresAvailable(): Promise<boolean> {
 const postgresAvailable = await checkPostgresAvailable();
 if (!postgresAvailable) {
   console.warn(
-    `\n[Postgres.node.test.ts] No reachable Postgres at ${credentials.host}:${credentials.port} — skipping. ` +
+    `\n[Postgres.node.test.ts] No reachable Postgres at ${credentials.host}:${credentials.port} - skipping. ` +
       'Set TEST_POSTGRES_* env vars, or run:\n' +
       '  docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runnel_test -p 5433:5432 postgres:16-alpine\n',
   );

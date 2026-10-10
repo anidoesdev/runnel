@@ -7,7 +7,7 @@ import type { TestServer } from './test-server.js';
 import type { IWorkflowBase } from '@runnel/workflow';
 
 /**
- * M5 definition-of-done test: a nine-node workflow — one instance of every M5 node type —
+ * M5 definition-of-done test: a nine-node workflow - one instance of every M5 node type -
  * with a real branch (If) and a real loop (Split In Batches <-> Code), executing correctly
  * offline against a real local HTTP server standing in for an external API.
  *
@@ -184,7 +184,7 @@ describe('nine-node workflow (M5 definition of done)', () => {
     expect(loopRuns[2]!.data!.main[0]).toEqual([]);
     expect(loopRuns[2]!.data!.main[1]).toEqual(mergedItems); // the "done" batch is the full merged set
 
-    // Code — the loop body — ran once per item, tagging each with codeRan: true.
+    // Code - the loop body - ran once per item, tagging each with codeRan: true.
     const codeRuns = result.resultData.runData.Code!;
     expect(codeRuns).toHaveLength(2);
     expect(codeRuns[0]!.data!.main[0]).toEqual([{ json: { result: 'ok', value: 21, codeRan: true }, pairedItem: { item: 0 } }]);

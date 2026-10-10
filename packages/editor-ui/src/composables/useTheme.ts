@@ -10,7 +10,7 @@ const STORAGE_KEY = 'runnel.theme';
  * <html>, which global.css's dark block keys off.
  *
  * Reads and writes are wrapped because storage throws in a private window with site data
- * blocked — losing the preference is fine, breaking the editor is not.
+ * blocked - losing the preference is fine, breaking the editor is not.
  */
 const stored = ((): Theme | null => {
   try {

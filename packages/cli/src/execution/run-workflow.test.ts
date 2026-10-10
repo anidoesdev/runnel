@@ -18,12 +18,12 @@ describe('findStartNodeName', () => {
     expect(findStartNodeName(workflow)).toBe('Trigger');
   });
 
-  it("does not pick a node that only supplies an ai_* connection — it's a sub-node, not a trigger", () => {
+  it("does not pick a node that only supplies an ai_* connection - it's a sub-node, not a trigger", () => {
     const workflow = makeWorkflow(['Chat Model', 'Trigger', 'Agent'], {
       Trigger: { main: [[{ node: 'Agent', type: 'main', index: 0 }]] },
       'Chat Model': { ai_languageModel: [[{ node: 'Agent', type: 'ai_languageModel', index: 0 }]] },
     });
-    // "Chat Model" comes first in `nodes` and has no incoming *main* connection either — without
+    // "Chat Model" comes first in `nodes` and has no incoming *main* connection either - without
     // the sub-node exclusion it would be picked over the real trigger.
     expect(findStartNodeName(workflow)).toBe('Trigger');
   });

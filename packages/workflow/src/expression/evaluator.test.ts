@@ -12,7 +12,7 @@ function evalExpr(source: string, scope: Record<string, unknown> = {}, maxSteps?
   return evaluateAst(ast, resolve, 'TestNode', maxSteps === undefined ? {} : { maxSteps });
 }
 
-describe('evaluateAst — arithmetic and comparison', () => {
+describe('evaluateAst - arithmetic and comparison', () => {
   it.each([
     ['1 + 2', 3],
     ['5 - 2', 3],
@@ -42,7 +42,7 @@ describe('evaluateAst — arithmetic and comparison', () => {
   });
 });
 
-describe('evaluateAst — logical operators short-circuit correctly', () => {
+describe('evaluateAst - logical operators short-circuit correctly', () => {
   it('&& returns the first falsy or the last value', () => {
     expect(evalExpr('0 && 5')).toBe(0);
     expect(evalExpr('1 && 5')).toBe(5);
@@ -61,13 +61,13 @@ describe('evaluateAst — logical operators short-circuit correctly', () => {
   });
 
   it('does not evaluate the right-hand side when short-circuited', () => {
-    // referencing an unknown var would throw if evaluated — it must not be reached
+    // referencing an unknown var would throw if evaluated - it must not be reached
     expect(evalExpr('1 || unknownVar')).toBe(1);
     expect(evalExpr('0 && unknownVar')).toBe(0);
   });
 });
 
-describe('evaluateAst — ternary and unary', () => {
+describe('evaluateAst - ternary and unary', () => {
   it('evaluates a ternary based on the test', () => {
     expect(evalExpr('1 < 2 ? "yes" : "no"')).toBe('yes');
     expect(evalExpr('1 > 2 ? "yes" : "no"')).toBe('no');
@@ -81,7 +81,7 @@ describe('evaluateAst — ternary and unary', () => {
   });
 });
 
-describe('evaluateAst — literals, arrays, and objects', () => {
+describe('evaluateAst - literals, arrays, and objects', () => {
   it('evaluates array literals', () => {
     expect(evalExpr('[1, 2, 3]')).toEqual([1, 2, 3]);
   });
@@ -92,7 +92,7 @@ describe('evaluateAst — literals, arrays, and objects', () => {
   });
 });
 
-describe('evaluateAst — member access and calls', () => {
+describe('evaluateAst - member access and calls', () => {
   it('reads nested properties via dot and bracket access', () => {
     const scope = { obj: { a: { b: 42 } } };
     expect(evalExpr('obj.a.b', scope)).toBe(42);
@@ -131,7 +131,7 @@ describe('evaluateAst — member access and calls', () => {
   });
 });
 
-describe('evaluateAst — template literals', () => {
+describe('evaluateAst - template literals', () => {
   it('concatenates quasis and interpolated expressions', () => {
     expect(evalExpr('`Hello ${name}!`', { name: 'World' })).toBe('Hello World!');
   });
@@ -161,7 +161,7 @@ describe('stringifyForTemplate', () => {
   });
 });
 
-describe('evaluateAst — sandbox escape prevention', () => {
+describe('evaluateAst - sandbox escape prevention', () => {
   const blockedAccessors = [
     'x.constructor',
     'x["constructor"]',
@@ -185,7 +185,7 @@ describe('evaluateAst — sandbox escape prevention', () => {
   });
 });
 
-describe('evaluateAst — step budget', () => {
+describe('evaluateAst - step budget', () => {
   it('throws once the evaluation step budget is exceeded', () => {
     // A wide array literal costs one step per element plus one for the literal itself.
     const wideArray = `[${Array.from({ length: 50 }, (_, i) => i).join(',')}]`;

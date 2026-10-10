@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { runCode } from './sandbox.js';
 
-describe('runCode — runOnceForAllItems', () => {
+describe('runCode - runOnceForAllItems', () => {
   it('maps over `items` and returns a new array', async () => {
     const result = await runCode({
       mode: 'runOnceForAllItems',
@@ -45,7 +45,7 @@ describe('runCode — runOnceForAllItems', () => {
   });
 });
 
-describe('runCode — runOnceForEachItem', () => {
+describe('runCode - runOnceForEachItem', () => {
   it('runs once per item with $json bound to that item', async () => {
     const result = await runCode({
       mode: 'runOnceForEachItem',
@@ -80,7 +80,7 @@ describe('runCode — runOnceForEachItem', () => {
   });
 });
 
-describe('runCode — sandbox isolation', () => {
+describe('runCode - sandbox isolation', () => {
   it('has no access to Node globals like process or require', async () => {
     const result = await runCode({
       mode: 'runOnceForAllItems',
@@ -101,7 +101,7 @@ describe('runCode — sandbox isolation', () => {
   });
 });
 
-describe('runCode — timeouts', () => {
+describe('runCode - timeouts', () => {
   it('terminates a synchronous infinite loop once the timeout elapses', async () => {
     await expect(
       runCode({

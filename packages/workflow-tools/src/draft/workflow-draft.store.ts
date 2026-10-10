@@ -5,7 +5,7 @@ import type { IWorkflowRepositoryPort } from './workflow-repository.port.js';
 export interface IWorkflowDraft {
   id: string;
   workflowId: string;
-  /** Snapshot taken when the draft was opened — never mutated, so diff() and discard() always have the true "before" to compare against. */
+  /** Snapshot taken when the draft was opened - never mutated, so diff() and discard() always have the true "before" to compare against. */
   baseline: IWorkflowBase;
   /** The agent's working copy. Every tool mutation lands here, never on `baseline` or the real persisted workflow. */
   current: IWorkflowBase;
@@ -23,13 +23,13 @@ export interface IWorkflowDraftDiffConnection {
 export interface IWorkflowDraftDiff {
   addedNodes: Array<{ name: string; type: string }>;
   removedNodes: Array<{ name: string; type: string }>;
-  /** Field-level before/after breakdown is a UI-layer concern (Milestone 5) — this gives the full parameter objects on both sides, which is enough to compute it. */
+  /** Field-level before/after breakdown is a UI-layer concern (Milestone 5) - this gives the full parameter objects on both sides, which is enough to compute it. */
   changedNodes: Array<{ name: string; before: IDataObject; after: IDataObject }>;
   addedConnections: IWorkflowDraftDiffConnection[];
   removedConnections: IWorkflowDraftDiffConnection[];
 }
 
-/** Duplicates the connection-flattening loop in packages/core's getWorkflowOutline — that version also needs the node registry (for unsetRequiredParams), this one doesn't, so sharing one helper would mean threading an unused nodeTypes param through here. Worth unifying if a third caller shows up. */
+/** Duplicates the connection-flattening loop in packages/core's getWorkflowOutline - that version also needs the node registry (for unsetRequiredParams), this one doesn't, so sharing one helper would mean threading an unused nodeTypes param through here. Worth unifying if a third caller shows up. */
 function flattenConnections(workflow: IWorkflowBase): IWorkflowDraftDiffConnection[] {
   const flat: IWorkflowDraftDiffConnection[] = [];
   for (const [from, entry] of Object.entries(workflow.connections)) {
@@ -52,12 +52,12 @@ function draftNotFound(draftId: string): ToolError {
 
 /**
  * Rule #2 from the build prompt: the agent mutates a draft, never the live workflow. Each
- * assistant session opens exactly one draft — a copy-on-write overlay `mutate()` applies
+ * assistant session opens exactly one draft - a copy-on-write overlay `mutate()` applies
  * functions to, leaving `baseline` (and the real persisted workflow) untouched until `apply()`.
  *
  * In-memory only for now: a draft that outlives the process (e.g. a server restart mid-session)
  * is lost. Persisting drafts is a follow-up once AssistantSession persistence itself is built
- * (Milestone 3) — tracking both independently now would be premature.
+ * (Milestone 3) - tracking both independently now would be premature.
  */
 export class WorkflowDraftStore {
   private readonly drafts = new Map<string, IWorkflowDraft>();
@@ -83,7 +83,7 @@ export class WorkflowDraftStore {
     return draft;
   }
 
-  /** Non-throwing existence check — lets a caller recover (re-open a fresh draft) instead of failing when a session outlives the in-memory store, e.g. a server restart mid-conversation. */
+  /** Non-throwing existence check - lets a caller recover (re-open a fresh draft) instead of failing when a session outlives the in-memory store, e.g. a server restart mid-conversation. */
   has(draftId: string): boolean {
     return this.drafts.has(draftId);
   }

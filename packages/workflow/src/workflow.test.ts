@@ -96,7 +96,7 @@ describe('Workflow.pruneToDestination', () => {
       }),
     );
 
-    // Only the True branch leads to the requested destination — False is unrelated to it.
+    // Only the True branch leads to the requested destination - False is unrelated to it.
     const pruned = workflow.pruneToDestination('True');
 
     expect(pruned.nodes.map((n) => n.name).sort()).toEqual(['If', 'True']);

@@ -63,7 +63,7 @@ describe('NodeGraph', () => {
   });
 
   it('tolerates a connection that references nodes outside the declared node list', () => {
-    // Malformed input (stale connections pointing at deleted nodes) must not throw — both
+    // Malformed input (stale connections pointing at deleted nodes) must not throw - both
     // endpoints become traversable adjacency even when neither was in nodeNames.
     const graph = new NodeGraph(['A'], conn('A', 'Ghost'));
     expect(graph.children('A')).toEqual(['Ghost']);

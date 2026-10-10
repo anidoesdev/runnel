@@ -7,10 +7,10 @@ import type { IWorkflowBase, INode } from '@runnel/workflow';
 
 /**
  * Raw SQL, not the repository API, for every write and read against the `workflow` table
- * itself here — same workaround db/migrations.sqlite.test.ts already documents: TypeORM's
+ * itself here - same workaround db/migrations.sqlite.test.ts already documents: TypeORM's
  * generic FindOptionsWhere/QueryDeepPartialEntity types recurse excessively deep against
  * WorkflowEntity's nested structural types (INode[]/IConnections), which is a type-checker-only
- * problem, not a runtime one. WorkflowRepositoryAdapter itself is unaffected — it only ever
+ * problem, not a runtime one. WorkflowRepositoryAdapter itself is unaffected - it only ever
  * calls findOneBy/save, not insert, on the real entity.
  */
 describe('WorkflowRepositoryAdapter', () => {
@@ -90,7 +90,7 @@ describe('WorkflowRepositoryAdapter', () => {
     expect(JSON.parse(persisted.connections)).toEqual({ Start: { main: [[]] } });
   });
 
-  it('save() does not touch the workflow\'s own name — only fields a draft can change', async () => {
+  it('save() does not touch the workflow\'s own name - only fields a draft can change', async () => {
     await insertWorkflowRow('wf-1', 'Original Name', '[]', '{}');
 
     await adapter.save('wf-1', { id: 'wf-1', name: 'Attempted Rename', active: false, nodes: [], connections: {} });

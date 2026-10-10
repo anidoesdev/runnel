@@ -30,18 +30,18 @@ export interface IAssistantSession {
   id: string;
   workflowId: string;
   draftId: string;
-  /** Full transcript including tool_use / tool_result — see IModelMessage. */
+  /** Full transcript including tool_use / tool_result - see IModelMessage. */
   messages: IModelMessage[];
   actor: IAssistantActor;
   tokenBudget: IAssistantTokenBudget;
   /**
-   * Set when the loop pauses on an approval gate (remove_node, rename_node — see ITool.requiresApproval).
-   * `remainingCalls` are the rest of that model turn's tool-call batch, not yet executed —
+   * Set when the loop pauses on an approval gate (remove_node, rename_node - see ITool.requiresApproval).
+   * `remainingCalls` are the rest of that model turn's tool-call batch, not yet executed -
    * resumeApproval (agent-loop.ts) processes them in order once this one is decided, so a
    * multi-tool-call turn doesn't lose calls that came after the gated one.
    */
   pendingApproval?: { toolCallId: string; toolName: string; args: unknown; remainingCalls: IModelToolCallRef[] };
-  /** Set when the loop pauses on an ask_user call — same "rest of the batch" contract as pendingApproval. Answers come back keyed by question id (see resumeAskUser). */
+  /** Set when the loop pauses on an ask_user call - same "rest of the batch" contract as pendingApproval. Answers come back keyed by question id (see resumeAskUser). */
   pendingQuestions?: { toolCallId: string; questions: IAskUserQuestion[]; remainingCalls: IModelToolCallRef[] };
   status: AssistantSessionStatus;
   createdAt: string;
@@ -70,7 +70,7 @@ export function createSession(params: {
 }
 
 /**
- * The only seam between this package and however sessions are actually persisted — mirrors
+ * The only seam between this package and however sessions are actually persisted - mirrors
  * IWorkflowRepositoryPort in workflow-tools. "A user who reloads the page mid-build must not
  * lose the conversation" means resuming by re-fetching through this port, not by keeping any
  * process-local state; runTurn itself never touches storage (see agent-loop.ts) so the caller
@@ -82,7 +82,7 @@ export interface IAssistantSessionRepositoryPort {
   save(session: IAssistantSession): Promise<IAssistantSession>;
 }
 
-/** In-memory only — a real (TypeORM-backed, following the exact pattern packages/cli would give IWorkflowRepositoryPort) implementation is a mechanical follow-up once there's an actual REST/SSE endpoint that needs one, same scoping call already made for workflow drafts in Milestone 1. */
+/** In-memory only - a real (TypeORM-backed, following the exact pattern packages/cli would give IWorkflowRepositoryPort) implementation is a mechanical follow-up once there's an actual REST/SSE endpoint that needs one, same scoping call already made for workflow drafts in Milestone 1. */
 export class InMemoryAssistantSessionStore implements IAssistantSessionRepositoryPort {
   private readonly sessions = new Map<string, IAssistantSession>();
 

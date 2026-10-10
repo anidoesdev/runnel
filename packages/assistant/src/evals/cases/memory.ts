@@ -3,7 +3,7 @@ import type { IEvalCase } from '../types.js';
 /**
  * Recalled memory changing what gets built. Each case targets a parameter whose default is the
  * *other* value (a Webhook's method defaults to GET and its response mode to "immediately"), so a
- * case only passes if the model actually read and applied the memory block — building the
+ * case only passes if the model actually read and applied the memory block - building the
  * default would fail it. The last two check the guard rails: the current message beats a
  * remembered preference, and an unrelated memory doesn't get dragged into the build.
  *

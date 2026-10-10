@@ -12,7 +12,7 @@ import type { ICredentialRepositoryPort, ICredentialSummary, IWorkflowRepository
  * Milestone 4's own bar: "Agent asks instead of guessing on an underspecified prompt." One
  * continuous conversation exercises every M4 capability against the real tool registry and node
  * catalog: ask_user pausing instead of a guessed answer, request_credential (ungated) running
- * immediately, and remove_node (gated) pausing for explicit approval — including a batch that
+ * immediately, and remove_node (gated) pausing for explicit approval - including a batch that
  * suspends *again* mid-resume, proving the pause/resume machinery composes rather than only
  * working once.
  */
@@ -48,7 +48,7 @@ function fakeCredentialRepository(): ICredentialRepositoryPort & { created: ICre
   };
 }
 
-describe('agent loop — end to end (Milestone 4)', () => {
+describe('agent loop - end to end (Milestone 4)', () => {
   it('asks instead of guessing which Slack channel, then a later batch pauses again for approval before removing a node', async () => {
     const seedWorkflow: IWorkflowBase = {
       id: 'wf-1',
@@ -65,7 +65,7 @@ describe('agent loop — end to end (Milestone 4)', () => {
     const tools = createToolRegistry();
 
     const provider = new ScriptedModelProvider([
-      // 1. Ambiguous prompt ("post to slack") — the model asks instead of guessing a channel.
+      // 1. Ambiguous prompt ("post to slack") - the model asks instead of guessing a channel.
       {
         toolCalls: [
           {
@@ -78,7 +78,7 @@ describe('agent loop — end to end (Milestone 4)', () => {
         ],
       },
       // 2. After the answer: get a credential set up (ungated), and clean up the placeholder
-      //    node from before (gated) — in the same batch, so the gate must pause mid-batch.
+      //    node from before (gated) - in the same batch, so the gate must pause mid-batch.
       {
         toolCalls: [
           // httpHeaderAuth: Slack is reached through the HTTP Request node, and request_credential
@@ -94,7 +94,7 @@ describe('agent loop — end to end (Milestone 4)', () => {
 
     const afterAsk = await runTurn(createSession({ id: 's1', workflowId: 'wf-1', draftId: draft.id, actor: { userId: 'u1', scopes: [] }, tokenLimit: 1_000_000 }), 'post to slack when this runs', deps);
 
-    // Paused on ask_user — no guess was made, nothing was mutated.
+    // Paused on ask_user - no guess was made, nothing was mutated.
     expect(afterAsk.status).toBe('awaiting_user');
     expect(afterAsk.pendingQuestions?.questions[0]).toMatchObject({ id: 'channel', question: 'Which Slack channel should this post to?' });
     expect(credentialRepo.created).toHaveLength(0);
@@ -107,7 +107,7 @@ describe('agent loop — end to end (Milestone 4)', () => {
     expect(credentialRepo.created[0]!.type).toBe('httpHeaderAuth');
     expect(afterAnswer.status).toBe('awaiting_approval');
     expect(afterAnswer.pendingApproval).toMatchObject({ toolName: 'remove_node', args: { name: 'Old Node' } });
-    expect(draftStore.get(draft.id).current.nodes).toHaveLength(1); // not removed yet — still pending approval
+    expect(draftStore.get(draft.id).current.nodes).toHaveLength(1); // not removed yet - still pending approval
 
     const finished = await resumeApproval(afterAnswer, 'approve', deps);
 
@@ -115,7 +115,7 @@ describe('agent loop — end to end (Milestone 4)', () => {
     expect(finished.status).toBe('idle');
     expect(finished.messages.at(-1)).toMatchObject({ role: 'assistant', content: expect.stringContaining('#sales') });
 
-    // Nothing touched the live workflow until an explicit apply — same rule as Milestone 3.
+    // Nothing touched the live workflow until an explicit apply - same rule as Milestone 3.
     expect(workflowRepo.saved).toHaveLength(0);
   });
 });

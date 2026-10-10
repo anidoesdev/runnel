@@ -37,7 +37,7 @@ function fakeCredentialRepository(seed: ICredentialSummary[] = []): ICredentialR
   };
 }
 
-/** A node per credential type the tests use — a type only counts once some node uses it. */
+/** A node per credential type the tests use - a type only counts once some node uses it. */
 function nodeUsing(name: string, credential: string): INodeType {
   return {
     description: {

@@ -29,7 +29,7 @@ export function makeNode(fixture: NodeFixture): INode {
 
 /**
  * Builds a real IExecuteFunctions (via @runnel/core's buildExecuteFunctions) around a
- * single node with a single input branch of items — the shape every one of these node unit
+ * single node with a single input branch of items - the shape every one of these node unit
  * tests needs, without going through the full WorkflowExecute engine.
  */
 export function makeExecuteFunctions(

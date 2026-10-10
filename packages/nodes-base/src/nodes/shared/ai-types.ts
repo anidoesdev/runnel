@@ -5,7 +5,7 @@ import type { IDataObject } from '@runnel/workflow';
 export interface IChatToolCall {
   id: string;
   name: string;
-  /** Raw JSON string, exactly as the model returned it — the caller decides how/when to parse it. */
+  /** Raw JSON string, exactly as the model returned it - the caller decides how/when to parse it. */
   arguments: string;
 }
 
@@ -18,7 +18,7 @@ export interface IChatMessage {
   toolCalls?: IChatToolCall[];
 }
 
-/** What an `ai_tool` node's execute()-time schema looks like to the model — JSON Schema, same shape OpenAI's function-calling `parameters` expects. */
+/** What an `ai_tool` node's execute()-time schema looks like to the model - JSON Schema, same shape OpenAI's function-calling `parameters` expects. */
 export interface IToolSchema {
   name: string;
   description: string;

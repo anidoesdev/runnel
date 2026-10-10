@@ -8,7 +8,7 @@ export interface IScriptedTurn {
   usage?: { inputTokens: number; outputTokens: number };
 }
 
-/** A ModelProvider that plays back a fixed script, one turn per call to stream() — the fake the agent loop's own tests and the Milestone 3 end-to-end test drive instead of a real (network-calling, non-deterministic) OpenAI request. */
+/** A ModelProvider that plays back a fixed script, one turn per call to stream() - the fake the agent loop's own tests and the Milestone 3 end-to-end test drive instead of a real (network-calling, non-deterministic) OpenAI request. */
 export class ScriptedModelProvider implements IModelProvider {
   private turnIndex = 0;
 

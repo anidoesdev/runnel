@@ -32,7 +32,7 @@ function wrapResponse(body: unknown, itemIndex: number): INodeExecutionData[] {
 
 /**
  * httpBasicAuth/httpHeaderAuth/httpQueryAuth are special-cased here (see the credential
- * files for why); everything else — including custom credential types a user registers —
+ * files for why); everything else - including custom credential types a user registers -
  * goes through the generic declarative `httpRequestWithAuthentication` helper.
  */
 async function applyAuthenticationAndSend(
@@ -151,7 +151,7 @@ export const httpRequestNode: INodeType = {
       { displayName: 'Retry Delay (ms)', name: 'retryDelayMs', type: 'number', default: 0 },
     ],
   },
-  /** GET/HEAD have no server-side write in the general case — safe for a grounding dry run to actually send. Every other method is mocked; there's no static way to know whether a given POST/PUT/PATCH/DELETE endpoint is idempotent. */
+  /** GET/HEAD have no server-side write in the general case - safe for a grounding dry run to actually send. Every other method is mocked; there's no static way to know whether a given POST/PUT/PATCH/DELETE endpoint is idempotent. */
   dryRunSafety: (parameters) => {
     const method = typeof parameters.method === 'string' ? parameters.method : 'GET';
     return method === 'GET' || method === 'HEAD' ? 'safe' : 'mock';

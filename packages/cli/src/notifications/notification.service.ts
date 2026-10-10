@@ -14,7 +14,7 @@ export interface INotificationFeed {
 /**
  * Writes and reads the bell menu's feed.
  *
- * Only *unattended* execution failures are recorded — triggers, polls and webhooks, which fail
+ * Only *unattended* execution failures are recorded - triggers, polls and webhooks, which fail
  * while nobody is looking. A manual run's failure is already on screen in the execution panel
  * the moment it happens, so notifying about it would just duplicate what the user is looking at.
  */

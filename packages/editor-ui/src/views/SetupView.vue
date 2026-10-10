@@ -30,7 +30,7 @@ async function onSubmit(): Promise<void> {
   <div class="auth-screen">
     <form class="auth-form" @submit.prevent="onSubmit">
       <h1>Set up your account</h1>
-      <p>You're the first person here — create the owner account to get started.</p>
+      <p>You're the first person here - create the owner account to get started.</p>
       <label>
         Email
         <RunnelInput v-model="email" type="email" placeholder="you@example.com" />

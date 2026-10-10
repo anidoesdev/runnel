@@ -1,7 +1,7 @@
 # Integration Prompt: Memnest → Runnel (assistant memory, shadow mode)
 
 > Paste below the line into your coding agent **working in the Runnel repository**.
-> Prerequisite: Memnest is at **M5** — public API complete, published, `0.1.x`.
+> Prerequisite: Memnest is at **M5** - public API complete, published, `0.1.x`.
 > This prompt does **not** build Memnest. It wires an existing Memnest into Runnel's assistant.
 >
 > Package name placeholder: `memnest`. Find-and-replace if you settled on something else.
@@ -18,7 +18,7 @@ After this work, the assistant recalls durable facts about a user across session
 
 **You are shipping this behind flags, in shadow mode, defaulting to off.** Read the SHADOW MODE section before writing code. If at the end of this work a developer pulls `main` and sees any change in assistant behaviour without setting an environment variable, you have failed the task.
 
-## SCOPE — WHAT THIS IS NOT
+## SCOPE - WHAT THIS IS NOT
 
 Do **not** build any of the following. They are later, separate work with prerequisites that do not exist yet:
 
@@ -34,12 +34,12 @@ One integration point: the assistant's recall and capture path.
 Report on these before writing code:
 
 - `memnest-core` and `memnest-store-sqlite` and `memnest-store-postgres` install cleanly into this workspace
-- Memnest's leakage suite and secrets suite are **green** in the Memnest repo. If they are not, stop and say so — do not integrate a memory engine whose isolation guarantees are unproven.
+- Memnest's leakage suite and secrets suite are **green** in the Memnest repo. If they are not, stop and say so - do not integrate a memory engine whose isolation guarantees are unproven.
 - `pnpm test` passes on a clean checkout of Runnel before you change anything
 
 ---
 
-## PART 1 — ARCHITECTURE
+## PART 1 - ARCHITECTURE
 
 Runnel already uses ports and adapters for exactly this shape: `workflow-repository.adapter.ts`, `credential-repository.adapter.ts`, `execution-adapter.ts` in `packages/cli/src/assistant/` implement ports declared in `@runnel/assistant`. Follow that pattern exactly.
 
@@ -89,13 +89,13 @@ Derive from `IAssistantActor`, which already carries `userId`, optional `project
 user:<userId>
 ```
 
-**v1 uses `user:<userId>` only.** Not project, not workflow. A user's conventions and preferences follow them across workflows — that is the entire value. Project-scoped memory is a later decision that needs a rule for what happens when the two disagree, and you do not need to make that decision now.
+**v1 uses `user:<userId>` only.** Not project, not workflow. A user's conventions and preferences follow them across workflows - that is the entire value. Project-scoped memory is a later decision that needs a rule for what happens when the two disagree, and you do not need to make that decision now.
 
 Assert `actor.userId` is non-empty before every call. A container tag built from an undefined userId is a cross-tenant leak, not a bug report.
 
 ---
 
-## PART 2 — SHADOW MODE
+## PART 2 - SHADOW MODE
 
 Two independent flags. Both default **off**.
 
@@ -118,7 +118,7 @@ memory: {
 
 ### Why this ordering matters
 
-Shadow mode exists so you find out whether Memnest's extraction produces useful facts on *real Runnel transcripts* before those facts can degrade the assistant. Runnel sessions are full of node names, JSON parameter blobs and tool results. An extractor tuned on chat transcripts may well produce a pile of noise like `"the user added an HTTP Request node"` — true, worthless, and actively harmful once injected.
+Shadow mode exists so you find out whether Memnest's extraction produces useful facts on *real Runnel transcripts* before those facts can degrade the assistant. Runnel sessions are full of node names, JSON parameter blobs and tool results. An extractor tuned on chat transcripts may well produce a pile of noise like `"the user added an HTTP Request node"` - true, worthless, and actively harmful once injected.
 
 You cannot know which without looking. So in shadow mode, `recall()` is called with the real user message, the full trace is logged, and the result is discarded.
 
@@ -137,7 +137,7 @@ Redact the query through `packages/cli/src/logging/redact.ts` before logging it.
 
 ---
 
-## PART 3 — RECALL
+## PART 3 - RECALL
 
 `runTurn` already accepts an optional `systemPrompt` in `IRunTurnDeps`. That is your seam. **Do not modify `agent-loop.ts`.**
 
@@ -154,7 +154,7 @@ Before that call:
 3. If `config.memory.recall` is false, proceed unchanged.
 4. If true, compose `systemPrompt = SYSTEM_PROMPT + '\n\n' + renderMemoryBlock(recalled.memories)` and pass it in `deps`.
 
-**Recall on `runTurn` only.** `resumeApproval` and `resumeAskUser` continue an in-flight turn — the memory block is already in that turn's system prompt, and re-recalling mid-turn would change the prompt underneath the model between tool calls. Leave both untouched.
+**Recall on `runTurn` only.** `resumeApproval` and `resumeAskUser` continue an in-flight turn - the memory block is already in that turn's system prompt, and re-recalling mid-turn would change the prompt underneath the model between tool calls. Leave both untouched.
 
 ### The memory block
 
@@ -183,11 +183,11 @@ Recall failures are never fatal. Wrap in try/catch, log at warn, continue with n
 
 ---
 
-## PART 4 — CAPTURE
+## PART 4 - CAPTURE
 
 Capture after a turn completes, at the existing `await this.sessions.save(finished)` call site.
 
-**Fire and forget.** Do not await it in the request path. Do not let a rejection escape. Do not block the SSE stream — the user has their answer, and extraction is two LLM calls.
+**Fire and forget.** Do not await it in the request path. Do not let a rejection escape. Do not block the SSE stream - the user has their answer, and extraction is two LLM calls.
 
 ```ts
 void this.memory.capture(finished).catch((err) =>
@@ -203,7 +203,7 @@ Tool traffic is node JSON, parameter blobs and API responses. It is the bulk of 
 
 ### Redaction is mandatory and comes first
 
-Every message goes through `redact()` from `@runnel/workflow-tools` before it reaches Memnest. Memnest has its own redaction, and you should still not rely on it — defence in depth, and Runnel knows its own credential shapes better than a general library does.
+Every message goes through `redact()` from `@runnel/workflow-tools` before it reaches Memnest. Memnest has its own redaction, and you should still not rely on it - defence in depth, and Runnel knows its own credential shapes better than a general library does.
 
 `packages/assistant/src/agent-loop.redaction.test.ts` already exists. Mirror its fixtures in a new `memory-capture.redaction.test.ts`: capture a session containing known credential values, assert they never appear in what is handed to the port.
 
@@ -215,7 +215,7 @@ Set `containerTag: user:<actor.userId>` and `metadata: { workflowId, draftId }`.
 
 ---
 
-## PART 5 — STORAGE
+## PART 5 - STORAGE
 
 Memnest's store follows `IAppConfig.db`:
 
@@ -236,7 +236,7 @@ Instead, run Memnest's own migration during Runnel's startup, after the TypeORM 
 
 ---
 
-## PART 6 — TESTS
+## PART 6 - TESTS
 
 These are the tests that matter. Write them.
 
@@ -257,7 +257,7 @@ The default-off test is the most important one here. It is what lets everyone el
 
 ### Evals
 
-Add `packages/assistant/src/evals/cases/memory.ts` following the existing case structure. Cases must fail without recall and pass with it — a stated preference in session 1 honoured in session 2. Gate them so the default suite is unaffected when memory is off.
+Add `packages/assistant/src/evals/cases/memory.ts` following the existing case structure. Cases must fail without recall and pass with it - a stated preference in session 1 honoured in session 2. Gate them so the default suite is unaffected when memory is off.
 
 ---
 
@@ -292,4 +292,4 @@ They unset both flags. The assistant returns to exactly its previous behaviour, 
 3. Never modify `agent-loop.ts`. If you believe you must, stop and explain why.
 4. Redaction goes in before capture works, not after. Do not "wire it up and add redaction next".
 5. Treat every Memnest call as able to fail. None of them may break a turn.
-6. If Memnest's API turns out not to fit this integration cleanly, say so rather than working around it in Runnel. Memnest is on `0.x` and its interface is still cheap to change — that is the entire reason this integration is happening at M5 instead of later.
+6. If Memnest's API turns out not to fit this integration cleanly, say so rather than working around it in Runnel. Memnest is on `0.x` and its interface is still cheap to change - that is the entire reason this integration is happening at M5 instead of later.

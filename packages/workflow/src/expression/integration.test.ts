@@ -257,7 +257,7 @@ describe('expression engine integration table', () => {
   });
 });
 
-describe('expression engine integration — $now / $today (excluded from the equality table since they are wall-clock)', () => {
+describe('expression engine integration - $now / $today (excluded from the equality table since they are wall-clock)', () => {
   it('$now resolves to a valid current Luxon DateTime', () => {
     const before = Date.now();
     const result = evaluateExpressionSource('$now', ctx) as DateTime;

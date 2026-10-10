@@ -10,7 +10,7 @@ interface IPostgresCredentials {
   ssl: boolean;
 }
 
-/** Runs a SQL query once per input item and emits one output item per returned row. Opens a single connection for the whole execute() call rather than one per item — cheaper, and matches how a real workflow run would want to reuse the connection. */
+/** Runs a SQL query once per input item and emits one output item per returned row. Opens a single connection for the whole execute() call rather than one per item - cheaper, and matches how a real workflow run would want to reuse the connection. */
 export const postgresNode: INodeType = {
   description: {
     displayName: 'Postgres',
@@ -31,7 +31,7 @@ export const postgresNode: INodeType = {
         default: '',
         required: true,
         typeOptions: { rows: 4 },
-        description: 'Runs once per input item — use an expression like ={{ $json.id }} to parameterize it per item',
+        description: 'Runs once per input item - use an expression like ={{ $json.id }} to parameterize it per item',
       },
     ],
   },

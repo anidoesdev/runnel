@@ -1,6 +1,6 @@
 import type { ICredentialType } from '@runnel/workflow';
 
-/** The canonical example of the declarative pattern: a fixed header name ("Authorization") with a templated value, so `authenticate.generic` alone is enough — no node-side special-casing needed. */
+/** The canonical example of the declarative pattern: a fixed header name ("Authorization") with a templated value, so `authenticate.generic` alone is enough - no node-side special-casing needed. */
 export const httpBearerAuth: ICredentialType = {
   name: 'httpBearerAuth',
   displayName: 'Bearer Token Auth',

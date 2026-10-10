@@ -8,7 +8,7 @@ const unitToMs: Record<IntervalUnit, number> = { seconds: 1000, minutes: 60_000,
  * Runs the workflow on a fixed interval. A fuller Schedule Trigger would also accept cron
  * expressions via a cron-parsing library; this is scoped to a simple interval (matching the
  * project's other deliberate scope decisions, e.g. HttpRequest's proxy option or the Code
- * node's vm sandbox) — ActiveWorkflowManager just needs *a* node that proves the trigger()
+ * node's vm sandbox) - ActiveWorkflowManager just needs *a* node that proves the trigger()
  * lifecycle (setInterval + emit + closeFunction) end-to-end.
  */
 export const scheduleTrigger: INodeType = {
@@ -40,7 +40,7 @@ export const scheduleTrigger: INodeType = {
   dryRunSafety: () => 'safe',
   /**
    * ActiveWorkflowManager runs the rest of the workflow via WorkflowExecute.run(workflow,
-   * node.name, emittedData) — which executes the *start* node too, feeding it the emitted
+   * node.name, emittedData) - which executes the *start* node too, feeding it the emitted
    * data as its own input. Every node WorkflowExecute can start from needs an execute(); for
    * a trigger, that's just an identity passthrough (same pattern as ManualTrigger).
    */

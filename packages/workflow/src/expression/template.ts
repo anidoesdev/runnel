@@ -71,7 +71,7 @@ export interface EvaluateExpressionOptions {
   maxSteps?: number;
 }
 
-/** Parses and evaluates a bare expression body (no `=` prefix, no `{{ }}` wrapper) — the building block `evaluateExpressionString` is built on, exposed for the editor's live-preview field and for testing. */
+/** Parses and evaluates a bare expression body (no `=` prefix, no `{{ }}` wrapper) - the building block `evaluateExpressionString` is built on, exposed for the editor's live-preview field and for testing. */
 export function evaluateExpressionSource(
   source: string,
   context: IExpressionEvalContext,
@@ -84,8 +84,8 @@ export function evaluateExpressionSource(
 /**
  * Evaluates a raw parameter string. Non-expression strings (not starting with "=") pass
  * through unchanged. When the whole expression body is exactly one `{{ ... }}` block (with
- * at most surrounding whitespace as literal text), the raw evaluated value is returned —
- * preserving its type — so an expression can resolve to an object, array, or number rather
+ * at most surrounding whitespace as literal text), the raw evaluated value is returned -
+ * preserving its type - so an expression can resolve to an object, array, or number rather
  * than always being coerced to a string. Any other mix of literal text and `{{ }}` blocks is
  * concatenated as a string, using JSON.stringify for object/array results.
  */

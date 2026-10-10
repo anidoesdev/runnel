@@ -68,7 +68,7 @@ describe('redactSecrets', () => {
     const instance = new Custom();
 
     const result = redactSecrets({ res: instance }) as { res: Custom };
-    expect(result.res).toBe(instance); // same reference — not a rebuilt plain-object copy
+    expect(result.res).toBe(instance); // same reference - not a rebuilt plain-object copy
     expect(result.res.getSomething()).toBe('still callable');
   });
 

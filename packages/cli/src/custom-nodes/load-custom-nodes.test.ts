@@ -10,8 +10,8 @@ function makeLogger(): Logger {
   return { warn: vi.fn(), error: vi.fn(), info: vi.fn() } as unknown as Logger;
 }
 
-/** Writes a minimal, real, already-"built" custom node package — a plain .js module, no
- * compilation needed — at <dir>/<packageName>/dist/index.js, matching what `runnel-node-dev new`
+/** Writes a minimal, real, already-"built" custom node package - a plain .js module, no
+ * compilation needed - at <dir>/<packageName>/dist/index.js, matching what `runnel-node-dev new`
  * + `npm run build` would actually produce. */
 function writeBuiltPackage(dir: string, packageName: string, source: string): void {
   const distDir = join(dir, packageName, 'dist');

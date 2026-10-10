@@ -3,7 +3,7 @@ import { workflowsApi } from '../api/workflows.js';
 import type { IConnections, IDataObject, INode, NodeConnectionType } from '@runnel/workflow';
 import type { IExecuteWorkflowResult, IWorkflowRecord } from '../api/types.js';
 
-/** Holds the workflow currently open in the editor — the canvas, the NDV, and the top bar all read/write this. */
+/** Holds the workflow currently open in the editor - the canvas, the NDV, and the top bar all read/write this. */
 export const useWorkflowStore = defineStore('workflow', {
   state: () => ({
     id: null as string | null,
@@ -177,7 +177,7 @@ export const useWorkflowStore = defineStore('workflow', {
       this.applyRecord(record);
     },
 
-    /** With `destinationNode` set, runs only that node and its ancestors and stops there — the NDV's "Run to Here" button. */
+    /** With `destinationNode` set, runs only that node and its ancestors and stops there - the NDV's "Run to Here" button. */
     async execute(destinationNode?: string): Promise<void> {
       if (!this.id) throw new Error('Save the workflow before running it');
       this.executing = true;
@@ -194,7 +194,7 @@ export const useWorkflowStore = defineStore('workflow', {
 
     /**
      * Runs the chain from `chatTriggerName` (fed `message` as its `chatInput` output, exactly
-     * like a Manual Trigger seeds a manual run) through to `agentName`, and stops there — same
+     * like a Manual Trigger seeds a manual run) through to `agentName`, and stops there - same
      * pruning as "Run to Here" (`execute(destinationNode)`), just started at the Chat node
      * instead of wherever `findStartNodeName` would otherwise pick.
      */

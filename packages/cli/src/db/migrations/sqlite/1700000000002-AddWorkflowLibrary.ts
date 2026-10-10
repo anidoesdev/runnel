@@ -5,7 +5,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
  * The library features behind the editor's formerly-disabled controls: starring, a trash that
  * delete now writes to instead of destroying a row, user-created folders, and the notification
  * feed. `deletedAt`/`createdAt`/`readAt` are ISO varchars rather than datetime columns, same
- * reasoning as ExecutionEntity.stoppedAt and AssistantSessionEntity — the value is produced in
+ * reasoning as ExecutionEntity.stoppedAt and AssistantSessionEntity - the value is produced in
  * application code, so a DB-managed column would be a second source of truth.
  */
 export class AddWorkflowLibrary1700000000002 implements MigrationInterface {

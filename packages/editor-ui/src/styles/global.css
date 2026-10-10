@@ -129,7 +129,7 @@
 }
 
 /**
- * Dark theme — near-black with a faint green tint, lit by a subtle mint neon (#3DFFA0). The neon is
+ * Dark theme - near-black with a faint green tint, lit by a subtle mint neon (#3DFFA0). The neon is
  * reserved for things that are alive: the active selection, primary actions, running flow. Surfaces
  * stay quiet so the glow reads as signal rather than decoration. Set by useTheme() as data-theme on
  * <html>; only tokens change here, so every component follows without dark-specific rules.
@@ -291,7 +291,7 @@ a {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 25%, transparent);
 }
 
-/* Shared circular icon button — panel close (×), canvas zoom controls, etc. */
+/* Shared circular icon button - panel close (×), canvas zoom controls, etc. */
 .icon-button {
   display: inline-flex;
   align-items: center;
@@ -336,7 +336,7 @@ a {
   color: var(--color-on-surface-variant);
 }
 
-/* Top-bar size — matches RunnelButton's 36px height so toolbar rows line up (shadcn's
+/* Top-bar size - matches RunnelButton's 36px height so toolbar rows line up (shadcn's
    `size="icon"` is likewise square at the default button height). The 28px default stays for
    compact panel headers and card menus. */
 .icon-button--lg {
@@ -379,7 +379,7 @@ a {
   gap: 8px;
 }
 
-/* Account menu — shared by every top bar (workflow library, workflow editor) so the app has
+/* Account menu - shared by every top bar (workflow library, workflow editor) so the app has
    one avatar pattern instead of a copy per screen. */
 .app-avatar-wrap {
   position: relative;
@@ -1308,7 +1308,7 @@ a {
   color: var(--color-error);
 }
 
-/* NDV — the selected node's Input/Output editor, shown in a centered modal (see RunnelModal). */
+/* NDV - the selected node's Input/Output editor, shown in a centered modal (see RunnelModal). */
 .ndv {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1466,7 +1466,7 @@ a {
   color: var(--color-on-surface-variant);
 }
 
-/* Node detail modal header (icon + editable name + type) — see RunnelModal's #header slot usage in NodeDetailPanel.vue. */
+/* Node detail modal header (icon + editable name + type) - see RunnelModal's #header slot usage in NodeDetailPanel.vue. */
 .node-detail-panel__name {
   font: inherit;
   font-weight: 600;
@@ -1588,7 +1588,7 @@ a {
   overflow: auto;
 }
 
-/* Assistant panel — docked right (see Part 6: "Chat panel, docked right"). */
+/* Assistant panel - docked right (see Part 6: "Chat panel, docked right"). */
 .assistant-panel {
   display: flex;
   flex-direction: column;
@@ -1793,7 +1793,7 @@ a {
   border-top: 1px solid var(--color-border);
 }
 
-/* Live canvas highlighting — pulses a node/edge the instant the assistant's tool call lands (Part 6: "This is what makes it feel like an agent rather than a form"). */
+/* Live canvas highlighting - pulses a node/edge the instant the assistant's tool call lands (Part 6: "This is what makes it feel like an agent rather than a form"). */
 @keyframes canvas-node-pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(56, 100, 90, 0.6);

@@ -8,7 +8,7 @@ import type { IExecuteFunctions, INode, INodeType, IWorkflowBase, NodeOutput } f
 
 const ENCRYPTION_KEY = 'test-encryption-key';
 
-/** Echoes back whatever `getCredentials('testCred')` resolves to, as the node's own output — lets a test assert exactly which stored row a run actually used. */
+/** Echoes back whatever `getCredentials('testCred')` resolves to, as the node's own output - lets a test assert exactly which stored row a run actually used. */
 const echoCredentialNode: INodeType = {
   description: {
     displayName: 'Echo Credential',
@@ -36,7 +36,7 @@ function credentialTypes() {
   return new MapCredentialTypes().register({ name: 'testCred', displayName: 'Test Credential', properties: [] });
 }
 
-describe('runWorkflowDefinition — credential resolution', () => {
+describe('runWorkflowDefinition - credential resolution', () => {
   let dataSource: DataSource;
   let credentials: Repository<CredentialEntity>;
 
@@ -71,7 +71,7 @@ describe('runWorkflowDefinition — credential resolution', () => {
 
   it("resolves the node's specifically-assigned credential id, not just any credential of that type", async () => {
     // The "broken placeholder created first, real one added later" scenario: type-only lookup
-    // would non-deterministically return whichever row TypeORM happens to return first — here,
+    // would non-deterministically return whichever row TypeORM happens to return first - here,
     // asserting on the *second*, later-inserted row proves it's not just "the first match".
     await insertCredential('placeholder', 'unset');
     await insertCredential('real', 'sk-real-value');

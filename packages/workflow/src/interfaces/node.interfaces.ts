@@ -2,7 +2,7 @@ import type { IDataObject, INodeExecutionData, NodeOutput } from './common.inter
 
 /**
  * `main` is the regular item-flow connection every node has used until now. The `ai_*` types
- * carry no items — they let one node (a chat model, a tool) offer a capability that another
+ * carry no items - they let one node (a chat model, a tool) offer a capability that another
  * node (an agent) resolves and calls directly at execution time, rather than being scheduled
  * through the main queue. See IConnections and IExecuteFunctions.getInputConnectionData.
  */
@@ -141,7 +141,7 @@ export interface IHttpRequestOptions {
   returnFullResponse?: boolean;
   /** How to parse the response body. Defaults to 'json' when the response is JSON, else 'text'. */
   encoding?: 'json' | 'text' | 'arraybuffer';
-  /** Accepted for forward compatibility; proxy tunneling is not yet wired up (M5 scope note — see http-client.ts). */
+  /** Accepted for forward compatibility; proxy tunneling is not yet wired up (M5 scope note - see http-client.ts). */
   proxy?: string;
   retry?: { maxRetries?: number; retryDelayMs?: number };
 }
@@ -154,7 +154,7 @@ export interface IHttpResponse {
 
 /**
  * Narrow execution-context surfaces. The concrete implementations require Node.js I/O
- * (HTTP helper, binary data manager, credential decryption) and live in packages/core —
+ * (HTTP helper, binary data manager, credential decryption) and live in packages/core -
  * these declarations exist so packages/nodes-base and packages/editor-ui can type against
  * the contract without depending on core.
  */
@@ -170,7 +170,7 @@ export interface IExecuteFunctions {
   /**
    * Resolves every node connected to this node's `type` input at `index` (default 0) and
    * calls each one's `supplyData()`, returning their results in connection order. Always an
-   * array — a required, single-connection input like `ai_languageModel` still comes back as
+   * array - a required, single-connection input like `ai_languageModel` still comes back as
    * a 0-or-1-element array; the caller (e.g. the AI Agent node) decides what "missing" means
    * for its own input. `ai_tool` naturally returns 0..N elements, one per connected tool.
    */
@@ -207,7 +207,7 @@ export type ILoadOptionsFunctions = Pick<
   'getNodeParameter' | 'getCredentials' | 'getNode' | 'helpers'
 >;
 
-/** Context passed to a sub-node's `supplyData()` — a chat model or tool node has no `main` input, so there's no `getInputData`/item loop here, just its own parameters and credentials. */
+/** Context passed to a sub-node's `supplyData()` - a chat model or tool node has no `main` input, so there's no `getInputData`/item loop here, just its own parameters and credentials. */
 export type ISupplyDataFunctions = Pick<
   IExecuteFunctions,
   'getNodeParameter' | 'getCredentials' | 'getNode' | 'getWorkflow' | 'helpers'
@@ -228,7 +228,7 @@ export interface ITriggerResponse {
 }
 
 export interface IWebhookResponseData {
-  /** Becomes the initial `startData` handed to WorkflowExecute.run() for the rest of the workflow — same shape as any other node's output, not an array of them. */
+  /** Becomes the initial `startData` handed to WorkflowExecute.run() for the rest of the workflow - same shape as any other node's output, not an array of them. */
   workflowData?: NodeOutput;
   webhookResponse?: unknown;
   noWebhookResponse?: boolean;
@@ -238,7 +238,7 @@ export interface INodeType {
   description: INodeTypeDescription;
   /**
    * Classifies whether `execute()` is safe to run for real during a grounding dry run (see
-   * packages/core's WorkflowExecute `dryRun` option) — 'safe' for a node with no externally
+   * packages/core's WorkflowExecute `dryRun` option) - 'safe' for a node with no externally
    * observable side effect (a pure transform, or a trigger's execute() pass-through), 'mock' for
    * anything that writes to (or spends money calling) something outside the process. Unset
    * defaults to 'mock': a node must opt in to being trusted, never the reverse, so a future node
@@ -249,7 +249,7 @@ export interface INodeType {
   poll?(this: IPollFunctions): Promise<NodeOutput | null>;
   trigger?(this: ITriggerFunctions): Promise<ITriggerResponse>;
   webhook?(this: IWebhookFunctions): Promise<IWebhookResponseData>;
-  /** For a sub-node offering an `ai_*` output (a chat model, a tool) — returns whatever shape that connection type's consumer expects, e.g. `{ chat(...) }` for `ai_languageModel` or `{ name, description, schema, invoke(...) }` for `ai_tool`. Never scheduled through the main queue; called directly by the consuming node via getInputConnectionData. */
+  /** For a sub-node offering an `ai_*` output (a chat model, a tool) - returns whatever shape that connection type's consumer expects, e.g. `{ chat(...) }` for `ai_languageModel` or `{ name, description, schema, invoke(...) }` for `ai_tool`. Never scheduled through the main queue; called directly by the consuming node via getInputConnectionData. */
   supplyData?(this: ISupplyDataFunctions): Promise<unknown>;
   methods?: {
     loadOptions?: Record<string, (this: ILoadOptionsFunctions) => Promise<INodePropertyOptions[]>>;

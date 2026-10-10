@@ -8,7 +8,7 @@ import type { Connection, Edge, EdgeChange, Node as FlowNode, NodeChange, NodeDr
 import type { IConnection, IConnections, INode, NodeConnectionType } from '@runnel/workflow';
 
 const props = defineProps<{
-  /** When given, the canvas renders this instead of the live workflow store — a read-only preview of the assistant's in-progress draft (Part 6: "highlight on the canvas in real time"). Drag/connect/delete are no-ops while previewing; edit via chat, not the canvas, until the draft is applied. */
+  /** When given, the canvas renders this instead of the live workflow store - a read-only preview of the assistant's in-progress draft (Part 6: "highlight on the canvas in real time"). Drag/connect/delete are no-ops while previewing; edit via chat, not the canvas, until the draft is applied. */
   previewNodes?: INode[];
   previewConnections?: IConnections;
   pulseNodeNames?: string[];
@@ -26,7 +26,7 @@ const store = useWorkflowStore();
 const { project, zoomIn, zoomOut, fitView } = useVueFlow();
 
 /**
- * Frame the whole workflow once when it opens — nodes otherwise sit wherever the saved positions
+ * Frame the whole workflow once when it opens - nodes otherwise sit wherever the saved positions
  * put them, often jammed against an edge or under a side panel. Only once per workflow: re-fitting
  * after every added node would yank the view out from under the person editing it.
  */
@@ -49,7 +49,7 @@ const idByName = computed(() => new Map(displayNodes.value.map((n) => [n.name, n
 const nameById = computed(() => new Map(displayNodes.value.map((n) => [n.id, n.name])));
 
 /**
- * Real runs only — the live canvas never plays a pretend execution. While one is in flight the
+ * Real runs only - the live canvas never plays a pretend execution. While one is in flight the
  * whole flow is "running"; afterwards each node shows what actually happened to it. An assistant
  * draft (readonly preview) isn't what ran, so it shows neither.
  */
@@ -77,8 +77,8 @@ const flowNodes = computed<FlowNode[]>(() =>
 );
 
 /**
- * Handle ids encode both the connection type and its per-type index — `output-main-0`,
- * `input-ai_languageModel-0` — since a node can have several *kinds* of port (main, plus any
+ * Handle ids encode both the connection type and its per-type index - `output-main-0`,
+ * `input-ai_languageModel-0` - since a node can have several *kinds* of port (main, plus any
  * ai_* sub-node ports), not just several main ones. `type` and `index` are always parts[1]/[2]
  * since neither `input`/`output` nor any NodeConnectionType value contains a `-`.
  */
@@ -129,10 +129,10 @@ function onNodeDragStop({ node }: NodeDragEvent): void {
 
 /**
  * A `main` output may only connect to a `main` input, an `ai_languageModel` output only to an
- * `ai_languageModel` input, etc. — dragging a wire between mismatched port kinds is rejected
+ * `ai_languageModel` input, etc. - dragging a wire between mismatched port kinds is rejected
  * before it's ever created. Deliberately NOT gated on `readonly`: Vue Flow calls this same
  * callback to validate every *existing* edge it renders from the `:edges` prop, not just a
- * new user-drawn one — returning false here whenever readonly is true silently drops every
+ * new user-drawn one - returning false here whenever readonly is true silently drops every
  * already-valid connection instead of just blocking new ones. `:nodes-connectable="!readonly"`
  * is what actually stops the user from starting a new drag in preview mode.
  */
@@ -361,7 +361,7 @@ function onDeleteNode(nodeId: string): void {
   font-size: 18px;
 }
 
-/* Neutral, quiet ground instead of a full-bleed saturated tint — the canvas is the dominant
+/* Neutral, quiet ground instead of a full-bleed saturated tint - the canvas is the dominant
    surface on screen, so it carries no color of its own; nodes and connections supply all the
    color that's needed. */
 .workflow-canvas :deep(.vue-flow) {

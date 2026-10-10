@@ -14,7 +14,7 @@ const askUserQuestionSchema = z.object({
 const askUserArgsSchema = z.object({ questions: z.array(askUserQuestionSchema).min(1) });
 
 /**
- * ask_user isn't a workflow-tools ITool — it never touches a draft, and the agent loop
+ * ask_user isn't a workflow-tools ITool - it never touches a draft, and the agent loop
  * intercepts it before dispatch (see processToolCallBatch in agent-loop.ts) rather than routing
  * it through invokeTool, since answering it means *pausing the turn*, not returning a result.
  * This is the raw wire definition advertised to the model; the JSON Schema is hand-written
@@ -24,7 +24,7 @@ const askUserArgsSchema = z.object({ questions: z.array(askUserQuestionSchema).m
 export const ASK_USER_TOOL_DEFINITION: IModelToolDefinition = {
   name: ASK_USER_TOOL_NAME,
   description:
-    'Ask the user one or more questions when the answer is genuinely unknowable from context — which Slack channel, which spreadsheet, what counts as "urgent". Never ask something discoverable by calling a tool (search_nodes, get_node_schema, list_credentials, ...) instead. Render as real option chips when you can; only fall back to allowFreeText when there is no fixed set of choices.',
+    'Ask the user one or more questions when the answer is genuinely unknowable from context - which Slack channel, which spreadsheet, what counts as "urgent". Never ask something discoverable by calling a tool (search_nodes, get_node_schema, list_credentials, ...) instead. Render as real option chips when you can; only fall back to allowFreeText when there is no fixed set of choices.',
   parameters: {
     type: 'object',
     properties: {
@@ -54,7 +54,7 @@ export const ASK_USER_TOOL_DEFINITION: IModelToolDefinition = {
   },
 };
 
-/** Parses and validates a raw ask_user tool-call arguments string. Returns undefined (not a throw) on malformed input, so the caller can feed a normal INVALID_ARGS-shaped tool error back to the model instead of derailing the whole turn — see agent-loop.ts. */
+/** Parses and validates a raw ask_user tool-call arguments string. Returns undefined (not a throw) on malformed input, so the caller can feed a normal INVALID_ARGS-shaped tool error back to the model instead of derailing the whole turn - see agent-loop.ts. */
 export function parseAskUserArguments(argsText: string): IAskUserQuestion[] | undefined {
   let raw: unknown;
   try {

@@ -13,7 +13,7 @@ function captureStream(): { stream: Writable; output: () => string } {
   return { stream, output: () => chunks.join('') };
 }
 
-describe('createLogger — redaction', () => {
+describe('createLogger - redaction', () => {
   it('never writes a known secret to the log output', () => {
     const { stream, output } = captureStream();
     const logger = createLogger({ destination: stream });

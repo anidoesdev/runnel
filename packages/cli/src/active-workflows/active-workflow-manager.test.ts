@@ -97,7 +97,7 @@ describe('ActiveWorkflowManager', () => {
 
   const doneNode: INode = { id: 'n2', name: 'Done', type: 'noOp', typeVersion: 1, position: [1, 0], parameters: {} };
 
-  describe('Schedule Trigger — trigger() lifecycle', () => {
+  describe('Schedule Trigger - trigger() lifecycle', () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => vi.useRealTimers());
 
@@ -165,7 +165,7 @@ describe('ActiveWorkflowManager', () => {
     });
   });
 
-  describe('Poll Trigger — poll() lifecycle', () => {
+  describe('Poll Trigger - poll() lifecycle', () => {
     beforeEach(() => vi.useFakeTimers());
     afterEach(() => vi.useRealTimers());
 
@@ -178,7 +178,7 @@ describe('ActiveWorkflowManager', () => {
       await vi.advanceTimersByTimeAsync(5000);
       expect(await executions.find({ where: { workflowId: entity.id } })).toHaveLength(1);
 
-      // Same items again on the next tick — poll() returns null, so no new execution.
+      // Same items again on the next tick - poll() returns null, so no new execution.
       await vi.advanceTimersByTimeAsync(5000);
       expect(await executions.find({ where: { workflowId: entity.id } })).toHaveLength(1);
 

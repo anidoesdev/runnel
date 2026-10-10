@@ -10,7 +10,7 @@ export interface TestServer {
   close: () => Promise<void>;
 }
 
-/** Spins up a real local HTTP server on an ephemeral port — used to test the HTTP client and the HTTP Request node against actual network behavior rather than a mocked fetch. */
+/** Spins up a real local HTTP server on an ephemeral port - used to test the HTTP client and the HTTP Request node against actual network behavior rather than a mocked fetch. */
 export function startTestServer(handler: Handler): Promise<TestServer> {
   return new Promise((resolve) => {
     const server = createServer(handler);

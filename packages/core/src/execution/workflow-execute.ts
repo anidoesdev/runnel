@@ -19,14 +19,14 @@ import type { INodeTypes } from './node-types.js';
 
 export interface IWorkflowExecuteOptions {
   mode: WorkflowExecuteMode;
-  /** Injectable delay for retryOnFail's waitBetweenTries — tests pass a no-op to stay fast. */
+  /** Injectable delay for retryOnFail's waitBetweenTries - tests pass a no-op to stay fast. */
   sleep?: (ms: number) => Promise<void>;
   credentialsResolver?: (credentialTypeName: string, credentialId?: string) => Promise<IDataObject>;
   credentialTypes?: ICredentialTypes;
   httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
   /**
    * Grounding's "dry run" (see the assistant's execute_dry_run tool): nodes whose
-   * `dryRunSafety(parameters)` isn't 'safe' never have their real `execute()` called — instead
+   * `dryRunSafety(parameters)` isn't 'safe' never have their real `execute()` called - instead
    * their input is recorded as a passthrough output, tagged `mocked: true`, and propagated
    * onward so the rest of the graph still runs. Lets the agent observe real upstream data
    * (an HTTP GET's actual response shape, say) without ever performing a write.
@@ -42,7 +42,7 @@ function hasIncomingConnection(workflow: IWorkflowBase, nodeName: string): boole
   );
 }
 
-/** `description.inputs`/`outputs` can list non-`main` sub-node ports (ai_languageModel, ai_tool) alongside `main` — only `main` entries participate in the queued execution flow (item branches, multi-input waiting), so every count here must be main-only. */
+/** `description.inputs`/`outputs` can list non-`main` sub-node ports (ai_languageModel, ai_tool) alongside `main` - only `main` entries participate in the queued execution flow (item branches, multi-input waiting), so every count here must be main-only. */
 function mainPortCount(ports: readonly string[]): number {
   return ports.filter((port) => port === 'main').length;
 }
@@ -63,7 +63,7 @@ function tagItemsWithError(items: INodeExecutionData[], error: ITaskDataError): 
 
 /**
  * Walks an IWorkflowBase, calling each reachable node's `execute()` and threading data
- * between them. `run` and `resume` are the same loop over the same IRunExecutionData —
+ * between them. `run` and `resume` are the same loop over the same IRunExecutionData -
  * that's what makes mid-execution serialization/resume possible: there is no separate
  * "live" state that `resume` would need to reconstruct.
  */
@@ -166,7 +166,7 @@ export class WorkflowExecute {
       try {
         if (!nodeType.execute) {
           throw new NodeOperationError(node, `Node type "${node.type}" has no execute() and can't be run directly`, {
-            description: 'This is a sub-node (it only supplies data via supplyData()) — connect it to another node instead of running it on its own.',
+            description: 'This is a sub-node (it only supplies data via supplyData()) - connect it to another node instead of running it on its own.',
           });
         }
 
@@ -265,7 +265,7 @@ export class WorkflowExecute {
           // An empty propagation into a node that has already run/skipped at least once is
           // dropped rather than re-queued. Without this, a loop-back edge whose "done" state
           // keeps emitting an empty "continue" branch would re-trigger its own loop body with
-          // 0 items forever — the body skips, the skip cascades back into the loop node, which
+          // 0 items forever - the body skips, the skip cascades back into the loop node, which
           // re-emits the same empty branch, ad infinitum. A genuinely new (non-empty) delivery
           // always goes through regardless of history.
           const alreadyRan = (runExecutionData.resultData.runData[targetNode.name]?.length ?? 0) > 0;

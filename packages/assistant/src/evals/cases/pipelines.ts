@@ -1,6 +1,6 @@
 import type { IEvalCase } from '../types.js';
 
-/** Multi-step asks — the same request a user would type in one breath, chaining two or three capabilities together. */
+/** Multi-step asks - the same request a user would type in one breath, chaining two or three capabilities together. */
 export const PIPELINE_CASES: IEvalCase[] = [
   {
     id: 'trigger-call-filter-sort',

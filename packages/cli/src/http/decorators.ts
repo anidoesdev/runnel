@@ -9,7 +9,7 @@ import 'reflect-metadata';
  *     async getOne(req: Request) { ... }
  *   }
  *
- * This is deliberately minimal — no param decorators, no dependency injection container.
+ * This is deliberately minimal - no param decorators, no dependency injection container.
  * Controllers receive the raw Express (req, res) and either return a value (auto-JSON'd) or
  * write to `res` themselves.
  */

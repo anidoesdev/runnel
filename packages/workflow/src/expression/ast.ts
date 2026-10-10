@@ -1,4 +1,4 @@
-/** AST for the expression sub-language evaluated inside `{{ ... }}`. Expressions only — no statements, no loops, no user-defined functions. */
+/** AST for the expression sub-language evaluated inside `{{ ... }}`. Expressions only - no statements, no loops, no user-defined functions. */
 
 export type Expr =
   | { kind: 'Literal'; value: string | number | boolean | null | undefined }

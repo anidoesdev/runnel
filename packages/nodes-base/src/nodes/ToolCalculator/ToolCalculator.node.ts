@@ -2,7 +2,7 @@ import type { INodeType, ISupplyDataFunctions } from '@runnel/workflow';
 import type { IAiTool } from '../shared/ai-types.js';
 
 /**
- * A tiny recursive-descent parser for `+ - * / ( )` over decimal numbers — deliberately not
+ * A tiny recursive-descent parser for `+ - * / ( )` over decimal numbers - deliberately not
  * `eval`/`Function`, since this expression string ultimately comes from an LLM's tool-call
  * arguments (untrusted input).
  */
@@ -80,7 +80,7 @@ export const toolCalculator: INodeType = {
     icon: 'fa:calculator',
     group: ['ai'],
     version: 1,
-    description: 'Evaluates a basic arithmetic expression — a tool an AI Agent node can call',
+    description: 'Evaluates a basic arithmetic expression - a tool an AI Agent node can call',
     defaults: { name: 'Calculator' },
     inputs: [],
     outputs: ['ai_tool'],

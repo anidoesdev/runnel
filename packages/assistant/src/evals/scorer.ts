@@ -14,7 +14,7 @@ function toolErrorCount(session: IAssistantSession): number {
   }).length;
 }
 
-/** Every tool the model actually called across the whole run, in order — read from the message transcript (not session.pendingApproval/pendingQuestions, which are cleared once resolved) so this stays accurate after an autoResume. */
+/** Every tool the model actually called across the whole run, in order - read from the message transcript (not session.pendingApproval/pendingQuestions, which are cleared once resolved) so this stays accurate after an autoResume. */
 function calledToolNames(session: IAssistantSession): string[] {
   return session.messages.flatMap((message) => (message.role === 'assistant' ? (message.toolCalls ?? []).map((call) => call.name) : []));
 }

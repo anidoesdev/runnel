@@ -19,7 +19,7 @@ function isNodeTypeShaped(value: unknown): value is INodeType {
   );
 }
 
-/** A scaffolded custom node package (see @runnel/node-dev) may export its node(s) as the default export, a named export, or several named exports — anything shaped like an INodeType counts, deduplicated in case default and a named export point at the same object. */
+/** A scaffolded custom node package (see @runnel/node-dev) may export its node(s) as the default export, a named export, or several named exports - anything shaped like an INodeType counts, deduplicated in case default and a named export point at the same object. */
 function extractNodeTypes(mod: Record<string, unknown>): INodeType[] {
   const candidates = new Set<unknown>(Object.values(mod));
   return [...candidates].filter(isNodeTypeShaped);
@@ -29,12 +29,12 @@ function extractNodeTypes(mod: Record<string, unknown>): INodeType[] {
  * Scans every immediate subdirectory of `dir` for a built package (`dist/index.js`, matching
  * what `runnel-node-dev new` scaffolds and `npm run build` produces) and dynamically imports it.
  * A subdirectory with no `dist/index.js` yet (not built) is silently skipped rather than
- * treated as an error — that's the normal state right after `runnel-node-dev new`, before the
+ * treated as an error - that's the normal state right after `runnel-node-dev new`, before the
  * user has run a build.
  */
 export async function loadCustomNodeTypes(dir: string, logger: Logger): Promise<INodeType[]> {
   if (!existsSync(dir)) {
-    logger.warn(`CUSTOM_NODES_DIR "${dir}" does not exist — no custom nodes loaded.`);
+    logger.warn(`CUSTOM_NODES_DIR "${dir}" does not exist - no custom nodes loaded.`);
     return [];
   }
 
@@ -50,7 +50,7 @@ export async function loadCustomNodeTypes(dir: string, logger: Logger): Promise<
       const mod = (await import(pathToFileURL(entryPoint).href)) as Record<string, unknown>;
       const nodeTypes = extractNodeTypes(mod);
       if (nodeTypes.length === 0) {
-        logger.warn(`${entryPoint} doesn't export anything that looks like an INodeType — skipped.`);
+        logger.warn(`${entryPoint} doesn't export anything that looks like an INodeType - skipped.`);
       }
       found.push(...nodeTypes);
     } catch (err) {
@@ -61,7 +61,7 @@ export async function loadCustomNodeTypes(dir: string, logger: Logger): Promise<
   return found;
 }
 
-/** Built-in node types always win a name collision — a custom node can't silently shadow trusted built-in behavior. */
+/** Built-in node types always win a name collision - a custom node can't silently shadow trusted built-in behavior. */
 export function registerCustomNodeTypes(
   customNodeTypes: INodeType[],
   registry: MapNodeTypes,
@@ -72,7 +72,7 @@ export function registerCustomNodeTypes(
 
   for (const nodeType of customNodeTypes) {
     if (builtInNames.has(nodeType.description.name)) {
-      logger.warn(`Custom node "${nodeType.description.name}" collides with a built-in node type — the built-in wins.`);
+      logger.warn(`Custom node "${nodeType.description.name}" collides with a built-in node type - the built-in wins.`);
       continue;
     }
     registry.register(nodeType);

@@ -65,7 +65,7 @@ function isAbortError(err: unknown): boolean {
  * Talks to any OpenAI-compatible chat-completions endpoint with `stream: true`, normalizing
  * OpenAI's index-keyed tool_calls streaming (the model can interleave deltas for several
  * parallel tool calls; only the *first* chunk for a given index carries its `id`/`function.name`
- * — every later chunk for that index carries only an `arguments` fragment) into the
+ * - every later chunk for that index carries only an `arguments` fragment) into the
  * provider-agnostic ModelStreamEvent union the agent loop depends on.
  */
 export class OpenAiModelProvider implements IModelProvider {

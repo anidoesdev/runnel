@@ -10,8 +10,8 @@ export interface IBinaryDataMetadata {
 /**
  * Minimal in-memory binary data store, referenced by id from IBinaryData rather than
  * inlining buffers into item JSON (per the M1 architecture note). This is intentionally a
- * placeholder: real durability — persisting to disk or S3 so binary data survives a process
- * restart and doesn't blow up memory on large files — is execution-history territory that
+ * placeholder: real durability - persisting to disk or S3 so binary data survives a process
+ * restart and doesn't blow up memory on large files - is execution-history territory that
  * lands in M9 alongside data pruning. The HTTP Request node's file download support needs
  * *somewhere* to put bytes now, and this is the simplest thing that could work for M5.
  */

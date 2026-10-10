@@ -4,7 +4,7 @@ import { toCaptureTranscript, userContainerTag } from './capture-transcript.js';
 import type { MemnestApi } from '@memnest/core';
 import type { IAssistantActor, IAssistantMemoryPort, IAssistantSession, IRecallResult } from '@runnel/assistant';
 
-/** The slice of Memnest this adapter uses — narrow so tests can hand it a spy. */
+/** The slice of Memnest this adapter uses - narrow so tests can hand it a spy. */
 export type IMemnestForAssistant = Pick<MemnestApi, 'add' | 'search'>;
 
 export class MemnestMemoryAdapter implements IAssistantMemoryPort {
@@ -27,7 +27,7 @@ export class MemnestMemoryAdapter implements IAssistantMemoryPort {
     const content = toCaptureTranscript(session);
     if (content.length === 0) return;
 
-    // customId: a session is captured again every turn as it grows — Memnest versions the
+    // customId: a session is captured again every turn as it grows - Memnest versions the
     // document under this id and skips re-ingest when the content hash is unchanged. 'batched'
     // extraction waits for the session to go quiet instead of extracting after every turn.
     await this.memnest.add({

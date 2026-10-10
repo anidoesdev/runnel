@@ -46,9 +46,9 @@ export interface ICreateAppOptions {
   encryptionKey: string;
   jwtSecret: Uint8Array;
   logger: Logger;
-  /** Already-loaded third-party node types (see custom-nodes/load-custom-nodes.ts) to register alongside the built-in ones — loading is async I/O, so it happens before createApp (which stays synchronous) is called. */
+  /** Already-loaded third-party node types (see custom-nodes/load-custom-nodes.ts) to register alongside the built-in ones - loading is async I/O, so it happens before createApp (which stays synchronous) is called. */
   customNodeTypes?: INodeType[];
-  /** Assistant memory, already built (see assistant/memory/memory.factory.ts) — omitted means disabled. */
+  /** Assistant memory, already built (see assistant/memory/memory.factory.ts) - omitted means disabled. */
   memory?: IAssistantMemory;
   /** What the settings page reports about this server; server.ts fills it in from the real config. */
   systemInfo?: Partial<ISystemInfo>;
@@ -70,7 +70,7 @@ const PUBLIC_PATHS = new Set([
 ]);
 
 // Webhook paths are registered at runtime by active workflows, so they can't live in a fixed
-// Set — every request under /webhook/ is public by design (see auth.middleware.ts).
+// Set - every request under /webhook/ is public by design (see auth.middleware.ts).
 const PUBLIC_PATH_PREFIXES = ['/webhook/'];
 
 export function createApp(options: ICreateAppOptions): ICreatedApp {
@@ -106,7 +106,7 @@ export function createApp(options: ICreateAppOptions): ICreatedApp {
     ...options.systemInfo,
   };
 
-  // One instance for the app's lifetime — a draft is an in-memory copy-on-write overlay (see
+  // One instance for the app's lifetime - a draft is an in-memory copy-on-write overlay (see
   // WorkflowDraftStore's own doc comment on why), so every request that touches the assistant
   // must share the same store rather than each getting its own empty one.
   const workflowDraftStore = new WorkflowDraftStore(new WorkflowRepositoryAdapter(workflowRepo));

@@ -56,7 +56,7 @@ function webhookKey(method: string, path: string): string {
  * trigger/poll node's real lifecycle (trigger()'s returned closeFunction, poll()'s interval
  * timer) and registering webhook nodes so incoming HTTP requests can be routed to them.
  * `activate`/`deactivate` are idempotent and safe to call again on every workflow
- * create/update/delete — WorkflowsController does exactly that, so the running state here
+ * create/update/delete - WorkflowsController does exactly that, so the running state here
  * never drifts from the `active` column in the database for longer than one request.
  */
 export class ActiveWorkflowManager {
@@ -75,7 +75,7 @@ export class ActiveWorkflowManager {
     private readonly notifications?: NotificationService,
   ) {}
 
-  /** Loads and activates every workflow already marked active — called once at server startup. */
+  /** Loads and activates every workflow already marked active - called once at server startup. */
   async init(): Promise<void> {
     const activeWorkflows = await this.workflows.find({ where: { active: true } });
     for (const workflow of activeWorkflows) {
@@ -99,7 +99,7 @@ export class ActiveWorkflowManager {
    * Starts every trigger/poll/webhook node in `workflow`. Re-activating an already-active
    * workflow (e.g. after an edit) deactivates the previous registration first, so stale
    * timers/webhooks from the old node parameters never linger. On failure, everything this
-   * call itself started is torn back down before the error is rethrown — a partially-started
+   * call itself started is torn back down before the error is rethrown - a partially-started
    * activation is worse than no activation at all.
    */
   async activate(workflow: WorkflowEntity): Promise<void> {
@@ -332,19 +332,19 @@ export class ActiveWorkflowManager {
   }
 
   /**
-   * getWorkflowStaticData mutates `workflowDef.staticData` in place — save it back so a poll
+   * getWorkflowStaticData mutates `workflowDef.staticData` in place - save it back so a poll
    * cursor or trigger-set value survives a server restart. Uses `.save()` with the full
    * entity rather than `.update()` with a partial: a `QueryDeepPartialEntity<WorkflowEntity>`
    * recursing into `staticData`'s already-recursive `IDataObject` type is exactly the
    * "excessively deep" TS2589 the migration tests hit with WorkflowEntity's nested types
-   * (see migrations.sqlite.test.ts) — `.save()` on the concrete entity type sidesteps it.
+   * (see migrations.sqlite.test.ts) - `.save()` on the concrete entity type sidesteps it.
    */
   private async persistStaticData(workflow: WorkflowEntity, workflowDef: IWorkflowBase): Promise<void> {
     workflow.staticData = workflowDef.staticData ?? null;
     await this.workflows.save(workflow);
   }
 
-  /** Prefers the id a node actually has assigned for this credential type over "any stored credential of this type" — see run-workflow.ts's runWorkflow for why type-only lookup is ambiguous once more than one credential of the same type exists. */
+  /** Prefers the id a node actually has assigned for this credential type over "any stored credential of this type" - see run-workflow.ts's runWorkflow for why type-only lookup is ambiguous once more than one credential of the same type exists. */
   private buildCredentialsResolver(): (credentialTypeName: string, credentialId?: string) => Promise<IDataObject> {
     return async (credentialTypeName: string, credentialId?: string) => {
       const credential = credentialId

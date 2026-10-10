@@ -1,6 +1,6 @@
 import type { ICredentialType } from '@runnel/workflow';
 
-/** Base URL is deliberately overridable — any OpenAI-compatible chat completions endpoint (Azure OpenAI, a local server, etc.) works without a separate credential type. */
+/** Base URL is deliberately overridable - any OpenAI-compatible chat completions endpoint (Azure OpenAI, a local server, etc.) works without a separate credential type. */
 export const openAiApi: ICredentialType = {
   name: 'openAiApi',
   displayName: 'OpenAI API',

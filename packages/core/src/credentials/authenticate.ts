@@ -3,7 +3,7 @@ import type { ICredentialType, IDataObject, IHttpRequestOptions } from '@runnel/
 
 /**
  * Applies a credential type's declarative `authenticate.generic` block to a set of request
- * options — the preferred way to wire a credential into a request (over each node hand-
+ * options - the preferred way to wire a credential into a request (over each node hand-
  * injecting headers itself, per the M1 architecture note). Values may reference
  * `{{ $credentials.field }}`. `$credentials` is scoped to this one caller (credential
  * templates only ever need to reference their own fields), so it's resolved directly here

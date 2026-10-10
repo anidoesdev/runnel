@@ -16,7 +16,7 @@ function update(next: IDataObjectValue): void {
   emit('update:modelValue', next);
 }
 
-/** `options`/`multiOptions` use INodePropertyOptions[]; `fixedCollection`/`collection` use nested INodeProperties[] — see node.interfaces.ts. */
+/** `options`/`multiOptions` use INodePropertyOptions[]; `fixedCollection`/`collection` use nested INodeProperties[] - see node.interfaces.ts. */
 const selectOptions = computed(() =>
   ((props.property.options as INodePropertyOptions[] | undefined) ?? []).map((option) => ({
     label: option.name,

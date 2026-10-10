@@ -24,7 +24,7 @@ export function toWorkflowBase(entity: WorkflowEntity): IWorkflowBase {
  * to the first node when every node has a parent (e.g. a pure sub-workflow).
  *
  * A node that only ever *supplies* an `ai_languageModel`/`ai_tool` connection (a chat model, a
- * tool) also has no incoming `main` connection, but it's not a trigger either — it's a
+ * tool) also has no incoming `main` connection, but it's not a trigger either - it's a
  * sub-node, never meant to run on its own. Anything that's the source of a non-`main`
  * connection is excluded from candidacy for exactly that reason.
  */
@@ -60,9 +60,9 @@ export interface IRunWorkflowOptions {
   mode: WorkflowExecuteMode;
   startNodeName?: string;
   startData?: INodeExecutionData[];
-  /** Runs only the minimal subgraph needed to reach this node (it + its ancestors) and stops there — see Workflow.pruneToDestination. Powers the editor's per-node "run to here" button. */
+  /** Runs only the minimal subgraph needed to reach this node (it + its ancestors) and stops there - see Workflow.pruneToDestination. Powers the editor's per-node "run to here" button. */
   destinationNode?: string;
-  /** See WorkflowExecute's own dryRun option — nodes not classified dryRunSafety => 'safe' are mocked rather than actually run. Used by the assistant's grounding tools (execute_dry_run), never by a user-facing "Execute Workflow"/"Run to Here" click. */
+  /** See WorkflowExecute's own dryRun option - nodes not classified dryRunSafety => 'safe' are mocked rather than actually run. Used by the assistant's grounding tools (execute_dry_run), never by a user-facing "Execute Workflow"/"Run to Here" click. */
   dryRun?: boolean;
 }
 
@@ -116,14 +116,14 @@ export async function runWorkflowDefinition(
 }
 
 /**
- * Shared by the REST "execute workflow" endpoint and the `runnel execute` CLI command —
+ * Shared by the REST "execute workflow" endpoint and the `runnel execute` CLI command -
  * both need the same "resolve start node, build a credentials-aware engine, run it" logic.
  *
  * Credential resolution prefers the specific id a node has assigned for that type
  * (`node.credentials[type].id`, threaded through by execute-context's getCredentials) and only
  * falls back to "the first stored credential of the requested type" for a node that never
  * called set_node_credential. Without the id-based lookup, two credentials of the same type
- * (e.g. a broken placeholder and the real one entered afterward) are ambiguous — whichever
+ * (e.g. a broken placeholder and the real one entered afterward) are ambiguous - whichever
  * TypeORM happens to return first wins, which is exactly the failure mode that produced
  * "Failed to parse URL from undefined/chat/completions" even after the real credential existed.
  */

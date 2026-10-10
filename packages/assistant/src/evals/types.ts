@@ -24,9 +24,9 @@ export interface IEvalAutoResume {
 }
 
 /**
- * A canned execute_dry_run/execute_live + get_node_output result for one node — keyed by node
+ * A canned execute_dry_run/execute_live + get_node_output result for one node - keyed by node
  * name on IEvalCase.seedExecutionOutputs. Deliberately not the real execution engine (Part 7:
- * "mock all external APIs at the HTTP layer so runs are deterministic and free") — a case only
+ * "mock all external APIs at the HTTP layer so runs are deterministic and free") - a case only
  * needs to prove the agent calls the right grounding tools in the right order, not that a real
  * HTTP GET happened; ExecutionAdapter's own tests (packages/cli) cover engine fidelity.
  */
@@ -35,22 +35,22 @@ export interface IEvalSeedExecutionOutput {
   sample: unknown;
   itemCount?: number;
   mocked?: boolean;
-  /** When set, run() reports this as the node's error instead of success — for exercising the "retry up to 3 times, then ask_user" correction loop. */
+  /** When set, run() reports this as the node's error instead of success - for exercising the "retry up to 3 times, then ask_user" correction loop. */
   error?: string;
 }
 
 export interface IEvalCase {
   id: string;
-  /** Phrased the way a real user actually types, not a precisely-specified instruction — see each cases/*.ts file's own note. */
+  /** Phrased the way a real user actually types, not a precisely-specified instruction - see each cases/*.ts file's own note. */
   prompt: string;
   seedWorkflow?: { nodes: INode[]; connections: IConnections };
   availableCredentials?: ICredentialSummary[];
   seedExecutionOutputs?: Record<string, IEvalSeedExecutionOutput>;
-  /** If the turn pauses (ask_user / an approval gate), resolves it once with this before scoring — lets a case exercise the full "ask, then continue" or "gate, then continue" path, not just the pause itself. */
+  /** If the turn pauses (ask_user / an approval gate), resolves it once with this before scoring - lets a case exercise the full "ask, then continue" or "gate, then continue" path, not just the pause itself. */
   autoResume?: IEvalAutoResume;
   /**
    * Memories recalled from "earlier sessions", appended to the system prompt exactly the way the
-   * server does it. Lets a case check that a remembered preference changes what gets built —
+   * server does it. Lets a case check that a remembered preference changes what gets built -
    * without an engine, since this package never depends on one.
    */
   recalledMemories?: IRecalledMemory[];

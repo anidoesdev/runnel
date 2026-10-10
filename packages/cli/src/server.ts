@@ -25,10 +25,10 @@ export async function startServer(): Promise<IRunningServer> {
   const logger = createLogger();
 
   if (config.usingDevDefaults.encryptionKey) {
-    logger.warn('RUNNEL_ENCRYPTION_KEY is not set — using an insecure development default. Do not use this in production.');
+    logger.warn('RUNNEL_ENCRYPTION_KEY is not set - using an insecure development default. Do not use this in production.');
   }
   if (config.usingDevDefaults.jwtSecret) {
-    logger.warn('RUNNEL_JWT_SECRET is not set — using an insecure development default. Do not use this in production.');
+    logger.warn('RUNNEL_JWT_SECRET is not set - using an insecure development default. Do not use this in production.');
   }
 
   const dbConfig = config.db.type === 'sqlite' ? sqliteConfig(config.db.database) : postgresConfigFromEnv();

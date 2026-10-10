@@ -25,7 +25,7 @@ describe('renderNodeCatalog', () => {
     const catalog = renderNodeCatalog(new MapNodeTypes().register(nodeType('zeta')).register(nodeType('alpha')))!;
 
     expect(catalog).toContain('## Node types available here');
-    expect(catalog.indexOf('- `alpha` — ALPHA: does alpha')).toBeLessThan(catalog.indexOf('- `zeta` — ZETA: does zeta'));
+    expect(catalog.indexOf('- `alpha` - ALPHA: does alpha')).toBeLessThan(catalog.indexOf('- `zeta` - ZETA: does zeta'));
   });
 
   it('covers the real built-in catalog, including the nodes models failed to find by search', () => {

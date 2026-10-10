@@ -5,7 +5,7 @@ import type { IDataObject } from '../interfaces/common.interfaces.js';
 /**
  * Chainable methods on native types (`"foo".toSnakeCase()`, `[1,2].unique()`, ...). These are
  * resolved by a lookup keyed on the runtime value's category, not by patching
- * String.prototype/Array.prototype/etc. globally — see evaluator.ts's `evaluateCall`, which
+ * String.prototype/Array.prototype/etc. globally - see evaluator.ts's `evaluateCall`, which
  * checks this registry before falling back to a plain native method call.
  */
 export type ExtensionCategory = 'string' | 'number' | 'array' | 'object' | 'datetime';

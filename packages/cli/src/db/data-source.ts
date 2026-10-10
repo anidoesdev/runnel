@@ -23,7 +23,7 @@ export type IDatabaseConfig =
       database: string;
     };
 
-/** `synchronize` is never used — schema changes only ever happen through a reviewed migration, on both dialects, per the project's own working agreement. */
+/** `synchronize` is never used - schema changes only ever happen through a reviewed migration, on both dialects, per the project's own working agreement. */
 export function createDataSource(config: IDatabaseConfig): DataSource {
   if (config.type === 'sqlite') {
     return new DataSource({

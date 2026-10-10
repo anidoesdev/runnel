@@ -3,7 +3,7 @@
  * displayName/description, so a query like "db", "cron", or "notify my team" still surfaces the
  * right node. Per the build prompt: "This unglamorous table is worth more than a better
  * embedding model." Extend an entry whenever an eval query fails to put the right node in the
- * top 3 — see search-nodes.eval.test.ts.
+ * top 3 - see search-nodes.eval.test.ts.
  */
 export const NODE_ALIASES: Record<string, string[]> = {
   manualTrigger: ['manual run', 'test run', 'run manually', 'button'],

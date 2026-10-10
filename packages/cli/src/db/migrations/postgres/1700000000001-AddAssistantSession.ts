@@ -1,7 +1,7 @@
 import { Table } from 'typeorm';
 import type { MigrationInterface, QueryRunner } from 'typeorm';
 
-/** Mirrors sqlite/1700000000001-AddAssistantSession.ts — see that file's note on why every column here is varchar/text regardless of dialect. */
+/** Mirrors sqlite/1700000000001-AddAssistantSession.ts - see that file's note on why every column here is varchar/text regardless of dialect. */
 export class AddAssistantSession1700000000001 implements MigrationInterface {
   name = 'AddAssistantSession1700000000001';
 

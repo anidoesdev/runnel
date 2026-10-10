@@ -36,11 +36,11 @@ export interface IRunTurnDeps {
 
 export interface IRunTurnOptions {
   signal?: AbortSignal;
-  /** Part 5's "~40 tool calls per turn" budget — counts calls actually executed, not requested. Resets on every runTurn/resumeApproval/resumeAskUser call: a human approval pause is a deliberate checkpoint, not the runaway-loop scenario this budget protects against. */
+  /** Part 5's "~40 tool calls per turn" budget - counts calls actually executed, not requested. Resets on every runTurn/resumeApproval/resumeAskUser call: a human approval pause is a deliberate checkpoint, not the runaway-loop scenario this budget protects against. */
   maxToolCalls?: number;
-  /** Wall-clock budget for one runTurn/resumeApproval/resumeAskUser call — likewise restarts on resume, so a human taking ten minutes to approve something doesn't eat into it. */
+  /** Wall-clock budget for one runTurn/resumeApproval/resumeAskUser call - likewise restarts on resume, so a human taking ten minutes to approve something doesn't eat into it. */
   wallClockMs?: number;
-  /** For live UI streaming (Milestone 5) — entirely optional. */
+  /** For live UI streaming (Milestone 5) - entirely optional. */
   onEvent?: (event: AgentLoopEvent) => void;
 }
 
@@ -65,7 +65,7 @@ function parseToolArguments(argsText: string): unknown {
   try {
     return JSON.parse(argsText);
   } catch {
-    // Malformed JSON becomes an empty object, not a thrown error — invokeTool's own Zod
+    // Malformed JSON becomes an empty object, not a thrown error - invokeTool's own Zod
     // validation then rejects it as INVALID_ARGS with a message the model can act on.
     return {};
   }
@@ -138,7 +138,7 @@ async function runOneModelCall(
 /**
  * Executes a batch of tool calls in order, stopping (without throwing) the moment one needs
  * human input: an ask_user call, or a call to a tool with `requiresApproval`. The suspended
- * call's session.pendingApproval/pendingQuestions records everything needed to resume later —
+ * call's session.pendingApproval/pendingQuestions records everything needed to resume later -
  * including the calls after it in this same batch, which resumeApproval/resumeAskUser process
  * once the pause is resolved, so a multi-call turn never silently drops work that came after
  * the gated call.
@@ -234,7 +234,7 @@ async function continueAfterBatch(
   }
 }
 
-/** One model round-trip plus whatever it asks for — recurses (via continueAfterBatch) as long as the model keeps calling tools it doesn't need a human for. */
+/** One model round-trip plus whatever it asks for - recurses (via continueAfterBatch) as long as the model keeps calling tools it doesn't need a human for. */
 async function driveLoop(
   session: IAssistantSession,
   deps: IRunTurnDeps,
@@ -278,7 +278,7 @@ function finalize(session: IAssistantSession, stopReason: AgentLoopStopReason, o
  * The agent loop: one call handles a full user turn, which may span many tool calls across
  * several model round-trips before the model produces a final text-only answer, or pauses on
  * an ask_user question / an approval-gated tool (resumeAskUser / resumeApproval continue from
- * there). Mutates and returns `session` — the caller owns persisting it (see
+ * there). Mutates and returns `session` - the caller owns persisting it (see
  * IAssistantSessionRepositoryPort in session.ts); this function never touches storage.
  */
 export async function runTurn(
@@ -294,7 +294,7 @@ export async function runTurn(
   const deadline = Date.now() + (options.wallClockMs ?? DEFAULT_WALL_CLOCK_MS);
 
   // The first reply to a new message must be a tool call. Left free, models routinely answer a
-  // build request with a clarifying question typed as prose — which ends the turn with nothing
+  // build request with a clarifying question typed as prose - which ends the turn with nothing
   // built, and isn't the pausable ask_user either. Forced, the model either starts working
   // (search_nodes) or asks properly (ask_user). Every later call in the turn is free, so the
   // final summary is still plain text.
@@ -303,7 +303,7 @@ export async function runTurn(
   return session;
 }
 
-/** Resolves a paused approval gate (remove_node/rename_node) and continues the turn. `session.status` must be 'awaiting_approval'. Rejecting doesn't throw or crash the turn — it feeds the model a clear "not approved" tool result and lets it react. */
+/** Resolves a paused approval gate (remove_node/rename_node) and continues the turn. `session.status` must be 'awaiting_approval'. Rejecting doesn't throw or crash the turn - it feeds the model a clear "not approved" tool result and lets it react. */
 export async function resumeApproval(
   session: IAssistantSession,
   decision: 'approve' | 'reject',

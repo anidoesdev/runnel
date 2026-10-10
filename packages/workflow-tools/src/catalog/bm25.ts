@@ -1,4 +1,4 @@
-/** Okapi BM25 — standard defaults (Robertson/Sparck Jones); tuned for short catalog-entry documents, not long-form text. */
+/** Okapi BM25 - standard defaults (Robertson/Sparck Jones); tuned for short catalog-entry documents, not long-form text. */
 const K1 = 1.5;
 const B = 0.75;
 
@@ -25,7 +25,7 @@ export interface IBm25Result<T> {
   payload: T;
 }
 
-/** A small in-memory BM25 index — built once per search_nodes call (23 node types is nothing to re-tokenize on every query) rather than persisted, since the catalog only changes when a node package is (re)loaded. */
+/** A small in-memory BM25 index - built once per search_nodes call (23 node types is nothing to re-tokenize on every query) rather than persisted, since the catalog only changes when a node package is (re)loaded. */
 export class Bm25Index<T> {
   private readonly documents: Array<IIndexedDocument<T>> = [];
   private readonly documentFrequency = new Map<string, number>();

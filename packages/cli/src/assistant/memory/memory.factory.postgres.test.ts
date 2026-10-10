@@ -12,7 +12,7 @@ import { NullMemoryAdapter } from './null-memory.adapter.js';
 import type { IAssistantMemory } from './memory.factory.js';
 
 /**
- * Memory on real Postgres servers — skipped unless they're provided, like the other Postgres
+ * Memory on real Postgres servers - skipped unless they're provided, like the other Postgres
  * suites in this package. CI runs a pgvector image; locally:
  *
  *   docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runnel_test -p 55432:5432 pgvector/pgvector:pg16
@@ -84,7 +84,7 @@ describe.skipIf(!PGVECTOR_URL)('assistant memory on Postgres with pgvector', () 
     await memory.port.capture(session);
 
     const recalled = await memory.port.recall('webhook HMAC signatures', { userId: 'pg-user', scopes: [] }, 400);
-    // No extraction model in tests, so no memories yet — but the trace proves the semantic path ran.
+    // No extraction model in tests, so no memories yet - but the trace proves the semantic path ran.
     expect((recalled.trace as { degraded?: string }).degraded ?? '').not.toMatch(/lexical-only/);
   });
 });

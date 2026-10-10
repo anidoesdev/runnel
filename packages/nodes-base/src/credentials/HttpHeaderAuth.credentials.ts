@@ -1,6 +1,6 @@
 import type { ICredentialType } from '@runnel/workflow';
 
-/** The header *name* is itself user-defined per credential instance, so this can't be expressed as a fixed key in a declarative `authenticate.generic.headers` block — the HTTP Request node reads `name`/`value` directly and sets that header itself. */
+/** The header *name* is itself user-defined per credential instance, so this can't be expressed as a fixed key in a declarative `authenticate.generic.headers` block - the HTTP Request node reads `name`/`value` directly and sets that header itself. */
 export const httpHeaderAuth: ICredentialType = {
   name: 'httpHeaderAuth',
   displayName: 'Header Auth',

@@ -32,12 +32,12 @@ export interface IExecuteFunctionsOptions {
   mode: WorkflowExecuteMode;
   /** When true, the node runs once total against only the first input item, not once per item. */
   executeOnce?: boolean;
-  /** Backing store for getContext() — IRunExecutionData.executionData.contextData, shared across all nodes in the run. */
+  /** Backing store for getContext() - IRunExecutionData.executionData.contextData, shared across all nodes in the run. */
   contextData: Record<string, unknown>;
   /**
    * Resolves a credential to its decrypted values. `credentialId` is the id the node actually
    * has assigned for that type (`node.credentials[credentialTypeName].id`), threaded through by
-   * `getCredentials` below — a resolver should prefer it over "any credential of this type" once
+   * `getCredentials` below - a resolver should prefer it over "any credential of this type" once
    * more than one of the same type can exist (see run-workflow.ts's implementation). It's
    * undefined for a node that never called set_node_credential, in which case falling back to
    * type-only lookup is the best a resolver can do.
@@ -47,7 +47,7 @@ export interface IExecuteFunctionsOptions {
   credentialTypes?: ICredentialTypes;
   /** Overridable for tests; defaults to the real fetch-based client. */
   httpClient?: (options: IHttpRequestOptions) => Promise<unknown>;
-  /** Needed only for getInputConnectionData — resolves the node type of a connected sub-node (a chat model, a tool) so its supplyData() can be called. Omitted in most existing tests, which don't exercise ai_* connections; getInputConnectionData simply returns [] without it. */
+  /** Needed only for getInputConnectionData - resolves the node type of a connected sub-node (a chat model, a tool) so its supplyData() can be called. Omitted in most existing tests, which don't exercise ai_* connections; getInputConnectionData simply returns [] without it. */
   nodeTypes?: INodeTypes;
 }
 
@@ -62,7 +62,7 @@ function getByPath(source: IDataObject, path: string): unknown {
 
 /**
  * getNodeParameter resolves expressions anywhere inside the requested parameter's value, not
- * just when the top-level value itself is a "=..." string — a fixedCollection parameter like
+ * just when the top-level value itself is a "=..." string - a fixedCollection parameter like
  * Set's `fields.values` is an array of `{ name, type, value }` objects, and `value` is exactly
  * where a per-item expression actually lives. Recursing here means every node's parameters
  * get this for free instead of each one having to call an expression evaluator itself.
@@ -85,7 +85,7 @@ function deepResolveExpressions(value: unknown, evaluate: (expr: string) => unkn
 }
 
 /**
- * Builds the `this` context passed to a sub-node's `supplyData()` — a chat model or tool node
+ * Builds the `this` context passed to a sub-node's `supplyData()` - a chat model or tool node
  * has no `main` input, so there's no per-item loop here: expressions in its own parameters
  * resolve against a single synthetic empty item, matching how a node with nothing upstream of
  * it would otherwise behave.

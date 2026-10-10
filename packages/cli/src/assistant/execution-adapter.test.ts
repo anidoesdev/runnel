@@ -15,7 +15,7 @@ import type { INode } from '@runnel/workflow';
 
 /**
  * Exercises ExecutionAdapter (grounding's execution seam) against a real local HTTP server and
- * real SQLite-backed workflow/credential repositories — proving the actual safety property
+ * real SQLite-backed workflow/credential repositories - proving the actual safety property
  * (a write is never really sent during a dry run) and the actual grounding value (a GET's real
  * response shape becomes get_node_output's schema/sample), not just the mocking mechanics
  * already covered by workflow-execute.test.ts's engine-level unit tests.
@@ -61,7 +61,7 @@ describe('ExecutionAdapter', () => {
     workflows = dataSource.getRepository(WorkflowEntity);
     credentials = dataSource.getRepository(CredentialEntity);
 
-    // Raw SQL, not the repository API — same TS2589 workaround as workflow-repository.adapter.test.ts:
+    // Raw SQL, not the repository API - same TS2589 workaround as workflow-repository.adapter.test.ts:
     // TypeORM's generic insert()/save() types recurse excessively deep against WorkflowEntity's
     // nested INode[]/IConnections structural types. A type-checker-only issue, not a runtime one.
     await dataSource.query('INSERT INTO workflow (id, name, active, nodes, connections) VALUES (?, ?, ?, ?, ?)', [
@@ -90,7 +90,7 @@ describe('ExecutionAdapter', () => {
     await dataSource.destroy();
   });
 
-  it('dry run: a GET node actually runs — real network call, real data back', async () => {
+  it('dry run: a GET node actually runs - real network call, real data back', async () => {
     const summary = await adapter.run('Get Node', true);
 
     expect(requestCount).toBe(1);
@@ -103,7 +103,7 @@ describe('ExecutionAdapter', () => {
     expect(output?.sample).toEqual({ method: 'GET', path: '/', hello: 'world' });
   });
 
-  it('dry run: a POST node is mocked — no real network call, passthrough data only', async () => {
+  it('dry run: a POST node is mocked - no real network call, passthrough data only', async () => {
     const summary = await adapter.run('Post Node', true);
 
     expect(requestCount).toBe(0); // the write was never actually sent
@@ -111,11 +111,11 @@ describe('ExecutionAdapter', () => {
 
     const output = adapter.getNodeOutput('Post Node');
     expect(output?.mocked).toBe(true);
-    // Passthrough of the trigger's single empty item — not the server's real (never called) response.
+    // Passthrough of the trigger's single empty item - not the server's real (never called) response.
     expect(output?.sample).toEqual({});
   });
 
-  it('live run: a POST node actually runs — real network call this time', async () => {
+  it('live run: a POST node actually runs - real network call this time', async () => {
     const summary = await adapter.run('Post Node', false);
 
     expect(requestCount).toBe(1);

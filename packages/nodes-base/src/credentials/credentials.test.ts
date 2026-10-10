@@ -42,13 +42,13 @@ describe('built-in credential types', () => {
     expect(names).toEqual(['clientId', 'clientSecret', 'authUrl', 'accessTokenUrl', 'scope']);
   });
 
-  it('postgresApi has no authenticate/test block — the Postgres node connects with its fields directly', () => {
+  it('postgresApi has no authenticate/test block - the Postgres node connects with its fields directly', () => {
     expect(postgresApi.authenticate).toBeUndefined();
     expect(postgresApi.test).toBeUndefined();
     expect(postgresApi.properties.map((p) => p.name)).toEqual(['host', 'port', 'database', 'user', 'password', 'ssl']);
   });
 
-  it('openAiApi has no authenticate block — the chat model node builds the Authorization header itself so it can also read baseUrl', () => {
+  it('openAiApi has no authenticate block - the chat model node builds the Authorization header itself so it can also read baseUrl', () => {
     expect(openAiApi.authenticate).toBeUndefined();
     expect(openAiApi.properties.map((p) => p.name)).toEqual(['apiKey', 'baseUrl']);
     expect(openAiApi.properties.find((p) => p.name === 'apiKey')?.typeOptions?.password).toBe(true);

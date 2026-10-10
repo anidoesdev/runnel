@@ -3,7 +3,7 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
-    # Same-origin from the browser's point of view — the SPA's api client just calls /rest/...
+    # Same-origin from the browser's point of view - the SPA's api client just calls /rest/...
     # and /webhook/..., identical to the vite dev-server proxy in vite.config.ts. ${CLI_UPSTREAM}
     # is substituted at container start by nginx's built-in envsubst-on-templates entrypoint
     # (see Dockerfile) from the CLI_UPSTREAM environment variable.

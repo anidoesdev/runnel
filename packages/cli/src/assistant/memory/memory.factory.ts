@@ -55,7 +55,7 @@ export async function createAssistantMemory(options: ICreateAssistantMemoryOptio
   if (!memory.capture && !memory.recall) return disabledAssistantMemory(memory);
 
   if (memory.recall && !memory.capture) {
-    logger.warn('RUNNEL_MEMORY_RECALL is on but RUNNEL_MEMORY_CAPTURE is off — recall will only ever find memories captured earlier.');
+    logger.warn('RUNNEL_MEMORY_RECALL is on but RUNNEL_MEMORY_CAPTURE is off - recall will only ever find memories captured earlier.');
   }
 
   try {
@@ -87,7 +87,7 @@ export async function createAssistantMemory(options: ICreateAssistantMemoryOptio
     );
     return { port: new MemnestMemoryAdapter(memnest), config: memory, close: () => memnest.close() };
   } catch (err) {
-    logger.error({ err }, 'Assistant memory failed to start — memory stays disabled.');
+    logger.error({ err }, 'Assistant memory failed to start - memory stays disabled.');
     return disabledAssistantMemory(memory);
   }
 }
@@ -100,19 +100,19 @@ interface IOpenedStore {
 }
 
 /**
- * Memnest owns its schema — prefixed memnest_* tables here, a `memnest` schema on Postgres — and
+ * Memnest owns its schema - prefixed memnest_* tables here, a `memnest` schema on Postgres - and
  * migrates it itself. That is deliberately not part of the TypeORM migration arrays, so it only
  * ever runs when a memory flag is on.
  */
 async function openSqlite(filename: string): Promise<IOpenedStore> {
   const { createSqliteStore } = await import('@memnest/store-sqlite');
   const store = createSqliteStore({ filename, autoMigrate: true });
-  return { store, queue: store.jobQueue(), description: 'SQLite store — keyword recall only' };
+  return { store, queue: store.jobQueue(), description: 'SQLite store - keyword recall only' };
 }
 
 /**
  * Postgres gets semantic recall, which needs pgvector. Memnest's migration creates the extension
- * and fails outright when the server doesn't have it — so it's checked up front, and a server
+ * and fails outright when the server doesn't have it - so it's checked up front, and a server
  * without it gets a warning that names the missing piece instead of a migration stack trace.
  */
 async function openPostgres(
@@ -128,7 +128,7 @@ async function openPostgres(
     const { rowCount } = await probe.query("SELECT 1 FROM pg_available_extensions WHERE name = 'vector'");
     if (!rowCount) {
       logger.warn(
-        'Assistant memory on Postgres needs the pgvector extension, which this Postgres server does not have — memory stays disabled. ' +
+        'Assistant memory on Postgres needs the pgvector extension, which this Postgres server does not have - memory stays disabled. ' +
           'Use an image that ships it (e.g. pgvector/pgvector:pg16) or install pgvector.',
       );
       return undefined;
@@ -140,7 +140,7 @@ async function openPostgres(
   const { createPostgresStore } = await import('@memnest/store-postgres');
   const store = await createPostgresStore({ connectionString, autoMigrate: true });
   const embedder = options.embedder ?? (await lazyOpenAiEmbeddings(resolveOpenAi));
-  return { store, queue: store.jobQueue(), embedder, description: 'Postgres store — keyword + semantic recall' };
+  return { store, queue: store.jobQueue(), embedder, description: 'Postgres store - keyword + semantic recall' };
 }
 
 function postgresUrlFromEnv(): string {
@@ -152,7 +152,7 @@ function postgresUrlFromEnv(): string {
 
 /**
  * Extraction's model, resolved per call the same way the assistant resolves its own (env var,
- * then the first stored openAiApi credential) — so a credential added through the editor after
+ * then the first stored openAiApi credential) - so a credential added through the editor after
  * boot is picked up without a restart. With neither, the extraction job fails and Memnest
  * retries it with backoff; the captured transcript itself is already stored.
  */

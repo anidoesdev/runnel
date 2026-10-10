@@ -2,7 +2,7 @@ import { combinatorProperty, conditionsProperty, evaluateConditions } from '../s
 import type { IExecuteFunctions, INodeExecutionData, INodeType, NodeOutput } from '@runnel/workflow';
 import type { ICondition } from '../shared/conditions.js';
 
-/** Keeps only the items matching the given conditions; everything else is dropped (single output — unlike If, there's no "false" branch to route to). */
+/** Keeps only the items matching the given conditions; everything else is dropped (single output - unlike If, there's no "false" branch to route to). */
 export const filterNode: INodeType = {
   description: {
     displayName: 'Filter',

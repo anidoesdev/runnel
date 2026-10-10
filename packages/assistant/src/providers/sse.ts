@@ -1,7 +1,7 @@
 /**
  * Parses a `text/event-stream` response body into individual `data:` payloads, one string per
  * SSE event (OpenAI sends one JSON object per event, terminated by a literal `data: [DONE]`).
- * Deliberately minimal — no `event:`/`id:`/retry handling, since the OpenAI chat-completions
+ * Deliberately minimal - no `event:`/`id:`/retry handling, since the OpenAI chat-completions
  * stream never uses them.
  */
 export async function* parseSseDataLines(body: ReadableStream<Uint8Array>): AsyncGenerator<string> {

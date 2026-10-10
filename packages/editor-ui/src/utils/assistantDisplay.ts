@@ -2,7 +2,7 @@ import type { IDataObject } from '@runnel/workflow';
 
 /**
  * "Render each tool call as a compact collapsible row: `⚙ Added node...` Do not dump raw JSON
- * args; humanize per tool." One case per tool the assistant can actually call — falls back to
+ * args; humanize per tool." One case per tool the assistant can actually call - falls back to
  * the raw name for anything unrecognized rather than guessing at a phrasing.
  */
 export function humanizeToolCall(name: string, args: unknown, result: unknown, running: boolean): string {
@@ -47,7 +47,12 @@ export function humanizeToolCall(name: string, args: unknown, result: unknown, r
   }
 }
 
-/** The credential id to link to "Configure this credential" for, when this tool row is a successful `request_credential` call — the one tool result that needs a follow-up action, not just a description. */
+/** The model still writes em dashes now and then despite the system prompt asking it not to; the UI never shows them. */
+export function stripEmDashes(text: string): string {
+  return text.replace(/[ \t]*\u2014[ \t]*/g, ' - ');
+}
+
+/** The credential id to link to "Configure this credential" for, when this tool row is a successful `request_credential` call - the one tool result that needs a follow-up action, not just a description. */
 export function credentialSetupId(name: string, result: unknown): string | undefined {
   if (name !== 'request_credential') return undefined;
   const r = (result ?? {}) as Record<string, unknown>;
@@ -60,7 +65,7 @@ export interface IFieldDiff {
   after: unknown;
 }
 
-/** Shallow key-level diff between a changed node's before/after parameters — enough for a field-level before/after view without a full recursive diff. */
+/** Shallow key-level diff between a changed node's before/after parameters - enough for a field-level before/after view without a full recursive diff. */
 export function diffFields(before: IDataObject, after: IDataObject): IFieldDiff[] {
   const keys = new Set([...Object.keys(before), ...Object.keys(after)]);
   const fields: IFieldDiff[] = [];

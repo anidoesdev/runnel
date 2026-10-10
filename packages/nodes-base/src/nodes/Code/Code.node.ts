@@ -41,7 +41,7 @@ export const codeNode: INodeType = {
         type: 'string',
         default: 'return items;',
         typeOptions: { rows: 10 },
-        // Deliberately not expression-resolved by getNodeParameter — code content is read
+        // Deliberately not expression-resolved by getNodeParameter - code content is read
         // raw so a script that happens to start with "=" isn't misread as an expression.
         noDataExpression: true,
       },
@@ -56,7 +56,7 @@ export const codeNode: INodeType = {
 
     if (language !== 'javaScript') {
       throw new NodeOperationError(this.getNode(), `Language "${language}" is not supported yet`, {
-        description: 'Python execution via Pyodide is planned but out of scope for M5 — see sandbox.ts.',
+        description: 'Python execution via Pyodide is planned but out of scope for M5 - see sandbox.ts.',
       });
     }
 

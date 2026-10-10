@@ -355,7 +355,7 @@ describe('ask_user', () => {
   });
 });
 
-describe('agent loop — first reply must be a tool call', () => {
+describe('agent loop - first reply must be a tool call', () => {
   /** Records the toolChoice of every model call, around a scripted provider. */
   function recording(script: ConstructorParameters<typeof ScriptedModelProvider>[0]) {
     const inner = new ScriptedModelProvider(script);

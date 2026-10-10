@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { credentialSetupId, diffFields, humanizeToolCall } from './assistantDisplay.js';
+import { credentialSetupId, diffFields, humanizeToolCall, stripEmDashes } from './assistantDisplay.js';
 
 describe('humanizeToolCall', () => {
   it('humanizes add_node differently while running vs once it has a result', () => {
@@ -58,5 +58,16 @@ describe('diffFields', () => {
 
   it('returns nothing for identical objects', () => {
     expect(diffFields({ a: 1 }, { a: 1 })).toEqual([]);
+  });
+});
+
+describe('stripEmDashes', () => {
+  it('replaces spaced and unspaced em dashes with a spaced hyphen', () => {
+    expect(stripEmDashes('Added the node \u2014 it runs daily')).toBe('Added the node - it runs daily');
+    expect(stripEmDashes('Added the node\u2014it runs daily')).toBe('Added the node - it runs daily');
+  });
+
+  it('leaves text without em dashes untouched', () => {
+    expect(stripEmDashes('a - b, c')).toBe('a - b, c');
   });
 });

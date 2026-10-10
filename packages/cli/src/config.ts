@@ -4,7 +4,7 @@ export interface IAppConfig {
   port: number;
   db: { type: 'sqlite'; database: string } | { type: 'postgres' };
   usingDevDefaults: { encryptionKey: boolean; jwtSecret: boolean };
-  /** Directory scanned for third-party nodes at startup (see @runnel/node-dev and custom-nodes/load-custom-nodes.ts) — unset means "load none". */
+  /** Directory scanned for third-party nodes at startup (see @runnel/node-dev and custom-nodes/load-custom-nodes.ts) - unset means "load none". */
   customNodesDir: string | undefined;
   memory: IMemoryConfig;
 }
@@ -12,12 +12,12 @@ export interface IAppConfig {
 /**
  * Assistant memory (Memnest), shipped in shadow mode: both flags default off, and with both off
  * no memory engine is loaded, no tables are created and nothing about the assistant changes.
- * capture on + recall off is shadow mode — memories accumulate and recall is logged, never injected.
+ * capture on + recall off is shadow mode - memories accumulate and recall is logged, never injected.
  */
 export interface IMemoryConfig {
   capture: boolean;
   recall: boolean;
-  /** Tokens of recalled memory allowed per turn — a slice of the session's own token budget, not extra. */
+  /** Tokens of recalled memory allowed per turn - a slice of the session's own token budget, not extra. */
   tokenBudget: number;
   /**
    * Relevance floor for an injected memory. On SQLite, recall ORs the query's words together and
@@ -52,7 +52,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): IAppConfig {
   return {
     encryptionKey,
     jwtSecret: new TextEncoder().encode(jwtSecretString),
-    // Not 5678 — that port is commonly already taken by another workflow tool
+    // Not 5678 - that port is commonly already taken by another workflow tool
     // instance (e.g. a Docker container) on a dev machine that also has this project checked
     // out, and the two silently fight over it instead of one cleanly failing to bind.
     port: Number(env.PORT ?? 5679),

@@ -63,7 +63,7 @@ function collectEdges(nodes: Array<Pick<INode, 'name'>>, connections: IConnectio
 /**
  * Longest-path step for every node on the main data path, starting from nodes nothing feeds.
  * Relaxation is capped at one pass per node, so a loop (Split In Batches feeding back) can't spin
- * forever — the nodes in it simply keep the step they reached.
+ * forever - the nodes in it simply keep the step they reached.
  */
 function assignSteps(names: string[], mainEdges: IRawEdge[]): Map<string, number> {
   const step = new Map(names.map((name) => [name, 0]));
@@ -92,7 +92,7 @@ function aiPath(sx: number, sy: number, tx: number, ty: number): string {
 }
 
 /**
- * Lays a workflow out as a tidy left-to-right flow for previews — by execution step rather than
+ * Lays a workflow out as a tidy left-to-right flow for previews - by execution step rather than
  * the positions the user dragged nodes to, so every thumbnail reads the same way. Within a step,
  * nodes keep the user's vertical order. Chat models and tools sit under the agent they feed.
  */
@@ -220,7 +220,7 @@ export function flowTiming(steps: number): IFlowTiming {
 }
 
 /**
- * SMIL `values`/`keyTimes` for "off, on during [start, end], off" — used for glows and pulses.
+ * SMIL `values`/`keyTimes` for "off, on during [start, end], off" - used for glows and pulses.
  * Equal neighbouring key times are allowed (an instant switch), so a window starting at 0 is fine.
  */
 export function onWindow(start: number, end: number, fade = 0.02): { values: string; keyTimes: string } {

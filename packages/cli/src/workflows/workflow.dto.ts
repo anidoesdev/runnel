@@ -3,7 +3,7 @@ import type { IDataObject, IDataObjectValue } from '@runnel/workflow';
 
 /**
  * Mirrors IDataObjectValue's recursive shape exactly (rather than `z.record(z.unknown())`,
- * whose inferred output type is `Record<string, unknown>` — not assignable to IDataObject,
+ * whose inferred output type is `Record<string, unknown>` - not assignable to IDataObject,
  * since `unknown` doesn't structurally narrow to `IDataObjectValue`). This gets real
  * validation *and* a TS type that lines up with the domain type, no unsafe casts needed.
  */

@@ -14,7 +14,7 @@ function typeOf(value: unknown): string {
 /**
  * Flattens each item's `json` into dot/bracket-notation field paths with an inferred type
  * (e.g. `user.name: string`, `tags[0]: string`), the shape a schema view expects. Fields are
- * deduplicated by path across all items — the type of the first occurrence wins.
+ * deduplicated by path across all items - the type of the first occurrence wins.
  */
 export function inferSchema(items: INodeExecutionData[]): SchemaField[] {
   const seen = new Map<string, string>();
@@ -45,7 +45,7 @@ export function inferSchema(items: INodeExecutionData[]): SchemaField[] {
   return [...seen.entries()].map(([path, type]) => ({ path, type }));
 }
 
-/** Top-level keys across all items, in first-seen order — used as table columns. */
+/** Top-level keys across all items, in first-seen order - used as table columns. */
 export function tableColumns(items: INodeExecutionData[]): string[] {
   const columns: string[] = [];
   const seen = new Set<string>();

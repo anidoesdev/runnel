@@ -23,7 +23,7 @@ export const AI_AGENT_CASES: IEvalCase[] = [
   },
   {
     id: 'agent-needs-language-model',
-    prompt: 'set up an agent — make sure it actually has a model wired up, not just the agent node alone',
+    prompt: 'set up an agent - make sure it actually has a model wired up, not just the agent node alone',
     assertions: [
       { type: 'no_tool_errors' },
       { type: 'uses_node_type', nodeType: 'aiAgent' },
@@ -32,7 +32,7 @@ export const AI_AGENT_CASES: IEvalCase[] = [
   },
   {
     id: 'agent-system-prompt',
-    prompt: 'make an assistant agent — give it instructions that it should be helpful and concise',
+    prompt: 'make an assistant agent - give it instructions that it should be helpful and concise',
     assertions: [
       { type: 'no_tool_errors' },
       { type: 'uses_node_type', nodeType: 'aiAgent' },

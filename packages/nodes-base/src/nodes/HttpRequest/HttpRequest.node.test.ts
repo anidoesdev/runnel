@@ -13,7 +13,7 @@ afterEach(async () => {
   server = undefined;
 });
 
-describe('HTTP Request node — dryRunSafety', () => {
+describe('HTTP Request node - dryRunSafety', () => {
   it('classifies GET and HEAD as safe to actually run in a dry run', () => {
     expect(httpRequestNode.dryRunSafety!({ method: 'GET' })).toBe('safe');
     expect(httpRequestNode.dryRunSafety!({ method: 'HEAD' })).toBe('safe');
@@ -31,7 +31,7 @@ describe('HTTP Request node — dryRunSafety', () => {
   });
 });
 
-describe('HTTP Request node — basic requests', () => {
+describe('HTTP Request node - basic requests', () => {
   it('performs a GET and wraps a JSON object response as one item', async () => {
     server = await startTestServer((req, res) => {
       res.writeHead(200, { 'content-type': 'application/json' });
@@ -156,7 +156,7 @@ describe('HTTP Request node — basic requests', () => {
   });
 });
 
-describe('HTTP Request node — authentication', () => {
+describe('HTTP Request node - authentication', () => {
   it('httpBasicAuth sends a correctly encoded Authorization header', async () => {
     let authHeader = '';
     server = await startTestServer((req, res) => {

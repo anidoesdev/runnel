@@ -46,7 +46,7 @@ export class WorkflowsController {
     return entity;
   }
 
-  /** The sidebar's views and folder filters resolve to one query — the editor never sees a trashed workflow unless it asks for the trash. */
+  /** The sidebar's views and folder filters resolve to one query - the editor never sees a trashed workflow unless it asks for the trash. */
   @Get('/')
   async list(req: Request) {
     const { view, folderId } = listWorkflowsQuerySchema.parse(req.query);
@@ -83,7 +83,7 @@ export class WorkflowsController {
     if (parsed.folderId !== undefined) entity.folderId = parsed.folderId;
 
     // Re-running setActive(true) even when `active` didn't change re-activates the workflow,
-    // which is exactly what's needed when nodes/connections/settings changed underneath it —
+    // which is exactly what's needed when nodes/connections/settings changed underneath it -
     // otherwise a webhook path or poll interval edited while active would never take effect.
     await this.setActive(entity, parsed.active ?? entity.active);
     return entity;
@@ -100,7 +100,7 @@ export class WorkflowsController {
     res.status(204).end();
   }
 
-  /** Back out of the trash, still inactive — reactivating is a separate, deliberate click. */
+  /** Back out of the trash, still inactive - reactivating is a separate, deliberate click. */
   @Post('/:id/restore')
   async restore(req: Request) {
     const entity = await this.findOrThrow(String(req.params.id), { includeTrashed: true });
@@ -157,7 +157,7 @@ export class WorkflowsController {
     return { executionId: executionEntity.id, status, data: run.result };
   }
 
-  /** Starts/stops the workflow's triggers, polls, and webhooks to match `active`, then persists the flag — a failed activation (e.g. a webhook path collision) leaves the workflow inactive rather than silently saving a flag the runtime doesn't actually reflect. */
+  /** Starts/stops the workflow's triggers, polls, and webhooks to match `active`, then persists the flag - a failed activation (e.g. a webhook path collision) leaves the workflow inactive rather than silently saving a flag the runtime doesn't actually reflect. */
   private async setActive(entity: WorkflowEntity, active: boolean): Promise<void> {
     if (active) {
       try {
@@ -174,7 +174,7 @@ export class WorkflowsController {
     if (changed) await this.notifications.recordActivationChanged(entity, active);
   }
 
-  /** Trashed workflows are invisible to every route except restore and permanent delete — editing or running something the user believes they deleted would be a surprise. */
+  /** Trashed workflows are invisible to every route except restore and permanent delete - editing or running something the user believes they deleted would be a surprise. */
   private async findOrThrow(id: string, options: { includeTrashed?: boolean } = {}): Promise<WorkflowEntity> {
     const entity = await this.workflows.findOneBy({ id });
     if (!entity || (!options.includeTrashed && entity.deletedAt !== null)) {

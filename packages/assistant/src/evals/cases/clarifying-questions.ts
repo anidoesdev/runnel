@@ -2,11 +2,11 @@ import type { IEvalCase } from '../types.js';
 
 /**
  * Prompts missing a genuinely required, no-default, business-meaning-bearing field (a SQL
- * query, a URL, a sort key, a filter condition) — exactly the "unknowable from context" case
+ * query, a URL, a sort key, a filter condition) - exactly the "unknowable from context" case
  * the system prompt's working-order policy says to ask about rather than guess. Some of these
  * are deliberately harder than the single-node-build cases (e.g. the `if`/`filter` conditions
  * aren't flagged `required` at the schema level, so recognizing the ambiguity takes judgment,
- * not just reading unsetRequiredParams) — that's the point of having them: a v1 eval suite
+ * not just reading unsetRequiredParams) - that's the point of having them: a v1 eval suite
  * should surface where the prompt doesn't yet reliably do the right thing, not just confirm
  * cases it already handles.
  */

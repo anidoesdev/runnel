@@ -17,7 +17,7 @@ export function explainDatabaseStartupError(err: unknown, config: IDatabaseConfi
     return new Error(
       `Postgres at ${where} has no database named "${config.database}". ` +
         (looksLikeSqlite
-          ? `"${config.database}" is a SQLite file name — with DB_TYPE=postgres, DB_POSTGRES_DATABASE must name a Postgres database. `
+          ? `"${config.database}" is a SQLite file name - with DB_TYPE=postgres, DB_POSTGRES_DATABASE must name a Postgres database. `
           : '') +
         `Set DB_POSTGRES_DATABASE to one that exists (list them with: psql -U ${config.username} -l). ` +
         'Postgres only creates the database named in POSTGRES_DB the first time an empty data volume starts, so an existing volume keeps the name it was first created with.',

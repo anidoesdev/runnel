@@ -4,11 +4,11 @@ import { registerAllNodeTypes } from '@runnel/nodes-base';
 import { searchNodeTypes } from './search-nodes.js';
 
 /**
- * Milestone 2's own bar: "search_nodes top-3 accuracy >90% on 50 hand-labelled queries" — run
+ * Milestone 2's own bar: "search_nodes top-3 accuracy >90% on 50 hand-labelled queries" - run
  * against the REAL registered catalog (not synthetic fixtures), phrased the way a user actually
  * asks rather than by node name, spanning brand names ("gpt"), verbs ("call a rest api"), and
  * outcomes ("notify my team"). When a query fails, the fix is almost always adding a term to
- * node-aliases.ts, not tuning BM25 — see that file's own comment.
+ * node-aliases.ts, not tuning BM25 - see that file's own comment.
  */
 const EVAL_QUERIES: Array<{ query: string; expected: string }> = [
   { query: 'run this manually', expected: 'manualTrigger' },

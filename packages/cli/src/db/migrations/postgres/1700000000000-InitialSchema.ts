@@ -4,7 +4,7 @@ import type { MigrationInterface, QueryRunner } from 'typeorm';
 /**
  * Mirrors sqlite/1700000000000-InitialSchema.ts. The only dialect-specific difference this
  * schema actually needs is the timestamp column type name ("timestamp" here vs. sqlite's
- * "datetime") — everything else (varchar/text/boolean) is identical across both, which is a
+ * "datetime") - everything else (varchar/text/boolean) is identical across both, which is a
  * deliberate consequence of avoiding native json/enum column types in the entities.
  */
 export class InitialSchema1700000000000 implements MigrationInterface {

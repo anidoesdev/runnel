@@ -6,7 +6,7 @@ import { useAuthStore } from '../../stores/auth.store.js';
 import type { INotificationRecord } from '../../api/types.js';
 
 /**
- * The bell / settings / account cluster shared by the library and the editor — both top bars
+ * The bell / settings / account cluster shared by the library and the editor - both top bars
  * carried an identical copy of the avatar menu before, and the bell needs polling state that
  * shouldn't exist twice.
  */
@@ -36,7 +36,7 @@ async function refreshNotifications(): Promise<void> {
   }
 }
 
-/** Opening the bell is what marks its contents read — the badge is "things you haven't looked at". */
+/** Opening the bell is what marks its contents read - the badge is "things you haven't looked at". */
 async function toggleBell(): Promise<void> {
   bellOpen.value = !bellOpen.value;
   avatarMenuOpen.value = false;

@@ -13,7 +13,7 @@ function baseOptions(overrides: Partial<IPollOrTriggerFunctionsOptions> = {}): I
   };
 }
 
-describe('buildPollFunctions — getWorkflowStaticData', () => {
+describe('buildPollFunctions - getWorkflowStaticData', () => {
   it('returns an empty object the first time, per node', () => {
     const ctx = buildPollFunctions(baseOptions());
     expect(ctx.getWorkflowStaticData('node')).toEqual({});

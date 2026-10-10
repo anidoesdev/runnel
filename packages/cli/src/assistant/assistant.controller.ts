@@ -23,13 +23,13 @@ import type { UserEntity } from '../db/entities/User.entity.js';
 const DEFAULT_TOKEN_LIMIT = 200_000;
 
 /**
- * The REST/SSE surface for the Workflow Assistant — the `server/assistant/session.ts` box from
+ * The REST/SSE surface for the Workflow Assistant - the `server/assistant/session.ts` box from
  * the build prompt's architecture diagram, minus the agent loop itself (that's
  * @runnel/assistant; this controller only wires it to HTTP). Every mutating route resolves
  * to a streamed turn: it loads the session, builds fresh deps (a new model provider + tool
- * context per call — cheap, and avoids holding a live OpenAI connection open between requests),
+ * context per call - cheap, and avoids holding a live OpenAI connection open between requests),
  * runs the loop with `onEvent` writing straight to the SSE response, and persists whatever
- * state the loop ended up in — success, a pause, or an error — before closing the stream.
+ * state the loop ended up in - success, a pause, or an error - before closing the stream.
  */
 @RestController('/rest/assistant')
 export class AssistantController {
@@ -74,7 +74,7 @@ export class AssistantController {
     return this.draftStore.diff(session.draftId);
   }
 
-  /** The draft's current full nodes/connections — what the canvas renders as a live preview while the assistant is building, per Part 6's "highlight on the canvas in real time". */
+  /** The draft's current full nodes/connections - what the canvas renders as a live preview while the assistant is building, per Part 6's "highlight on the canvas in real time". */
   @Get('/sessions/:id/draft')
   async getDraft(req: Request) {
     const session = await this.findSessionOrThrow(String(req.params.id));
@@ -82,7 +82,7 @@ export class AssistantController {
     return this.draftStore.get(session.draftId).current;
   }
 
-  /** Rule #2: the agent never applies its own draft — this is the explicit, user-initiated action that finally writes it to the live workflow. */
+  /** Rule #2: the agent never applies its own draft - this is the explicit, user-initiated action that finally writes it to the live workflow. */
   @Post('/sessions/:id/apply')
   async applyDraft(req: Request) {
     const session = await this.findSessionOrThrow(String(req.params.id));
@@ -126,11 +126,11 @@ export class AssistantController {
   }
 
   /**
-   * WorkflowDraftStore is in-memory only (see its own doc comment) — a session created before
+   * WorkflowDraftStore is in-memory only (see its own doc comment) - a session created before
    * the last server restart still remembers a `draftId` that no longer exists in this fresh
    * process. Rather than every draft-touching route failing with a raw "No open draft" error,
    * self-heal: open a new draft against the currently saved workflow, point the session at it,
-   * and leave a note in the transcript so the conversation continues instead of dead-ending —
+   * and leave a note in the transcript so the conversation continues instead of dead-ending -
    * anything that was only in the old (unapplied) draft is unrecoverable either way, so a fresh
    * start from the live workflow is the best available outcome, not a partial one.
    */
@@ -141,7 +141,7 @@ export class AssistantController {
     session.messages.push({
       role: 'assistant',
       content:
-        "Note: the server restarted since this conversation began, so the in-progress draft was lost. I've started a fresh one from the currently saved workflow — anything not yet applied needs to be redone.",
+        "Note: the server restarted since this conversation began, so the in-progress draft was lost. I've started a fresh one from the currently saved workflow - anything not yet applied needs to be redone.",
     });
     await this.sessions.save(session);
   }
@@ -149,7 +149,7 @@ export class AssistantController {
   /**
    * Shared by every route that runs (or resumes) a turn. Resolving the model provider happens
    * *before* the SSE headers go out, so a missing OpenAI credential surfaces as a normal JSON
-   * error response — not a stream that opens and immediately breaks. `res` closing (the client
+   * error response - not a stream that opens and immediately breaks. `res` closing (the client
    * navigating away, the tab closing) aborts the in-flight turn via the same AbortSignal the
    * loop already threads through the model call and every tool call.
    */
@@ -201,7 +201,7 @@ export class AssistantController {
    * is already fixed, and re-recalling there would change it underneath the model mid-turn.
    *
    * Returns the system prompt to use, or undefined to leave it alone. With recall off this is
-   * shadow mode — the result is logged and discarded — which is how the quality of what would be
+   * shadow mode - the result is logged and discarded - which is how the quality of what would be
    * injected gets read on real transcripts before it can reach the model. A failure never
    * affects the turn: memory that can break the assistant is worse than no memory.
    */
@@ -216,7 +216,7 @@ export class AssistantController {
       const block = config.recall ? renderMemoryBlock(selected) : undefined;
 
       if (block) {
-        // The recall budget is a slice of the session's own budget, not extra — so the existing
+        // The recall budget is a slice of the session's own budget, not extra - so the existing
         // accounting stays honest, the tokens are charged here rather than quietly added.
         session.tokenBudget.used += recalled.tokensUsed;
       }
@@ -235,7 +235,7 @@ export class AssistantController {
           minScore: config.minScore,
           // Not "tokensUsed": the logger redacts any key containing "token".
           budgetUsed: recalled.tokensUsed,
-          // Everything recalled, with scores — reading the shadow log means judging what *would*
+          // Everything recalled, with scores - reading the shadow log means judging what *would*
           // have been injected, so the ones below the floor matter as much as the ones above it.
           memories: recalled.memories,
           passedFloorIds: selected.map((memory) => memory.id),

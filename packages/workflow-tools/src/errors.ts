@@ -13,11 +13,11 @@ export type ToolErrorCode =
 export interface IToolErrorInfo {
   code: ToolErrorCode;
   message: string;
-  /** Whether retrying with different arguments could plausibly succeed — feeds Part 4's correction loop (retry up to 3 times, then ask_user) and lets the agent loop tell "the model should try again" apart from "something's broken, stop". */
+  /** Whether retrying with different arguments could plausibly succeed - feeds Part 4's correction loop (retry up to 3 times, then ask_user) and lets the agent loop tell "the model should try again" apart from "something's broken, stop". */
   retryable: boolean;
 }
 
-/** Every failure that crosses the tool boundary — invalid args, an unknown tool name, a rejected mutation — is normalized into this shape before it reaches the model, so the agent loop never has to pattern-match raw error messages. */
+/** Every failure that crosses the tool boundary - invalid args, an unknown tool name, a rejected mutation - is normalized into this shape before it reaches the model, so the agent loop never has to pattern-match raw error messages. */
 export class ToolError extends Error implements IToolErrorInfo {
   readonly code: ToolErrorCode;
   readonly retryable: boolean;

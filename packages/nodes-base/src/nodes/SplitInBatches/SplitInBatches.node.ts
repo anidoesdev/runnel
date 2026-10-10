@@ -10,11 +10,11 @@ interface ILoopState {
  * it runs and is meant to be wired back into this node's own input, forming the legal cycle
  * the workflow package's cycle detector allows via `iterationNode: true`. Output 1 ("done")
  * fires exactly once, once every item has been through the loop, carrying the complete
- * original set — useful for a final aggregation step after the loop body has run.
+ * original set - useful for a final aggregation step after the loop body has run.
  *
  * State (the original item batch and the current position) is tracked via node context
  * (`getContext('node')`) rather than re-reading input each call, since only the *first*
- * call actually receives the real batch — every re-entry after that comes back around the
+ * call actually receives the real batch - every re-entry after that comes back around the
  * loop-back edge, not from upstream.
  */
 export const splitInBatches: INodeType = {

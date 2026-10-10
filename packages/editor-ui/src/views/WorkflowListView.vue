@@ -24,7 +24,7 @@ const sortBy = ref<'updated' | 'name' | 'created'>('updated');
  * "All Workflows" and "Recent" filter the live list client-side; "Starred" and "Trash" are
  * server-side views, because starring is a stored flag and trashed workflows are deliberately
  * excluded from every other query (see the workflows controller). Selecting a folder is a
- * third server-side filter that composes with none of them — picking one clears the view.
+ * third server-side filter that composes with none of them - picking one clears the view.
  */
 type LibraryView = 'all' | 'recent' | 'starred' | 'trash';
 const libraryView = ref<LibraryView>('all');
@@ -446,9 +446,9 @@ onUnmounted(() => {
           <p v-if="loading" class="workflow-library__status-text">Loading…</p>
           <p v-else-if="workflows.length === 0 && isTrash" class="workflow-library__status-text">The trash is empty.</p>
           <p v-else-if="workflows.length === 0 && libraryView === 'starred'" class="workflow-library__status-text">
-            Nothing starred yet — star a workflow to find it quickly here.
+            Nothing starred yet - star a workflow to find it quickly here.
           </p>
-          <p v-else-if="workflows.length === 0" class="workflow-library__status-text">No workflows yet — create your first one.</p>
+          <p v-else-if="workflows.length === 0" class="workflow-library__status-text">No workflows yet - create your first one.</p>
           <p v-else-if="visibleWorkflows.length === 0" class="workflow-library__status-text">No workflows match your search and filters.</p>
 
           <div v-else class="workflow-library__grid">
@@ -471,7 +471,7 @@ onUnmounted(() => {
                   :connections="workflow.connections"
                   :animate="!isTrash && visiblePreviewIds.has(workflow.id)"
                 />
-                <span v-if="workflow.active && !isTrash" class="workflow-card__live" title="Active — running on its trigger">
+                <span v-if="workflow.active && !isTrash" class="workflow-card__live" title="Active - running on its trigger">
                   <span class="workflow-card__live-dot" /> Live
                 </span>
               </div>

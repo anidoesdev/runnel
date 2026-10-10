@@ -29,7 +29,7 @@ describe('scoreAssertion', () => {
     });
 
     it('does not mistake a normal object result for an error', () => {
-      // A real tool result could coincidentally have a "code" field without also having "retryable" — must not false-positive.
+      // A real tool result could coincidentally have a "code" field without also having "retryable" - must not false-positive.
       const session = baseSession({ messages: [{ role: 'tool', toolCallId: 'c1', content: JSON.stringify({ code: 200 }) }] });
       expect(scoreAssertion({ type: 'no_tool_errors' }, session, draft())).toMatchObject({ passed: true });
     });
@@ -70,7 +70,7 @@ describe('scoreAssertion', () => {
       expect(scoreAssertion({ type: 'calls_tool', name: 'remove_node' }, session, draft())).toMatchObject({ passed: false });
     });
 
-    it('stays accurate after an autoResume clears pendingQuestions — reads the transcript, not transient session state', () => {
+    it('stays accurate after an autoResume clears pendingQuestions - reads the transcript, not transient session state', () => {
       const resumedSession = baseSession({
         messages: [
           { role: 'assistant', content: '', toolCalls: [{ id: 'c1', name: 'ask_user', arguments: '{}' }] },

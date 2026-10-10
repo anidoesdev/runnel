@@ -22,13 +22,13 @@ export class AuthController {
     private readonly jwtSecret: Uint8Array,
   ) {}
 
-  /** Public (see PUBLIC_PATHS) — lets the editor decide whether to show the setup screen or the login screen without guessing from a failed POST. */
+  /** Public (see PUBLIC_PATHS) - lets the editor decide whether to show the setup screen or the login screen without guessing from a failed POST. */
   @Get('/setup')
   async setupStatus() {
     return { completed: (await this.users.count()) > 0 };
   }
 
-  /** Only succeeds once — before the first user exists. Creates the single owner account (see UserEntity's isOwner note: full multi-user RBAC is M12 scope). */
+  /** Only succeeds once - before the first user exists. Creates the single owner account (see UserEntity's isOwner note: full multi-user RBAC is M12 scope). */
   @Post('/setup')
   async setup(req: Request, res: Response) {
     const existing = await this.users.count();
@@ -62,7 +62,7 @@ export class AuthController {
   }
 
   /**
-   * Changes the signed-in user's own password, re-verifying the current one first — a stolen
+   * Changes the signed-in user's own password, re-verifying the current one first - a stolen
    * session cookie alone must not be enough to lock the real owner out. A fresh session cookie
    * is issued on success so the caller stays logged in.
    */

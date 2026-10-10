@@ -30,7 +30,7 @@ describe('Workflow.renameNode', () => {
     const renamed = workflow.renameNode('Old', 'New');
 
     expect(renamed.getChildNodes('New')).toContain('B');
-    // B's connection targeting "Old" must now target "New" — asserted via traversal
+    // B's connection targeting "Old" must now target "New" - asserted via traversal
     // rather than reaching into the private definition field.
     expect(renamed.getParentNodes('New')).toContain('B');
   });

@@ -31,7 +31,7 @@ function parseToolCalls(message: IDataObject): IChatToolCall[] {
 }
 
 /**
- * `outputs: ['ai_languageModel']` with no `main` — this node is never scheduled through the
+ * `outputs: ['ai_languageModel']` with no `main` - this node is never scheduled through the
  * main queue (see NodeConnectionType). An AI Agent node connected to it resolves and calls
  * `supplyData()` directly via getInputConnectionData when the Agent itself runs.
  */
@@ -67,7 +67,7 @@ export const languageModelOpenAi: INodeType = {
     const model = this.getNodeParameter('model', 0, 'gpt-4o-mini') as string;
     const temperature = this.getNodeParameter('temperature', 0, 0.7) as number;
     // Captured here (not read off `this` inside `chat`) because `chat` is called as
-    // `model.chat(...)` by the Agent node — a shorthand method there would rebind `this` to
+    // `model.chat(...)` by the Agent node - a shorthand method there would rebind `this` to
     // the returned IChatModel object itself, which has no `.helpers`.
     const httpRequest = this.helpers.httpRequest;
 

@@ -20,7 +20,7 @@ export function renderNodeCatalog(nodeTypes: INodeTypes): string | undefined {
 
   const lines = [...descriptions]
     .sort((a, b) => a.name.localeCompare(b.name))
-    .map((description) => `- \`${description.name}\` — ${description.displayName}: ${description.description}`);
+    .map((description) => `- \`${description.name}\` - ${description.displayName}: ${description.description}`);
 
   return [
     '## Node types available here',

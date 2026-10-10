@@ -5,7 +5,7 @@ import type { IWorkflowBase } from './workflow.interfaces.js';
 
 /**
  * Everything the expression evaluator needs is passed in by the host (packages/core, or the
- * editor for live-preview) rather than read internally — env vars, secrets, and instance
+ * editor for live-preview) rather than read internally - env vars, secrets, and instance
  * variables are all Node/backend concerns, and this interface must stay resolvable from a
  * browser-safe evaluator with no `process`, no filesystem, and no network access of its own.
  */

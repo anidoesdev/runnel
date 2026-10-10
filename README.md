@@ -2,8 +2,8 @@
 
 A workflow-automation platform: a node-based canvas
 editor, a REST/SSE backend that persists and executes workflows, a real execution engine with
-an expression language and encrypted credentials, and an in-app AI agent — the **Workflow
-Assistant** — that builds and repairs workflows by calling the same tool layer a human would
+an expression language and encrypted credentials, and an in-app AI agent - the **Workflow
+Assistant** - that builds and repairs workflows by calling the same tool layer a human would
 use by hand.
 
 TypeScript end to end. pnpm workspaces + Turborepo, 11 packages, ~120 test files on Vitest.
@@ -28,24 +28,24 @@ TypeScript end to end. pnpm workspaces + Turborepo, 11 packages, ~120 test files
 
 ## Features
 
-- **Visual editor** — Vue 3 + Pinia SPA with a Vue Flow canvas, node palette, per-node property
+- **Visual editor** - Vue 3 + Pinia SPA with a Vue Flow canvas, node palette, per-node property
   panels with `displayOptions` visibility rules, credential management, and execution results.
-- **Execution engine** — walks the graph in dependency order, threads item data between nodes,
+- **Execution engine** - walks the graph in dependency order, threads item data between nodes,
   supports retries, error routing, and dry-run mocking of unsafe nodes.
-- **Expression language** — a hand-written lexer/parser/evaluator for `{{ $json.field }}`-style
+- **Expression language** - a hand-written lexer/parser/evaluator for `{{ $json.field }}`-style
   templates, with a library of extension functions and a JMESPath-lite subset.
-- **Triggers** — manual, schedule (cron), webhook (`/webhook/<path>`), polling, and chat.
-- **Credentials** — encrypted at rest with AES-256-GCM, never returned to the client in cleartext.
-- **Library** — star workflows, organise them into folders, and recover deleted ones from a trash
+- **Triggers** - manual, schedule (cron), webhook (`/webhook/<path>`), polling, and chat.
+- **Credentials** - encrypted at rest with AES-256-GCM, never returned to the client in cleartext.
+- **Library** - star workflows, organise them into folders, and recover deleted ones from a trash
   that keeps them for 30 days. Starter templates create a working workflow in one click.
-- **Notifications and settings** — a bell for failed unattended runs and activation changes, plus a
+- **Notifications and settings** - a bell for failed unattended runs and activation changes, plus a
   settings page for your password, a light/dark theme, assistant defaults and read-only server info.
-- **AI Workflow Assistant** — an agent that edits a copy-on-write draft of your workflow through
+- **AI Workflow Assistant** - an agent that edits a copy-on-write draft of your workflow through
   validated tools, asks clarifying questions, gates destructive actions behind human approval,
   and grounds itself in real node output.
-- **Custom nodes** — scaffold and build third-party node packages with `runnel-node-dev`, load them
+- **Custom nodes** - scaffold and build third-party node packages with `runnel-node-dev`, load them
   via `CUSTOM_NODES_DIR`.
-- **SQLite or Postgres** — TypeORM entities with migrations for both.
+- **SQLite or Postgres** - TypeORM entities with migrations for both.
 
 ---
 
@@ -72,7 +72,7 @@ In a second terminal, start the editor's dev server (Vite, port **5173**, proxyi
 pnpm --filter @runnel/editor-ui dev
 ```
 
-Open <http://localhost:5173>. The first visit shows a setup screen — it creates the single owner
+Open <http://localhost:5173>. The first visit shows a setup screen - it creates the single owner
 account, and only succeeds once.
 
 > The server listens on **5679**, not 5678, so it won't collide with another workflow tool
@@ -96,7 +96,7 @@ cp .env.example .env    # then fill in real values
 docker compose up --build
 ```
 
-`RUNNEL_ENCRYPTION_KEY` and `RUNNEL_JWT_SECRET` are **required** — compose fails fast with a clear
+`RUNNEL_ENCRYPTION_KEY` and `RUNNEL_JWT_SECRET` are **required** - compose fails fast with a clear
 message rather than silently falling back to the insecure dev defaults. Generate them with
 `openssl rand -hex 32`. The editor is then at <http://localhost:8080> and the API at
 <http://localhost:5679>.
@@ -105,19 +105,19 @@ message rather than silently falling back to the insecure dev defaults. Generate
 
 ## Repository layout
 
-Dependency direction is enforced at lint time by `.dependency-cruiser.cjs` — `pnpm lint` fails if
+Dependency direction is enforced at lint time by `.dependency-cruiser.cjs` - `pnpm lint` fails if
 a package imports "sideways" or "up" the stack.
 
 | Package | What it is |
 |---|---|
-| `workflow` | Pure domain core: `IWorkflowBase`/`INode`/`IConnections`, the expression language, graph algorithms (cycle detection, execution order, pruning), typed errors. No internal deps, no Node built-ins — it runs in the browser. |
+| `workflow` | Pure domain core: `IWorkflowBase`/`INode`/`IConnections`, the expression language, graph algorithms (cycle detection, execution order, pruning), typed errors. No internal deps, no Node built-ins - it runs in the browser. |
 | `core` | The execution engine: `WorkflowExecute`, the `IExecuteFunctions`/`IPollFunctions`/`IWebhookFunctions` context builders, credential encryption, the Code node's `vm` sandbox, the HTTP client, binary data, graph mutation ops. |
 | `nodes-base` | The 23 built-in node types and 7 credential types. |
 | `workflow-tools` | The agent's tool layer: registry, `invokeTool`, the draft/overlay model, BM25 node-catalog search, schema compression, redaction. Framework-agnostic. |
 | `assistant` | The agent loop: streaming, tool dispatch, budgets, pause/resume, system prompt, eval harness. |
-| `cli` | Express server — REST controllers, TypeORM entities and migrations, JWT auth, active-workflow management, and the composition root wiring everything together. |
+| `cli` | Express server - REST controllers, TypeORM entities and migrations, JWT auth, active-workflow management, and the composition root wiring everything together. |
 | `design-system` | Presentational Vue primitives (`RunnelButton`, `RunnelInput`, `RunnelSelect`, `RunnelCheckbox`, `RunnelModal`). |
-| `editor-ui` | The Vue 3 + Pinia SPA. Deliberately cannot depend on `core`/`cli`/`assistant` — server-side types are mirrored in [`src/api/types.ts`](packages/editor-ui/src/api/types.ts) so the bundle never pulls in Node-only code. |
+| `editor-ui` | The Vue 3 + Pinia SPA. Deliberately cannot depend on `core`/`cli`/`assistant` - server-side types are mirrored in [`src/api/types.ts`](packages/editor-ui/src/api/types.ts) so the bundle never pulls in Node-only code. |
 | `node-dev` | Scaffolding and build tooling for third-party node packages. |
 
 `cli` is the only package allowed to depend on everything below it.
@@ -126,37 +126,37 @@ a package imports "sideways" or "up" the stack.
 
 ## Built-in nodes and credentials
 
-**Triggers** — Manual, Chat, Schedule, Webhook, Poll, Start
+**Triggers** - Manual, Chat, Schedule, Webhook, Poll, Start
 
-**Flow control** — If, Switch, Filter, Merge, Split In Batches, No-Op
+**Flow control** - If, Switch, Filter, Merge, Split In Batches, No-Op
 
-**Data** — Set, Sort, Limit, Remove Duplicates, Rename Keys, Code (sandboxed JS)
+**Data** - Set, Sort, Limit, Remove Duplicates, Rename Keys, Code (sandboxed JS)
 
-**Integrations** — HTTP Request, Postgres
+**Integrations** - HTTP Request, Postgres
 
-**AI** — AI Agent, OpenAI Language Model, Calculator Tool
+**AI** - AI Agent, OpenAI Language Model, Calculator Tool
 
-**Credential types** — HTTP Basic / Header / Query / Bearer auth, OAuth2, Postgres, OpenAI
+**Credential types** - HTTP Basic / Header / Query / Bearer auth, OAuth2, Postgres, OpenAI
 
 ---
 
 ## The Workflow Assistant
 
 An in-app chat agent that builds, edits, debugs, and repairs workflows by calling validated tools
-against a live graph — not a chatbot that emits workflow-shaped text.
+against a live graph - not a chatbot that emits workflow-shaped text.
 
-- **Draft/overlay model** — the agent mutates a copy-on-write draft, never the live workflow.
+- **Draft/overlay model** - the agent mutates a copy-on-write draft, never the live workflow.
   Applying the draft is the one explicit, human-initiated action; the agent has no tool for it.
-- **Tools** — graph edits (`add_node`, `connect_nodes`, `set_node_parameters`, `rename_node`,
+- **Tools** - graph edits (`add_node`, `connect_nodes`, `set_node_parameters`, `rename_node`,
   `remove_node`, …), catalog search (`search_nodes`, `get_node_schema`, `get_node_options`),
-  credentials (`list_credentials`, `request_credential` — it never invents a credential value),
+  credentials (`list_credentials`, `request_credential` - it never invents a credential value),
   and grounding (`execute_dry_run`, `execute_live`, `get_node_output`).
-- **Human gates** — destructive or real-world-effecting tools carry `requiresApproval`, and the
+- **Human gates** - destructive or real-world-effecting tools carry `requiresApproval`, and the
   loop pauses on `ask_user` questions. A pause preserves the rest of the queued tool calls, so
   resuming doesn't lose work.
-- **Untrusted data** — node output surfaced to the model is redacted and explicitly wrapped as
+- **Untrusted data** - node output surfaced to the model is redacted and explicitly wrapped as
   attacker-controlled data: a webhook body is something to reference, never an instruction.
-- **Budgets** — a tool-call ceiling, a token ceiling, and a wall-clock timeout, all reset on
+- **Budgets** - a tool-call ceiling, a token ceiling, and a wall-clock timeout, all reset on
   human resume, plus `AbortSignal` cancellation through the model stream and every tool call.
 
 To use it, either set `OPENAI_API_KEY` in `.env`, or create an `openAiApi` credential through the
@@ -210,7 +210,7 @@ lint → test against a Postgres service container, then the assistant eval suit
 `OPENAI_API_KEY` secret is configured (it skips gracefully otherwise).
 
 Tests that need a database either use in-memory SQLite or `describe.skipIf` against a reachable
-local Postgres — TypeORM is not mocked.
+local Postgres - TypeORM is not mocked.
 
 ---
 
@@ -233,7 +233,7 @@ most likely to need:
 | `RUNNEL_MEMORY_MIN_SCORE` | `1` | Relevance floor for memories sent to the model. |
 | `VITE_API_PROXY_TARGET` | `http://localhost:5679` | Dev-server proxy target. |
 
-Never commit real secrets — `.env` is gitignored; `.env.example` is the template.
+Never commit real secrets - `.env` is gitignored; `.env.example` is the template.
 
 ---
 
@@ -252,10 +252,10 @@ built-in one is skipped (the built-in wins) and the collision is logged.
 
 ## Further reading
 
-- [`design.md`](design.md) — the architecture as built, and why it is shaped this way.
-- [`ai-agent-build-prompt.md`](ai-agent-build-prompt.md) — the original spec the assistant was
+- [`design.md`](design.md) - the architecture as built, and why it is shaped this way.
+- [`ai-agent-build-prompt.md`](ai-agent-build-prompt.md) - the original spec the assistant was
   built against.
-- [`docs/environment-variables.md`](docs/environment-variables.md) — full configuration reference.
+- [`docs/environment-variables.md`](docs/environment-variables.md) - full configuration reference.
 
-Known gaps are tracked in [`design.md`](design.md) §11 — notably pinned-data replay for dry runs,
+Known gaps are tracked in [`design.md`](design.md) §11 - notably pinned-data replay for dry runs,
 a static `validate_workflow` tool, and in-memory-only draft persistence.

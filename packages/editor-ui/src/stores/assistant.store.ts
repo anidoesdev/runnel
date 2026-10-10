@@ -33,7 +33,7 @@ export interface IAssistantActivityItem {
   error?: IToolErrorInfo;
 }
 
-/** One entry in the rendered transcript — derived from session.messages (see `transcript` getter), not stored directly. */
+/** One entry in the rendered transcript - derived from session.messages (see `transcript` getter), not stored directly. */
 export type AssistantTranscriptItem =
   | { type: 'user'; content: string }
   | { type: 'assistant_text'; content: string }
@@ -47,7 +47,7 @@ function parseArgs(raw: string): unknown {
   }
 }
 
-/** Best-effort "what node did this touch" for the pulse animation — every mutating tool takes a `name` except add_node (uses the returned name) and connect_nodes/disconnect_nodes (uses `from`/`to`). Never throws on an unexpected shape; just skips the pulse. */
+/** Best-effort "what node did this touch" for the pulse animation - every mutating tool takes a `name` except add_node (uses the returned name) and connect_nodes/disconnect_nodes (uses `from`/`to`). Never throws on an unexpected shape; just skips the pulse. */
 function pulseTargetsFor(name: string, args: unknown, result: unknown): { nodes: string[]; connections: string[] } {
   const a = (args ?? {}) as Record<string, unknown>;
   const r = (result ?? {}) as Record<string, unknown>;
@@ -87,7 +87,7 @@ export const useAssistantStore = defineStore('assistant', {
     pulseConnectionKeys: [] as string[],
   }),
   getters: {
-    /** The stable, replayable chat history — every past turn's text and tool calls, paired with their results. Rebuilt from session.messages on every access rather than kept as separate state, so there's exactly one source of truth for "what happened". */
+    /** The stable, replayable chat history - every past turn's text and tool calls, paired with their results. Rebuilt from session.messages on every access rather than kept as separate state, so there's exactly one source of truth for "what happened". */
     transcript(state): AssistantTranscriptItem[] {
       const messages = state.session?.messages ?? [];
       const resultByCallId = new Map<string, { content: string; isError: boolean }>();
@@ -167,7 +167,7 @@ export const useAssistantStore = defineStore('assistant', {
       }, PULSE_DURATION_MS);
     },
 
-    /** Shared by every event-driven route (send/approve/answer) — updates live streaming state, refreshes the draft/pulse on a successful mutating tool call, and records a suspend point on the session itself so the UI can render an approval card or question chips immediately, without waiting for the next GET. */
+    /** Shared by every event-driven route (send/approve/answer) - updates live streaming state, refreshes the draft/pulse on a successful mutating tool call, and records a suspend point on the session itself so the UI can render an approval card or question chips immediately, without waiting for the next GET. */
     handleEvent(event: AgentLoopEvent): void {
       switch (event.type) {
         case 'text_delta':
@@ -216,7 +216,7 @@ export const useAssistantStore = defineStore('assistant', {
       }
     },
 
-    /** Runs after any stream ends (success or failure) — reloads the authoritative session (folding `liveText`/`liveActivity` into the real transcript) and clears the live buffers. */
+    /** Runs after any stream ends (success or failure) - reloads the authoritative session (folding `liveText`/`liveActivity` into the real transcript) and clears the live buffers. */
     async finishTurn(): Promise<void> {
       if (this.session) {
         try {
@@ -234,9 +234,9 @@ export const useAssistantStore = defineStore('assistant', {
 
     /**
      * The "Fix this" entry point (build prompt Milestone 8): opens/reuses the session for this
-     * workflow, then sends a single composed message carrying the real failure — the node name,
+     * workflow, then sends a single composed message carrying the real failure - the node name,
      * the engine's own error text, and the actual input data that node received (reconstructed
-     * from the execution's runData, not re-guessed) — so the agent's very first turn is grounded
+     * from the execution's runData, not re-guessed) - so the agent's very first turn is grounded
      * in what really happened instead of the user re-typing the error by hand.
      */
     async fixExecutionError(
@@ -300,7 +300,7 @@ export const useAssistantStore = defineStore('assistant', {
       }
     },
 
-    /** Rule #2: applying is the one explicit, user-initiated action that writes the draft to the live workflow — reloading the workflow store here (rather than leaving the caller to remember to) is what makes the canvas correctly show the applied state once preview mode exits. */
+    /** Rule #2: applying is the one explicit, user-initiated action that writes the draft to the live workflow - reloading the workflow store here (rather than leaving the caller to remember to) is what makes the canvas correctly show the applied state once preview mode exits. */
     async applyDraft(): Promise<IDraftWorkflow | undefined> {
       if (!this.session) return undefined;
       const applied = await assistantApi.applyDraft(this.session.id);

@@ -7,7 +7,7 @@ import type { IMemnestForAssistant } from './memnest-memory.adapter.js';
 /**
  * Mirrors packages/assistant/src/agent-loop.redaction.test.ts for the memory path: known
  * credential fixtures in a session must never reach Memnest. The engine is a spy, so what's
- * asserted is Runnel's own redaction and filtering — Memnest's redaction is a second layer these
+ * asserted is Runnel's own redaction and filtering - Memnest's redaction is a second layer these
  * tests deliberately don't get to lean on.
  */
 
@@ -49,7 +49,7 @@ async function capturedPayload(session: IAssistantSession) {
   return (memnest.add.mock.calls[0] as unknown as [Parameters<IMemnestForAssistant['add']>[0]])[0];
 }
 
-describe('memory capture — credential redaction', () => {
+describe('memory capture - credential redaction', () => {
   it('never hands a known credential fixture to Memnest, from any message', async () => {
     const payload = JSON.stringify(await capturedPayload(leakySession()));
 
@@ -63,7 +63,7 @@ describe('memory capture — credential redaction', () => {
   });
 });
 
-describe('memory capture — tool traffic excluded', () => {
+describe('memory capture - tool traffic excluded', () => {
   it('sends only user and assistant text: no tool results, no tool calls', async () => {
     const payload = await capturedPayload(leakySession());
     const turns = payload.content as unknown as Array<Record<string, unknown>>;
@@ -93,7 +93,7 @@ describe('memory capture — tool traffic excluded', () => {
   });
 });
 
-describe('memory — missing userId', () => {
+describe('memory - missing userId', () => {
   it.each([
     ['empty', ''],
     ['whitespace', '   '],

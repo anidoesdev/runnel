@@ -117,7 +117,7 @@ function findInterpolationEnd(src: string, startPos: number): number {
   throw new ExpressionError('Unterminated template interpolation `${...}`', { nodeName: '' });
 }
 
-/** Returns the index just past the closing quote, treating `` ` `` bodies as opaque (nested `${}` inside a nested template is not re-entered — an edge case out of scope for M3). */
+/** Returns the index just past the closing quote, treating `` ` `` bodies as opaque (nested `${}` inside a nested template is not re-entered - an edge case out of scope for M3). */
 export function skipStringLiteral(src: string, start: number, quote: string): number {
   let pos = start + 1;
   while (pos < src.length && src[pos] !== quote) {

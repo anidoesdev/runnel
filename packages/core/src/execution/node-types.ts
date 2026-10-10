@@ -3,14 +3,14 @@ import type { INodeType, INodeTypeDescription, VersionedNodeType } from '@runnel
 /**
  * Decouples WorkflowExecute from how node types are actually loaded/versioned. The real
  * loader (scanning nodes-base/dist, custom extensions, lazy known/nodes.json indexing) is a
- * CLI-startup concern that lands in M6 — this is just the seam. `MapNodeTypes` resolves
+ * CLI-startup concern that lands in M6 - this is just the seam. `MapNodeTypes` resolves
  * VersionedNodeType entries (a saved node pins `typeVersion`; unversioned node types just
  * return themselves regardless of what version is asked for, matching how a node with a
  * single `version: 1` behaves in practice).
  */
 export interface INodeTypes {
   getByNameAndVersion(type: string, version?: number): INodeType;
-  /** Every registered type's description, one entry per type name (its current/default version) — the catalog search_nodes/get_workflow_outline read from. */
+  /** Every registered type's description, one entry per type name (its current/default version) - the catalog search_nodes/get_workflow_outline read from. */
   list(): INodeTypeDescription[];
 }
 

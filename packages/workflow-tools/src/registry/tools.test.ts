@@ -62,7 +62,7 @@ async function openDraft(repo: IWorkflowRepositoryPort): Promise<{ draftStore: W
   return { draftStore, ctx: { draftId: draft.id, nodeTypes: nodeTypes(), draftStore } };
 }
 
-describe('Milestone 1 tool set — builds a workflow end to end and applies it', () => {
+describe('Milestone 1 tool set - builds a workflow end to end and applies it', () => {
   it('adds two nodes, connects them, configures parameters, attaches a credential, then applies the draft to the real workflow', async () => {
     const repo = fakeRepository();
     const { draftStore, ctx } = await openDraft(repo);

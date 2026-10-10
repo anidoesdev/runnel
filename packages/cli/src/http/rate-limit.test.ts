@@ -24,7 +24,7 @@ describe('buildAuthRateLimiter', () => {
 
     const res = await request(app).post('/rest/auth/login');
     expect(res.status).toBe(429);
-    expect(res.body).toEqual({ message: 'Too many requests — try again later.' });
+    expect(res.body).toEqual({ message: 'Too many requests - try again later.' });
   });
 
   it('sets standard rate-limit response headers', async () => {

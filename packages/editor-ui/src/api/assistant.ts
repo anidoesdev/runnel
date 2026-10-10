@@ -6,10 +6,10 @@ interface IErrorBody {
 }
 
 /**
- * SSE consumption, not `api`'s JSON request wrapper — the assistant's streaming routes send a
+ * SSE consumption, not `api`'s JSON request wrapper - the assistant's streaming routes send a
  * sequence of `data: {...}\n\n` frames, one per AgentLoopEvent, ending when the response closes
  * (no `[DONE]` sentinel; the server just ends the stream). Mirrors the same parsing logic
- * packages/assistant's own SSE parser uses to read OpenAI's stream — duplicated rather than
+ * packages/assistant's own SSE parser uses to read OpenAI's stream - duplicated rather than
  * shared, since that package pulls in Node-only modules (`node:fs`) editor-ui's Vite bundle
  * can't take as a dependency.
  */

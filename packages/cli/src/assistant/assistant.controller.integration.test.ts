@@ -12,7 +12,7 @@ import type { Express } from 'express';
 /**
  * Proves the whole backend half of Milestone 5, exercised for real over HTTP: create a
  * session, send a message, watch the SSE stream carry the agent's tool calls, confirm the
- * session persisted, review the draft's diff, and apply it to the live workflow — all against a
+ * session persisted, review the draft's diff, and apply it to the live workflow - all against a
  * real (in-memory) SQLite database and a local HTTP server standing in for OpenAI (same
  * approach as nodes-base's ai-agent-integration.test.ts), so nothing here depends on network
  * access or a real API key.
@@ -86,7 +86,7 @@ afterEach(async () => {
   fakeOpenAi = undefined;
 });
 
-describe('Assistant REST/SSE API — end to end', () => {
+describe('Assistant REST/SSE API - end to end', () => {
   it('builds a node via a streamed turn, persists the session, diffs the draft, and applies it', async () => {
     fakeOpenAi = await startFakeOpenAiServer();
 
@@ -120,7 +120,7 @@ describe('Assistant REST/SSE API — end to end', () => {
     expect(events.some((e) => e.type === 'tool_result' && e.name === 'add_node')).toBe(true);
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete', stopReason: 'end_turn' });
 
-    // Nothing touched the live workflow yet — still a draft.
+    // Nothing touched the live workflow yet - still a draft.
     const stillEmptyWorkflow = await agent.get(`/rest/workflows/${workflowId}`);
     expect((stillEmptyWorkflow.body as { nodes: unknown[] }).nodes).toEqual([]);
 
@@ -151,7 +151,7 @@ describe('Assistant REST/SSE API — end to end', () => {
     const agent = request.agent(app);
     await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });
 
-    // Credential resolution picks "the first stored openAiApi credential" — remove whatever an
+    // Credential resolution picks "the first stored openAiApi credential" - remove whatever an
     // earlier test in this file left behind (pointing at that test's now-closed fake server)
     // before adding one that points at this test's own.
     const existingCredentials = await agent.get('/rest/credentials');
@@ -167,7 +167,7 @@ describe('Assistant REST/SSE API — end to end', () => {
     const session = sessionRes.body as { id: string; draftId: string };
 
     await agent.post(`/rest/assistant/sessions/${session.id}/messages`).send({ message: 'Add a NoOp node.' });
-    // Applying deletes the draft (WorkflowDraftStore.apply) — session.draftId now points at
+    // Applying deletes the draft (WorkflowDraftStore.apply) - session.draftId now points at
     // nothing, exactly what a server restart mid-conversation also produces (an in-memory
     // draft that no longer exists under an id a persisted session still remembers).
     await agent.post(`/rest/assistant/sessions/${session.id}/apply`);
@@ -180,7 +180,7 @@ describe('Assistant REST/SSE API — end to end', () => {
     expect(secondMessageRes.headers['content-type']).toContain('text/event-stream');
     const events = parseSseEvents(secondMessageRes.text as string);
     expect(events.at(-1)).toMatchObject({ type: 'turn_complete' });
-    // No error event — the stale draftId was silently recovered, not surfaced as a failure.
+    // No error event - the stale draftId was silently recovered, not surfaced as a failure.
     expect(events.some((e) => e.type === 'error')).toBe(false);
 
     const getSessionRes = await agent.get(`/rest/assistant/sessions/${session.id}`);
@@ -188,7 +188,7 @@ describe('Assistant REST/SSE API — end to end', () => {
     expect(persisted.draftId).not.toBe(session.draftId); // a fresh draft was opened
     expect(persisted.messages.some((m) => m.role === 'assistant' && m.content.includes('server restarted'))).toBe(true);
 
-    // The fresh draft is a real, usable one — its own diff/apply routes still work.
+    // The fresh draft is a real, usable one - its own diff/apply routes still work.
     const diffRes = await agent.get(`/rest/assistant/sessions/${session.id}/diff`);
     expect(diffRes.status).toBe(200);
   });

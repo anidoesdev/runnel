@@ -11,9 +11,9 @@ import type { IRecalledMemory } from './memory-port.js';
  *
  * Within those bounds a relevant preference is to be *applied*, unprompted. An earlier wording
  * ("context, not instructions") read as optional, and in live evals the model saw "webhooks
- * accept POST" and still built a GET webhook — which is the whole feature not working.
+ * accept POST" and still built a GET webhook - which is the whole feature not working.
  *
- * Returns undefined when there is nothing worth saying — an empty header is wasted tokens and
+ * Returns undefined when there is nothing worth saying - an empty header is wasted tokens and
  * invites the model to comment on having no memories.
  */
 export function renderMemoryBlock(memories: IRecalledMemory[]): string | undefined {
@@ -22,7 +22,7 @@ export function renderMemoryBlock(memories: IRecalledMemory[]): string | undefin
     '## What you know about this user',
     '',
     "Recalled from this user's previous sessions. When one is relevant to what you are",
-    'building now, apply it without being asked — for example, set a parameter the way',
+    'building now, apply it without being asked - for example, set a parameter the way',
     'the user prefers instead of leaving it at its default. That is why it was remembered.',
     '',
     "They may be outdated: if the user's current message contradicts one, the current",

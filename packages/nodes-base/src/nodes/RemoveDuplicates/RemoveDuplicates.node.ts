@@ -1,6 +1,6 @@
 import type { IDataObject, IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
-/** Drops items whose comparison key (a specific field, or the whole JSON) has already been seen earlier in the input — the first occurrence of each key is kept. */
+/** Drops items whose comparison key (a specific field, or the whole JSON) has already been seen earlier in the input - the first occurrence of each key is kept. */
 export const removeDuplicatesNode: INodeType = {
   description: {
     displayName: 'Remove Duplicates',

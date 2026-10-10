@@ -3,7 +3,7 @@ import type { ActiveWorkflowManager } from '../active-workflows/active-workflow-
 import type { IDataObject } from '@runnel/workflow';
 
 /**
- * Mounted at /webhook — dispatches any HTTP method/path to whichever active workflow's
+ * Mounted at /webhook - dispatches any HTTP method/path to whichever active workflow's
  * webhook node registered it. Built as a plain Router (not a decorator @RestController)
  * because the set of valid paths is dynamic (workflows activate/deactivate at runtime), not
  * a fixed list known at startup; `router.use` (rather than a wildcard route pattern) matches

@@ -22,17 +22,17 @@ const assistantStore = useAssistantStore();
 
 /**
  * Undefined (not just falsy) whenever the assistant panel is closed or has no draft yet, so
- * WorkflowCanvas falls back to the live, fully-interactive workflow store — both while the
+ * WorkflowCanvas falls back to the live, fully-interactive workflow store - both while the
  * panel is opening (no flash of an empty preview) and after it closes (closing must exit
  * preview/readonly mode, not leave the canvas locked with a stale draft forever).
  */
 const previewNodes = computed(() => (assistantStore.panelOpen ? assistantStore.draft?.nodes : undefined));
 const previewConnections = computed(() => (assistantStore.panelOpen ? assistantStore.draft?.connections : undefined));
-/** What's actually on screen right now — the assistant's in-progress draft while it's building, the live workflow otherwise. Chat-readiness must track this, not the live store alone, or an Agent + Chat trigger the assistant just wired up won't open the dock until the draft is applied. */
+/** What's actually on screen right now - the assistant's in-progress draft while it's building, the live workflow otherwise. Chat-readiness must track this, not the live store alone, or an Agent + Chat trigger the assistant just wired up won't open the dock until the draft is applied. */
 const effectiveNodes = computed(() => previewNodes.value ?? workflowStore.nodes);
 const effectiveConnections = computed(() => previewConnections.value ?? workflowStore.connections);
 
-/** A brand-new, never-saved workflow has no id yet — the assistant session needs one, so this saves first (silently, same as autosave would shortly do anyway) rather than making the user hit Save themselves before they're allowed to ask for help building it. */
+/** A brand-new, never-saved workflow has no id yet - the assistant session needs one, so this saves first (silently, same as autosave would shortly do anyway) rather than making the user hit Save themselves before they're allowed to ask for help building it. */
 async function onToggleAssistant(): Promise<void> {
   if (assistantStore.panelOpen) {
     assistantStore.close();
@@ -46,12 +46,12 @@ async function onToggleAssistant(): Promise<void> {
 const selectedNodeId = ref<string | null>(null);
 const selectedNode = computed(() => effectiveNodes.value.find((n) => n.id === selectedNodeId.value) ?? null);
 const activateError = ref<string | null>(null);
-/** Hidden until there's something worth showing — opens on its own right after a run, closable from there. No reason to occupy the right column with "Run the workflow to see results here" before anyone has run anything. */
+/** Hidden until there's something worth showing - opens on its own right after a run, closable from there. No reason to occupy the right column with "Run the workflow to see results here" before anyone has run anything. */
 const executionPanelOpen = ref(false);
 
-/** Every AI Agent node that already has a Chat trigger wired into its main input — each is a valid target for the bottom chat dock. */
+/** Every AI Agent node that already has a Chat trigger wired into its main input - each is a valid target for the bottom chat dock. */
 const chatReadyAgents = computed(() => findChatReadyAgents(effectiveNodes.value, effectiveConnections.value));
-/** Explicitly pinned dock target, set whenever some agent newly becomes chat-ready (see watch below) — "most recently wired" wins over whatever was open before. */
+/** Explicitly pinned dock target, set whenever some agent newly becomes chat-ready (see watch below) - "most recently wired" wins over whatever was open before. */
 const chatDockAgentId = ref<string | null>(null);
 const chatAgentNode = computed(() => chatReadyAgents.value.find((node) => node.id === chatDockAgentId.value));
 const chatTriggerNode = computed(() =>
@@ -59,19 +59,19 @@ const chatTriggerNode = computed(() =>
 );
 const chatPanelOpen = ref(false);
 const chatDockVisible = computed(() => chatPanelOpen.value && !!chatAgentNode.value && !!chatTriggerNode.value);
-/** Nothing occupies the right-hand column — collapse the grid to give the canvas the full width instead of reserving an empty strip. Selecting a node doesn't factor in here: its properties open in a modal, not this column. */
+/** Nothing occupies the right-hand column - collapse the grid to give the canvas the full width instead of reserving an empty strip. Selecting a node doesn't factor in here: its properties open in a modal, not this column. */
 const rightColumnCollapsed = computed(
   () => !assistantStore.panelOpen && !(executionPanelOpen.value && !chatDockVisible.value),
 );
 
 /**
- * Pins the dock to whichever agent just became chat-ready and opens it — covers three cases
+ * Pins the dock to whichever agent just became chat-ready and opens it - covers three cases
  * with one watcher: a workflow that's already wired when this view mounts (`immediate: true`
  * fires with `previousAgents` undefined, so every ready agent counts as "new"), an AI Agent
  * node dropped on the canvas (its Chat trigger is auto-attached synchronously in `onDropNode`,
  * so the pair shows up "newly ready" the next time this computed re-runs), and a Chat node
  * wired up by hand. Deleting the *targeted* agent's Chat trigger drops it out of
- * `chatReadyAgents`, so `chatAgentNode` goes undefined and `chatDockVisible` follows — no extra
+ * `chatReadyAgents`, so `chatAgentNode` goes undefined and `chatDockVisible` follows - no extra
  * logic needed to close the dock automatically.
  */
 watch(
@@ -99,9 +99,9 @@ onMounted(async () => {
 
 /**
  * Autosave: any edit (drag a node, wire a connection, change a parameter, rename the
- * workflow, delete a node, ...) persists on its own a moment after the user stops — no
+ * workflow, delete a node, ...) persists on its own a moment after the user stops - no
  * explicit Save click needed. Debounced off the *whole* store state (not just `dirty`, which
- * only flips false->true once) so a burst of changes — e.g. typing in a prompt field —
+ * only flips false->true once) so a burst of changes - e.g. typing in a prompt field -
  * restarts the timer on every keystroke instead of saving mid-word.
  */
 const AUTOSAVE_IDLE_MS = 1000;

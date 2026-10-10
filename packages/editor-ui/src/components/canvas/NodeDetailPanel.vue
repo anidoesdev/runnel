@@ -18,11 +18,11 @@ const nodeTypesStore = useNodeTypesStore();
 const node = computed(() => workflowStore.nodes.find((n) => n.id === props.nodeId) ?? null);
 const description = computed(() => (node.value ? nodeTypesStore.byName(node.value.type) : undefined));
 
-/** A sub-node (e.g. a Chat Model or Tool feeding an AI Agent) has no `main` output — it's never run on its own, only resolved on demand by whatever it's connected to. "Run to Here" targets the main queue, so it's meaningless (and would fail server-side) for these. */
+/** A sub-node (e.g. a Chat Model or Tool feeding an AI Agent) has no `main` output - it's never run on its own, only resolved on demand by whatever it's connected to. "Run to Here" targets the main queue, so it's meaningless (and would fail server-side) for these. */
 const isSubNode = computed(() => description.value !== undefined && !description.value.outputs.includes('main'));
 
 /**
- * A freshly-added node's `parameters` is `{}` — nothing has materialized each property's
+ * A freshly-added node's `parameters` is `{}` - nothing has materialized each property's
  * `default` into it yet (only PropertyField applies defaults, and only for display). But
  * displayOptions.show/hide conditions read sibling values directly, so without merging in
  * declared defaults here, a property whose visibility depends on another property's default
@@ -41,7 +41,7 @@ const visibleProperties = computed(() =>
   (description.value?.properties ?? []).filter((property) => property.type !== 'hidden' && isPropertyVisible(property, values.value)),
 );
 
-/** Output data is keyed by node *name* in IRunExecutionData — a rename after the last run means there's simply nothing recorded under the new name yet, same as any other node. */
+/** Output data is keyed by node *name* in IRunExecutionData - a rename after the last run means there's simply nothing recorded under the new name yet, same as any other node. */
 const lastTask = computed(() => {
   if (!node.value) return undefined;
   const runs = workflowStore.lastResult?.data.resultData.runData[node.value.name];
@@ -75,7 +75,7 @@ function close(): void {
   emit('close');
 }
 
-/** Runs the real chain from the trigger through this node (via Workflow.pruneToDestination on the server) and stops — see run-workflow.ts. */
+/** Runs the real chain from the trigger through this node (via Workflow.pruneToDestination on the server) and stops - see run-workflow.ts. */
 async function runToHere(): Promise<void> {
   if (!node.value) return;
   try {
@@ -140,7 +140,7 @@ async function runToHere(): Promise<void> {
         <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
 
         <p v-if="isSubNode" class="ndv__output-empty">
-          This node has no output of its own — it supplies {{ description?.outputs.join(', ') }} to whatever it's connected to.
+          This node has no output of its own - it supplies {{ description?.outputs.join(', ') }} to whatever it's connected to.
         </p>
         <p v-else-if="!lastTask" class="ndv__output-empty">Run the workflow to see this node's output here.</p>
         <template v-else>

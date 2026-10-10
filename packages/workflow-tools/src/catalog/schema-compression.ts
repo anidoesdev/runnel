@@ -6,7 +6,7 @@ const MAX_INLINE_OPTIONS = 30;
 
 /**
  * The displayOptions show/hide semantics. Duplicated from
- * packages/editor-ui/src/utils/displayOptions.ts — that copy is Vue-component-facing and
+ * packages/editor-ui/src/utils/displayOptions.ts - that copy is Vue-component-facing and
  * editor-ui isn't a dependency workflow-tools can take (or should: it would drag Vue into a
  * server-side package). Worth promoting to packages/workflow if a third copy ever shows up.
  */
@@ -33,7 +33,7 @@ export interface ICompressedProperty {
   default: unknown;
   description?: string;
   placeholder?: string;
-  /** Present (capped at MAX_INLINE_OPTIONS) for a short `options`/`multiOptions` enum. Omitted — with optionsTruncated: true instead — once the real list would blow the token budget; call get_node_options(type, field) for those. */
+  /** Present (capped at MAX_INLINE_OPTIONS) for a short `options`/`multiOptions` enum. Omitted - with optionsTruncated: true instead - once the real list would blow the token budget; call get_node_options(type, field) for those. */
   options?: Array<{ name: string; value: string | number | boolean }>;
   optionsTruncated?: boolean;
 }
@@ -75,15 +75,15 @@ function compressProperty(property: INodeProperties): ICompressedProperty {
 
 /**
  * Compresses a node type's full description into the agent-facing shape get_node_schema
- * returns — never the raw INodeTypeDescription. The raw description carries displayOptions
+ * returns - never the raw INodeTypeDescription. The raw description carries displayOptions
  * rule objects, nested fixedCollection/collection sub-schemas, and (for some real-world nodes)
  * enum lists hundreds of entries long; none of that is reproduced here. Nested collection
- * structure is deliberately NOT expanded — `example` teaches the concrete shape (e.g. Set's
+ * structure is deliberately NOT expanded - `example` teaches the concrete shape (e.g. Set's
  * `fields.values[].{name,type,value}`) far more token-efficiently than a recursive schema tree
  * would, which is exactly the kind of bloat this function exists to cut.
  *
  * When `currentParameters` is given, properties whose displayOptions rule them out for those
- * values are dropped entirely — e.g. asking for Set's schema with `{ mode: 'json' }` already
+ * values are dropped entirely - e.g. asking for Set's schema with `{ mode: 'json' }` already
  * set won't mention the manual-mode "Fields to Set" property at all.
  */
 export function compressNodeSchema(description: INodeTypeDescription, currentParameters?: IDataObject): ICompressedNodeSchema {
@@ -114,7 +114,7 @@ export interface INodeOptionEntry {
   description?: string;
 }
 
-/** The full option list for one `options`/`multiOptions` property — what get_node_options(type, field) exists to serve once compressNodeSchema has truncated it. */
+/** The full option list for one `options`/`multiOptions` property - what get_node_options(type, field) exists to serve once compressNodeSchema has truncated it. */
 export function getFieldOptions(description: INodeTypeDescription, fieldName: string): INodeOptionEntry[] {
   const property = description.properties.find((p) => p.name === fieldName);
   if (!property) {

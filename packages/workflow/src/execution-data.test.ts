@@ -69,7 +69,7 @@ describe('getNodeInputData', () => {
         task({ source: [{ previousNode: 'A' }] }),
       ],
     };
-    // Both runs point at A's only recorded run — this test mainly documents that `.at(-1)` on
+    // Both runs point at A's only recorded run - this test mainly documents that `.at(-1)` on
     // the *target* node's own tasks is what's used, distinct from previousNodeRun on the source.
     expect(getNodeInputData(runData, 'Next')).toEqual([[{ json: { v: 'first' } }]]);
   });

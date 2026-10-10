@@ -10,7 +10,7 @@ import type { TestServer } from './test-server.js';
  * Proves the whole AI Agent feature end to end, across every layer touched to build it: the
  * `ai_languageModel`/`ai_tool` sub-node connection types (packages/workflow), getInputConnectionData
  * resolving supplyData() through the real engine (packages/core), and the three new node types
- * (packages/nodes-base) — wired together exactly as the editor would save them, executed through
+ * (packages/nodes-base) - wired together exactly as the editor would save them, executed through
  * the real WorkflowExecute, with a local HTTP server standing in for the OpenAI API.
  *
  * Graph:
@@ -116,7 +116,7 @@ describe('AI Agent + OpenAI Chat Model + Calculator Tool (end to end)', () => {
       { tool: 'calculator', arguments: '{"expression":"6 * 7"}', result: '42' },
     ]);
 
-    // Chat Model and Calculator never enter the main execution queue — they're pure sub-nodes,
+    // Chat Model and Calculator never enter the main execution queue - they're pure sub-nodes,
     // resolved on demand by the Agent, not scheduled nodes with their own recorded run.
     expect(result.resultData.runData['Chat Model']).toBeUndefined();
     expect(result.resultData.runData.Calculator).toBeUndefined();

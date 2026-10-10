@@ -3,7 +3,7 @@ import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow'
 /**
  * The trigger that feeds a typed chat message into whatever it's wired to. Dropping an AI Agent
  * node onto the canvas auto-attaches one of these to its main input (see WorkflowEditorView's
- * onDropNode) — the chat panel below the canvas runs the workflow starting here, seeding this
+ * onDropNode) - the chat panel below the canvas runs the workflow starting here, seeding this
  * node's output with `{ chatInput: <message> }`, exactly like a Manual Trigger seeds a manual run.
  */
 export const chatTrigger: INodeType = {

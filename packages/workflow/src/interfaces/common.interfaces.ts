@@ -21,13 +21,13 @@ export interface IBinaryData {
   fileExtension?: string;
   fileSize?: string;
   directory?: string;
-  /** Inline base64 payload — reserved for small generated files only. Everything else is referenced by id. */
+  /** Inline base64 payload - reserved for small generated files only. Everything else is referenced by id. */
   data?: string;
 }
 
 /**
  * Structural shape shared by NodeApiError and NodeOperationError (defined in errors.ts).
- * Declared here — rather than importing those classes — so this file has no dependency
+ * Declared here - rather than importing those classes - so this file has no dependency
  * on errors.ts, which itself depends on node.interfaces.ts, which depends back on this file.
  */
 export interface INodeExecutionErrorLike {

@@ -3,10 +3,10 @@ import type { IConnections, IDataObject, INode, INodeExecutionData, IWorkflowSet
 
 /**
  * `simple-json` (TypeORM stores it as TEXT, JSON.stringify/parse in the driver layer) is used
- * for every structured column instead of a native `json`/`jsonb` type — Postgres and SQLite
+ * for every structured column instead of a native `json`/`jsonb` type - Postgres and SQLite
  * disagree about JSON column types, and this sidesteps that dialect difference entirely
  * rather than needing separate handling per driver. `id` is likewise a plain varchar
- * populated with `randomUUID()` in application code rather than a DB-generated default —
+ * populated with `randomUUID()` in application code rather than a DB-generated default -
  * see db/id.ts for why.
  */
 @Entity({ name: 'workflow' })

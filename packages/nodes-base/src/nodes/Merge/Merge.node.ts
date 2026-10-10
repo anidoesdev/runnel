@@ -15,7 +15,7 @@ function combineByPositionMode(input0: INodeExecutionData[], input1: INodeExecut
   return output;
 }
 
-/** Inner join: only positions with a match on both sides are emitted. Unmatched rows on either side are dropped — a documented simplification, not an outer join. */
+/** Inner join: only positions with a match on both sides are emitted. Unmatched rows on either side are dropped - a documented simplification, not an outer join. */
 function combineByKeyMode(
   input0: INodeExecutionData[],
   input1: INodeExecutionData[],

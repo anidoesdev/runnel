@@ -11,7 +11,7 @@ import type { IWorkflowRepositoryPort } from '@runnel/workflow-tools';
 /**
  * Milestone 3's own bar: "Builds a 3-node workflow end to end from a prompt, in a test." Runs
  * the real agent loop against the REAL tool registry (Milestone 1 + 2), the REAL node catalog
- * (registerAllNodeTypes, not synthetic fixtures), and a REAL WorkflowDraftStore — only the
+ * (registerAllNodeTypes, not synthetic fixtures), and a REAL WorkflowDraftStore - only the
  * model itself is faked, scripted to behave the way a competent model actually would: search
  * before guessing a type, batch related tool calls together, and finish with a text summary.
  * Also exercises the two other Milestone 3 capabilities beyond the loop itself: session
@@ -34,7 +34,7 @@ function fakeRepository(): IWorkflowRepositoryPort & { saved: IWorkflowBase[] } 
   };
 }
 
-describe('agent loop — end to end (Milestone 3)', () => {
+describe('agent loop - end to end (Milestone 3)', () => {
   it('builds Manual Trigger → HTTP Request → Set from a single prompt, across several tool-calling round trips', async () => {
     const repository = fakeRepository();
     const nodeTypes = registerAllNodeTypes(new MapNodeTypes());
@@ -56,7 +56,7 @@ describe('agent loop — end to end (Milestone 3)', () => {
           { id: 'call_3', name: 'search_nodes', arguments: JSON.stringify({ query: 'edit fields on an item' }) },
         ],
       },
-      // 2. Build the skeleton — three nodes, no parameters yet.
+      // 2. Build the skeleton - three nodes, no parameters yet.
       {
         toolCalls: [
           { id: 'call_4', name: 'add_node', arguments: JSON.stringify({ type: 'manualTrigger' }) },
@@ -86,7 +86,7 @@ describe('agent loop — end to end (Milestone 3)', () => {
       },
       // 4. Review before reporting done.
       { toolCalls: [{ id: 'call_11', name: 'get_workflow_outline', arguments: '{}' }] },
-      // 5. Final summary — no more tool calls, turn ends.
+      // 5. Final summary - no more tool calls, turn ends.
       { text: 'Built a 3-node workflow: Manual Trigger → Call API → Extract Result. Review the URL and mapped field before running it.' },
     ]);
 
@@ -96,7 +96,7 @@ describe('agent loop — end to end (Milestone 3)', () => {
       { modelProvider: provider, tools, toolContext: { draftId: draft.id, nodeTypes, draftStore } },
     );
 
-    // The loop actually built the workflow — on the draft, not the live document yet.
+    // The loop actually built the workflow - on the draft, not the live document yet.
     const built = draftStore.get(draft.id).current;
     expect(built.nodes.map((n) => ({ name: n.name, type: n.type }))).toEqual([
       { name: 'Manual Trigger', type: 'manualTrigger' },

@@ -6,10 +6,10 @@ import type { IDatabaseConfig } from './data-source.js';
 
 /**
  * Runs the same migration up/down/round-trip checks as migrations.sqlite.test.ts, against a
- * real Postgres server — proving the migration actually works on both dialects, not just
+ * real Postgres server - proving the migration actually works on both dialects, not just
  * that its TypeScript compiles. Requires a reachable Postgres (see env vars below); skips
  * with a clear message rather than failing when none is configured, so `pnpm test` stays
- * green on machines without Postgres — CI always has the service container from
+ * green on machines without Postgres - CI always has the service container from
  * .github/workflows/ci.yml, so it's exercised for real there regardless.
  *
  * The availability check runs as a top-level await, before any `describe`/`it` calls: vitest
@@ -46,7 +46,7 @@ async function checkPostgresAvailable(): Promise<boolean> {
 const postgresAvailable = await checkPostgresAvailable();
 if (!postgresAvailable) {
   console.warn(
-    `\n[migrations.postgres.test.ts] No reachable Postgres at ${postgresConfig.host}:${postgresConfig.port} — skipping. ` +
+    `\n[migrations.postgres.test.ts] No reachable Postgres at ${postgresConfig.host}:${postgresConfig.port} - skipping. ` +
       'Set TEST_POSTGRES_* env vars, or run:\n' +
       '  docker run -d -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=runnel_test -p 5433:5432 postgres:16-alpine\n',
   );
@@ -75,7 +75,7 @@ describe.skipIf(!postgresAvailable)('Postgres migrations', () => {
     const afterUp = (await tableNames(dataSource)).sort();
     expect(afterUp).toEqual(['assistant_session', 'credential', 'execution', 'folder', 'migrations', 'notification', 'user', 'workflow']);
 
-    // Three migrations now (InitialSchema, AddAssistantSession, AddWorkflowLibrary) —
+    // Three migrations now (InitialSchema, AddAssistantSession, AddWorkflowLibrary) -
     // undoLastMigration only reverts the most recently applied one, so a full teardown needs
     // one call per migration.
     await dataSource.undoLastMigration();

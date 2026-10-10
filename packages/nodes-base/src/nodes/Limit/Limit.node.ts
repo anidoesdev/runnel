@@ -1,6 +1,6 @@
 import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
-/** Keeps only the first (or last) N items — a cheap way to cap how much downstream nodes have to process. */
+/** Keeps only the first (or last) N items - a cheap way to cap how much downstream nodes have to process. */
 export const limitNode: INodeType = {
   description: {
     displayName: 'Limit',

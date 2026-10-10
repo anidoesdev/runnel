@@ -12,7 +12,7 @@ function coerce(value: unknown, type: IFieldAssignment['type']): IDataObject[str
   return typeof value === 'string' ? value : String(value);
 }
 
-/** Also known as "Edit Fields" — sets or replaces fields on every item's json. */
+/** Also known as "Edit Fields" - sets or replaces fields on every item's json. */
 export const setNode: INodeType = {
   description: {
     displayName: 'Edit Fields (Set)',

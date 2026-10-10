@@ -4,7 +4,7 @@ import type { IDataObject } from '../interfaces/common.interfaces.js';
  * A deliberately small subset of JMESPath for `$jmespath(data, expression)`: dot-separated
  * field access, `[n]` / `[-n]` array indexing, `[*]` projection, and `|` piping between
  * stages. The full JMESPath grammar (multi-select, filters, functions, slices) is out of
- * scope for M3 — this covers the field-extraction use cases that come up in workflows
+ * scope for M3 - this covers the field-extraction use cases that come up in workflows
  * without pulling in a full grammar implementation.
  */
 type Step = { type: 'field'; name: string } | { type: 'index'; index: number } | { type: 'wildcard' };

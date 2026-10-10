@@ -18,11 +18,11 @@ const description = computed(() => nodeTypesStore.byName(props.data.node.type));
 
 interface Port {
   type: NodeConnectionType;
-  /** Index within its own type — Merge's two `main` inputs are 0 and 1; a single `ai_languageModel` input is always 0, even though nothing else shares that type on this node. */
+  /** Index within its own type - Merge's two `main` inputs are 0 and 1; a single `ai_languageModel` input is always 0, even though nothing else shares that type on this node. */
   index: number;
 }
 
-/** Falls back to a single `main` port only while the node type description hasn't loaded yet — an actually-empty `inputs: []` (every sub-node: Chat Model, Tool) must stay empty, not be forced to 1. */
+/** Falls back to a single `main` port only while the node type description hasn't loaded yet - an actually-empty `inputs: []` (every sub-node: Chat Model, Tool) must stay empty, not be forced to 1. */
 function indexedPorts(ports: NodeConnectionType[] | undefined): Port[] {
   if (!ports) return [{ type: 'main', index: 0 }];
   const seen: Partial<Record<NodeConnectionType, number>> = {};

@@ -10,7 +10,7 @@ function toSummary(entity: CredentialEntity): ICredentialSummary {
   return { id: entity.id, name: entity.name, type: entity.type };
 }
 
-/** Every field's declared default (e.g. openAiApi's `baseUrl` defaulting to the real API host) — the same values CredentialModal.vue pre-fills a brand-new credential form with. An unregistered type falls back to `{}` rather than throwing; the placeholder still gets created, just without seeded defaults. */
+/** Every field's declared default (e.g. openAiApi's `baseUrl` defaulting to the real API host) - the same values CredentialModal.vue pre-fills a brand-new credential form with. An unregistered type falls back to `{}` rather than throwing; the placeholder still gets created, just without seeded defaults. */
 function defaultDataFor(type: string, credentialTypes: ICredentialTypes): IDataObject {
   try {
     const properties = credentialTypes.getByName(type).properties;
@@ -22,9 +22,9 @@ function defaultDataFor(type: string, credentialTypes: ICredentialTypes): IDataO
 
 /**
  * TypeORM-backed ICredentialRepositoryPort. `list` never selects/returns `data` (the encrypted
- * blob) — same "credential values never leave the server" contract CredentialsController
+ * blob) - same "credential values never leave the server" contract CredentialsController
  * already enforces for the REST API. `createPlaceholder` seeds the encrypted row with the
- * credential type's own field defaults rather than a bare `{}` — a field like openAiApi's
+ * credential type's own field defaults rather than a bare `{}` - a field like openAiApi's
  * `baseUrl` has a working default that a still-unconfigured node shouldn't have to do without
  * (see the "undefined/chat/completions" failure this was fixed alongside); secret fields with
  * no default (`apiKey`) stay empty until the user finishes setup at the returned setup URL.

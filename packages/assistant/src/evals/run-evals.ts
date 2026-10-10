@@ -5,7 +5,7 @@ import { formatScorecard, scorecardToJson } from './reporter.js';
 import { runEvalSuite } from './runner.js';
 
 /**
- * CLI entry point for the eval suite (Part 7). Requires OPENAI_API_KEY — a fake or missing key
+ * CLI entry point for the eval suite (Part 7). Requires OPENAI_API_KEY - a fake or missing key
  * would score the prompt against nothing, which is worse than not running at all, so this exits
  * 0 with a clear skip message instead of failing the build when it's absent (letting CI gate on
  * whether the secret exists rather than this script pretending success).
@@ -19,7 +19,7 @@ import { runEvalSuite } from './runner.js';
 async function main(): Promise<void> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    console.log('OPENAI_API_KEY not set — skipping eval suite.');
+    console.log('OPENAI_API_KEY not set - skipping eval suite.');
     return;
   }
 

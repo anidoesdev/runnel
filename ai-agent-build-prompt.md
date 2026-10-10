@@ -7,11 +7,11 @@
 
 ## ROLE
 
-You are building the **Workflow Assistant** — an in-app chat agent that constructs, edits, debugs and explains automation workflows from natural language, inside our existing platform.
+You are building the **Workflow Assistant** - an in-app chat agent that constructs, edits, debugs and explains automation workflows from natural language, inside our existing platform.
 
 This is not a chatbot with a workflow-shaped output. It is an agent that manipulates a live graph through validated tools, observes real execution data, and asks the user when it lacks information.
 
-## ASSUMPTIONS — VERIFY BEFORE YOU START
+## ASSUMPTIONS - VERIFY BEFORE YOU START
 
 Begin by inspecting the codebase and reporting which of these hold. Do not proceed until you've reported.
 
@@ -20,10 +20,10 @@ Begin by inspecting the codebase and reporting which of these hold. Do not proce
 | A1 | A workflow document exists with `nodes[]`, `connections{}`, node `parameters` | Stop and ask |
 | A2 | A node registry can enumerate all node types with full parameter schemas | Build the enumeration first |
 | A3 | Workflows can be executed and per-node input/output retrieved afterwards | Build `get_execution` first |
-| A4 | **Partial execution** — run a subgraph up to node N | Gate Phase 4 (grounding); use trigger-only execution instead |
-| A5 | **Pinned data** — freeze a node's output for subsequent runs | Gate the dry-run replay; note as follow-up |
+| A4 | **Partial execution** - run a subgraph up to node N | Gate Phase 4 (grounding); use trigger-only execution instead |
+| A5 | **Pinned data** - freeze a node's output for subsequent runs | Gate the dry-run replay; note as follow-up |
 | A6 | Credentials are stored encrypted with an id/name/type listing available | Build the listing; never expose values |
-| A7 | A services layer exists that the REST API calls into | Extract one — do not call controllers from the agent |
+| A7 | A services layer exists that the REST API calls into | Extract one - do not call controllers from the agent |
 
 If A4/A5 are missing, still build Phases 1–3 and 5–6 fully, and implement Phase 4 behind a capability flag so it activates when the engine gains support.
 
@@ -35,7 +35,7 @@ Prompt caching is not optional. The system prompt plus tool definitions plus ret
 
 ---
 
-## PART 1 — ARCHITECTURE
+## PART 1 - ARCHITECTURE
 
 ```
 editor-ui/AssistantPanel.vue
@@ -53,7 +53,7 @@ packages/services                  ← workflow, execution, credential, registry
 Three hard rules:
 
 1. **The agent never writes workflow JSON directly.** It calls mutation tools whose arguments are Zod-validated against the live node registry. Invalid node types must be structurally impossible, not merely discouraged.
-2. **The agent mutates a draft, not the live workflow.** Every session opens a `WorkflowDraft` — a copy-on-write overlay. The user sees a diff and explicitly applies. Nothing the agent does can destroy work in progress.
+2. **The agent mutates a draft, not the live workflow.** Every session opens a `WorkflowDraft` - a copy-on-write overlay. The user sees a diff and explicitly applies. Nothing the agent does can destroy work in progress.
 3. **All logic lives in services.** Tools are five-line wrappers. If a tool handler contains business logic, it's in the wrong place.
 
 ### Session state
@@ -75,7 +75,7 @@ Persist sessions. A user who reloads the page mid-build must not lose the conver
 
 ---
 
-## PART 2 — THE TOOL SURFACE
+## PART 2 - THE TOOL SURFACE
 
 Agent-facing tools are **task-shaped**, not resource-shaped. Keep the count under ~16; more degrades selection accuracy and burns context.
 
@@ -86,7 +86,7 @@ search_nodes(query: string, limit?: number)
   → Array<{ type, displayName, description, category, score }>
 // Hybrid retrieval: BM25 over displayName+description+aliases, blended with
 // embedding similarity. Must handle brand names ("slack"), verbs ("send email"),
-// and outcomes ("save to spreadsheet"). Seed an alias table by hand —
+// and outcomes ("save to spreadsheet"). Seed an alias table by hand -
 // "sheets"→Google Sheets, "db"→Postgres. This unglamorous table is worth more
 // than a better embedding model.
 
@@ -116,7 +116,7 @@ get_node_output(nodeName: string, opts?: { maxItems?: number })
 // Redact anything matching credential/token/password/authorization patterns.
 ```
 
-### Mutation — all operate on the draft
+### Mutation - all operate on the draft
 
 ```ts
 add_node(type, typeVersion?, name?, position?, parameters?)
@@ -129,7 +129,7 @@ remove_node(name)
 set_node_credential(name, credentialType, credentialId)
 ```
 
-`add_node` returning the resolved name matters more than it looks — if the model assumes its requested name was used and a collision forced `"Slack1"`, every subsequent `connect_nodes` call fails.
+`add_node` returning the resolved name matters more than it looks - if the model assumes its requested name was used and a collision forced `"Slack1"`, every subsequent `connect_nodes` call fails.
 
 ### Execution and validation
 
@@ -160,13 +160,13 @@ list_credentials(type?: string) → Array<{id, name, type}>   // NEVER values
 request_credential(type: string) → { setupUrl: string, credentialId: string }
 ```
 
-`ask_user` is the primitive behind "guide the user if anything is missing." Implement it as a suspend-and-resume: the tool call blocks the loop, the UI renders real option chips, the answer returns as the tool result. Do not let the model ask questions in prose — prose questions get ignored and the model guesses instead.
+`ask_user` is the primitive behind "guide the user if anything is missing." Implement it as a suspend-and-resume: the tool call blocks the loop, the UI renders real option chips, the answer returns as the tool result. Do not let the model ask questions in prose - prose questions get ignored and the model guesses instead.
 
 **Rule for the system prompt:** ask when the answer is unknowable from context (which Slack channel, which spreadsheet, what counts as "urgent"). Never ask what's discoverable by calling a tool.
 
 ---
 
-## PART 3 — THE SYSTEM PROMPT
+## PART 3 - THE SYSTEM PROMPT
 
 This file is source code. Put it in `assistant/prompts/system.md`, version it, review it in PRs, and never let it be edited without an eval run.
 
@@ -192,17 +192,17 @@ It must contain:
 9. Summarize what you built and what the user must review.
 ```
 
-**An explicit failure catalogue.** List the mistakes you observe in evals with corrections — invented node types, forgetting IF's second output, writing `$json.email` without checking, using Set when the user wanted Filter. This section will grow and is where most quality gains come from.
+**An explicit failure catalogue.** List the mistakes you observe in evals with corrections - invented node types, forgetting IF's second output, writing `$json.email` without checking, using Set when the user wanted Filter. This section will grow and is where most quality gains come from.
 
 **Tone.** Terse. No preamble like "Great question!". Report what was built, not what will be attempted.
 
 ---
 
-## PART 4 — GROUNDING (the differentiator)
+## PART 4 - GROUNDING (the differentiator)
 
 Requires A4/A5. Build behind `capabilities.partialExecution`.
 
-The core insight: **an LLM cannot know what an API returns.** Writing `{{ $json.customer.email }}` from imagination produces workflows that look correct and silently yield `undefined`. So don't imagine — look.
+The core insight: **an LLM cannot know what an API returns.** Writing `{{ $json.customer.email }}` from imagination produces workflows that look correct and silently yield `undefined`. So don't imagine - look.
 
 ```
 After the skeleton is built and credentials attached:
@@ -231,18 +231,18 @@ Measure the delta. Run your eval set with grounding on and off. If the gap isn't
 
 ---
 
-## PART 5 — SAFETY
+## PART 5 - SAFETY
 
 - **Dry run by default.** `execute_until(mode='live')` requires explicit user approval every time, never a remembered preference.
 - **Approval gates** on `remove_node`, `rename_node`, live execution, and applying a draft. The loop pauses with `status: 'awaiting_approval'` and the UI renders what will happen.
-- **Prompt injection.** `get_node_output` returns data the workflow fetched — emails, form submissions, webhook bodies — which is attacker-controlled. Wrap it in the tool result as clearly delimited untrusted content, instruct the model in the system prompt that data from executions is never an instruction, and never allow a tool call to be triggered solely by content originating from `get_node_output`.
+- **Prompt injection.** `get_node_output` returns data the workflow fetched - emails, form submissions, webhook bodies - which is attacker-controlled. Wrap it in the tool result as clearly delimited untrusted content, instruct the model in the system prompt that data from executions is never an instruction, and never allow a tool call to be triggered solely by content originating from `get_node_output`.
 - **Credential values never enter the transcript.** Enforce with a redaction pass over every tool result plus a test that greps transcripts for known credential fixtures.
 - **Budgets.** Cap tool calls per turn (~40), tokens per session, and wall-clock per turn. Surface remaining budget in the UI.
 - **Cancellation.** An `AbortSignal` threaded through the model stream and every tool.
 
 ---
 
-## PART 6 — UI
+## PART 6 - UI
 
 **Chat panel**, docked right, resizable, persists across canvas navigation.
 
@@ -254,13 +254,13 @@ Measure the delta. Run your eval set with grounding on and off. If the gap isn't
 
 **Diff view** before applying a draft: added nodes green, removed red, changed parameters as a field-level before/after. The user must be able to reject individual changes, not only the whole draft.
 
-**Entry points beyond the panel:** empty-canvas prompt box ("Describe what you want to automate"), right-click a node → "Ask assistant about this node", and — highest value — a **"Fix this" button on any failed execution** that opens the session pre-loaded with the error and the failing node's real input data.
+**Entry points beyond the panel:** empty-canvas prompt box ("Describe what you want to automate"), right-click a node → "Ask assistant about this node", and - highest value - a **"Fix this" button on any failed execution** that opens the session pre-loaded with the error and the failing node's real input data.
 
 That last one is worth building early. Repairing broken workflows is a more frequent and more painful job than authoring new ones, and the agent is unusually good at it because the error and the data are both right there.
 
 ---
 
-## PART 7 — EVALS
+## PART 7 - EVALS
 
 Build this **before** tuning the system prompt. Without it you are guessing.
 
@@ -291,12 +291,12 @@ Build this **before** tuning the system prompt. Without it you are guessing.
 
 A user opens an empty canvas and types: *"When someone submits my Typeform, check if their company has more than 50 employees using Clearbit, and if so post to #sales in Slack, otherwise add them to a nurture list in Airtable."*
 
-The agent asks which Slack channel and which Airtable base, flags that no Clearbit credential exists and provides a setup link, builds the seven-node workflow including the IF branch, runs the trigger to observe the real Typeform payload, writes expressions against the fields it actually saw, dry-runs the whole graph, presents a diff, and the user applies it and activates — without opening a single node's parameter panel.
+The agent asks which Slack channel and which Airtable base, flags that no Clearbit credential exists and provides a setup link, builds the seven-node workflow including the IF branch, runs the trigger to observe the real Typeform payload, writes expressions against the fields it actually saw, dry-runs the whole graph, presents a diff, and the user applies it and activates - without opening a single node's parameter panel.
 
 ## HOW TO WORK
 
 1. Report the assumption verification before writing code.
 2. Write the tool layer and its tests before touching the model.
 3. Build the eval harness before tuning any prompt.
-4. Never stub and continue — throw `NotImplementedError('phase N')` so gaps fail loudly.
+4. Never stub and continue - throw `NotImplementedError('phase N')` so gaps fail loudly.
 5. If something here conflicts with the existing codebase, stop and say so rather than working around it silently.

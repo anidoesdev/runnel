@@ -44,7 +44,7 @@ async function onSend(): Promise<void> {
 <template>
   <section class="chat-panel">
     <header class="chat-panel__bar">
-      <h2>Chat — {{ agentNodeName }}</h2>
+      <h2>Chat - {{ agentNodeName }}</h2>
       <button type="button" class="icon-button" aria-label="Close chat" @click="$emit('close')">×</button>
     </header>
 

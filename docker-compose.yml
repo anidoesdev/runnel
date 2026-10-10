@@ -23,7 +23,7 @@ services:
         condition: service_healthy
     environment:
       # Fails fast with a clear message rather than silently falling back to the insecure
-      # dev defaults baked into config.ts — those are meant for local `node dist/bin.js
+      # dev defaults baked into config.ts - those are meant for local `node dist/bin.js
       # start` only, never for a container that might actually be reachable.
       RUNNEL_ENCRYPTION_KEY: ${RUNNEL_ENCRYPTION_KEY:?Set RUNNEL_ENCRYPTION_KEY (see docs/environment-variables.md)}
       RUNNEL_JWT_SECRET: ${RUNNEL_JWT_SECRET:?Set RUNNEL_JWT_SECRET (see docs/environment-variables.md)}

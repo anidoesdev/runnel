@@ -15,7 +15,7 @@ export async function newCommand(options: INewCommandOptions): Promise<number> {
   const cwd = options.cwd ?? process.cwd();
 
   if (!validateNodeName(name)) {
-    console.error(`Invalid node name "${name}" — must be camelCase, starting with a lowercase letter (e.g. "myApiNode").`);
+    console.error(`Invalid node name "${name}" - must be camelCase, starting with a lowercase letter (e.g. "myApiNode").`);
     return 1;
   }
 
@@ -33,7 +33,7 @@ export async function newCommand(options: INewCommandOptions): Promise<number> {
   console.log(`Created ${name} in ${targetDir}`);
   if (!monorepoRoot) {
     console.warn(
-      'No runnel monorepo (pnpm-workspace.yaml) found above the target directory — ' +
+      'No runnel monorepo (pnpm-workspace.yaml) found above the target directory - ' +
         '"@runnel/workflow" was left as an unresolvable "*" dependency in package.json. ' +
         'Point it at a real install (e.g. a file: path to packages/workflow) before running `npm install`.',
     );

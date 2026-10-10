@@ -7,7 +7,7 @@ import type { IModelToolDefinition } from './model-provider.js';
  * model-calling API (OpenAI function calling, Anthropic tool use) expects.
  *
  * Deliberately NOT `target: 'openApi3'`: that dialect renders a bounded number (e.g.
- * `z.number().positive()`) as `{ exclusiveMinimum: true, minimum: 0 }` — a boolean flag paired
+ * `z.number().positive()`) as `{ exclusiveMinimum: true, minimum: 0 }` - a boolean flag paired
  * with a separate bound, valid OpenAPI 3.0 but not standard JSON Schema. OpenAI's function
  * schema validator expects the plain-JSON-Schema form, `{ exclusiveMinimum: 0 }`, and rejects
  * the OpenAPI form outright ("True is not of type 'number'"). The default target

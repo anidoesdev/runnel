@@ -40,7 +40,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe('TopbarActions — notifications bell', () => {
+describe('TopbarActions - notifications bell', () => {
   it('shows an unread badge and lists notifications when opened', async () => {
     const wrapper = await mountBell([notification(), notification({ id: 'n2', type: 'workflow_activated', message: 'Workflow activated' })]);
 

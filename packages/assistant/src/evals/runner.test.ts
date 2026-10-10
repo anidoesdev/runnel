@@ -11,8 +11,8 @@ import type { IEvalCase } from './types.js';
 import type { IModelProvider } from '../model-provider.js';
 
 /**
- * Smoke-tests the runner mechanics themselves — wiring a fresh draft store, node catalog, and
- * credential fake per case, running the turn, resolving autoResume, and scoring the result —
+ * Smoke-tests the runner mechanics themselves - wiring a fresh draft store, node catalog, and
+ * credential fake per case, running the turn, resolving autoResume, and scoring the result -
  * against a ScriptedModelProvider rather than a real (network-calling) one. These are NOT eval
  * cases in the Part 7 sense; they exist to prove the harness works, not to score a prompt.
  */
@@ -168,7 +168,7 @@ describe('eval runner', () => {
   });
 });
 
-describe('eval runner — recalled memories', () => {
+describe('eval runner - recalled memories', () => {
   /** Records the system prompt each model call received, around a scripted provider. */
   function recordingProvider(script: ConstructorParameters<typeof ScriptedModelProvider>[0]) {
     const inner = new ScriptedModelProvider(script);

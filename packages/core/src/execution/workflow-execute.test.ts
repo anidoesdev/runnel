@@ -39,7 +39,7 @@ function lastRun(runExecutionData: IRunExecutionData, nodeName: string) {
   return runs?.[runs.length - 1];
 }
 
-describe('WorkflowExecute — linear execution', () => {
+describe('WorkflowExecute - linear execution', () => {
   it('threads data start to finish and records one runData entry per node', async () => {
     const a = makeNode({ name: 'A', type: 'test.noOp' });
     const b = makeNode({ name: 'B', type: 'test.set', parameters: { assignments: { added: true } } });
@@ -62,7 +62,7 @@ describe('WorkflowExecute — linear execution', () => {
   });
 });
 
-describe('WorkflowExecute — branching', () => {
+describe('WorkflowExecute - branching', () => {
   function branchWorkflow(): IWorkflowBase {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const branch = makeNode({ name: 'Branch', type: 'test.if', parameters: { condition: '={{ $json.go }}' } });
@@ -104,7 +104,7 @@ describe('WorkflowExecute — branching', () => {
   });
 });
 
-describe('WorkflowExecute — merging (multi-input wait)', () => {
+describe('WorkflowExecute - merging (multi-input wait)', () => {
   it('waits for both branches of a diamond before running the Merge node', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const left = makeNode({ name: 'Left', type: 'test.set', parameters: { assignments: { side: 'left' } } });
@@ -120,7 +120,7 @@ describe('WorkflowExecute — merging (multi-input wait)', () => {
 
     const result = await engine().run(workflow, 'Start', [[{ json: {} }]]);
 
-    // Merge must not fire until BOTH Left and Right have delivered — it should run exactly once.
+    // Merge must not fire until BOTH Left and Right have delivered - it should run exactly once.
     expect(result.resultData.runData.Merge).toHaveLength(1);
     expect(lastRun(result, 'Merge')!.data!.main[0]).toEqual([
       { json: { side: 'left' }, pairedItem: { item: 0 } },
@@ -149,7 +149,7 @@ describe('WorkflowExecute — merging (multi-input wait)', () => {
   });
 });
 
-describe('WorkflowExecute — loops', () => {
+describe('WorkflowExecute - loops', () => {
   it('re-enters the loop node once per item plus once to finish, with correct per-run data', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const loop = makeNode({ name: 'Loop', type: 'test.loop' });
@@ -182,7 +182,7 @@ describe('WorkflowExecute — loops', () => {
     expect(result.resultData.runData.Body).toHaveLength(3);
 
     // Done gets one early empty (skipped) trigger from the loop's first "not done yet" pass,
-    // then the real aggregated batch once the loop finishes — repeated empty re-triggers in
+    // then the real aggregated batch once the loop finishes - repeated empty re-triggers in
     // between are deduplicated (see the "already ran" guard in propagate()), which is also
     // what keeps the Body <-> Loop cycle from re-firing forever once the loop is done.
     expect(result.resultData.runData.Done).toHaveLength(2);
@@ -193,10 +193,10 @@ describe('WorkflowExecute — loops', () => {
   });
 });
 
-describe('WorkflowExecute — disabled nodes', () => {
+describe('WorkflowExecute - disabled nodes', () => {
   it('passes input straight through to output without calling execute', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
-    // Disabled Set node — if execute() ran, it would add `added: true`; it must not.
+    // Disabled Set node - if execute() ran, it would add `added: true`; it must not.
     const disabled = makeNode({
       name: 'Disabled',
       type: 'test.set',
@@ -216,7 +216,7 @@ describe('WorkflowExecute — disabled nodes', () => {
   });
 });
 
-describe('WorkflowExecute — executeOnce', () => {
+describe('WorkflowExecute - executeOnce', () => {
   it('runs the node once against only the first item', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const once = makeNode({ name: 'Once', type: 'test.set', executeOnce: true, parameters: { assignments: {} } });
@@ -230,7 +230,7 @@ describe('WorkflowExecute — executeOnce', () => {
   });
 });
 
-describe('WorkflowExecute — alwaysOutputData', () => {
+describe('WorkflowExecute - alwaysOutputData', () => {
   it('emits a single empty item when the node would otherwise produce none', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const noOutput = makeNode({ name: 'NoOutput', type: 'test.noOutput', alwaysOutputData: true });
@@ -261,7 +261,7 @@ describe('WorkflowExecute — alwaysOutputData', () => {
   });
 });
 
-describe('WorkflowExecute — error handling', () => {
+describe('WorkflowExecute - error handling', () => {
   it('stopWorkflow (default): records the error and halts the run', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const boom = makeNode({ name: 'Boom', type: 'test.throwing' });
@@ -329,7 +329,7 @@ describe('WorkflowExecute — error handling', () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const boom = makeNode({ name: 'Boom', type: 'test.if', onError: 'continueErrorOutput' });
     // test.if has 2 outputs, satisfying the >=2 requirement for continueErrorOutput.
-    // Force it to throw by never providing a `condition` parameter type it can't evaluate —
+    // Force it to throw by never providing a `condition` parameter type it can't evaluate -
     // instead directly reuse test.throwing but register it with 2 outputs via test.if's shape:
     const errorOutputNode = makeNode({ name: 'ErrorOutput', type: 'test.noOp' });
     const regularOutputNode = makeNode({ name: 'RegularOutput', type: 'test.noOp' });
@@ -342,7 +342,7 @@ describe('WorkflowExecute — error handling', () => {
         ],
       },
     });
-    // test.if doesn't throw on its own — register a node under the same "test.if" name that
+    // test.if doesn't throw on its own - register a node under the same "test.if" name that
     // keeps test.if's 2-output description but throws like test.throwing.
     const nodeTypes = registry();
     nodeTypes.register({ execute: testThrowingNode.execute, description: testIfNode.description });
@@ -350,8 +350,8 @@ describe('WorkflowExecute — error handling', () => {
 
     const result = await runner.run(workflow, 'Start', [[{ json: { x: 1 } }]]);
 
-    // The regular output branch got nothing (empty), so its downstream is marked skipped —
-    // not run, and not failed — while the error branch actually received the tagged items.
+    // The regular output branch got nothing (empty), so its downstream is marked skipped -
+    // not run, and not failed - while the error branch actually received the tagged items.
     expect(lastRun(result, 'RegularOutput')!.executionStatus).toBe('skipped');
     expect(lastRun(result, 'ErrorOutput')!.executionStatus).toBe('success');
     const [item] = lastRun(result, 'ErrorOutput')!.data!.main[0]!;
@@ -414,7 +414,7 @@ describe('WorkflowExecute — error handling', () => {
   });
 });
 
-describe('WorkflowExecute — serialize and resume', () => {
+describe('WorkflowExecute - serialize and resume', () => {
   it('rehydrates a JSON-round-tripped mid-execution snapshot in a fresh instance and finishes with identical output', async () => {
     const a = makeNode({ name: 'A', type: 'test.noOp' });
     const b = makeNode({ name: 'B', type: 'test.set', parameters: { assignments: { added: true } } });
@@ -427,7 +427,7 @@ describe('WorkflowExecute — serialize and resume', () => {
     const fullResult = await engine().run(workflow, 'A', [[{ json: { x: 1 } }]]);
 
     // Hand-build the state as it would exist right after A ran and B was queued, but before
-    // B or C ran — this is exactly the shape a crash-recovery or queue-mode handoff would
+    // B or C ran - this is exactly the shape a crash-recovery or queue-mode handoff would
     // serialize and ship elsewhere.
     const midExecutionState: IRunExecutionData = {
       resultData: {
@@ -460,7 +460,7 @@ describe('WorkflowExecute — serialize and resume', () => {
     // Prove it survives a real JSON round trip (no class instances, no functions).
     const serialized = JSON.parse(JSON.stringify(midExecutionState)) as IRunExecutionData;
 
-    // A brand new engine instance with its own fresh registry — nothing shared in memory
+    // A brand new engine instance with its own fresh registry - nothing shared in memory
     // with the run above, simulating resumption in a different process.
     const resumed = await engine().resume(workflow, serialized);
 
@@ -480,14 +480,14 @@ describe('WorkflowExecute — serialize and resume', () => {
   });
 });
 
-describe('WorkflowExecute — run() validation', () => {
+describe('WorkflowExecute - run() validation', () => {
   it('throws if the start node does not exist', async () => {
     const workflow = makeWorkflow([], {});
     await expect(engine().run(workflow, 'Missing')).rejects.toThrow(/not found/);
   });
 });
 
-describe('WorkflowExecute — dry run', () => {
+describe('WorkflowExecute - dry run', () => {
   function dryRunEngine(): WorkflowExecute {
     return new WorkflowExecute(registry(), { mode: 'manual', sleep: async () => {}, dryRun: true });
   }
@@ -510,7 +510,7 @@ describe('WorkflowExecute — dry run', () => {
 
     const result = await dryRunEngine().run(workflow, 'Start', [[{ json: { x: 1 } }]]);
 
-    // No `ranReal` field — the real execute() (which would have added it) never ran.
+    // No `ranReal` field - the real execute() (which would have added it) never ran.
     expect(lastRun(result, 'Unsafe')!.data!.main[0]).toEqual([{ json: { x: 1 } }]);
     expect(lastRun(result, 'Unsafe')!.mocked).toBe(true);
     expect(lastRun(result, 'Unsafe')!.executionStatus).toBe('success');
@@ -543,12 +543,12 @@ describe('WorkflowExecute — dry run', () => {
   });
 });
 
-describe('WorkflowExecute — malformed graph tolerance', () => {
+describe('WorkflowExecute - malformed graph tolerance', () => {
   it('does nothing on an output branch that has no connections at all (as opposed to an empty-but-connected branch)', async () => {
     const start = makeNode({ name: 'Start', type: 'test.noOp' });
     const branch = makeNode({ name: 'Branch', type: 'test.if', parameters: { condition: true } });
     const onTrue = makeNode({ name: 'OnTrue', type: 'test.noOp' });
-    // Only the true output has a connection at all — the false output has none.
+    // Only the true output has a connection at all - the false output has none.
     const workflow = makeWorkflow([start, branch, onTrue], {
       Start: { main: [[{ node: 'Branch', type: 'main', index: 0 }]] },
       Branch: { main: [[{ node: 'OnTrue', type: 'main', index: 0 }]] },

@@ -7,12 +7,12 @@ import type { IDataObject, INodeExecutionData } from '@runnel/workflow';
  * `process`, `fs`, or access to anything in the host process's global scope unless it's
  * explicitly assigned into the context below.
  *
- * IMPORTANT — this is NOT the hard security boundary the spec calls for (§9, §12.8). `vm`
+ * IMPORTANT - this is NOT the hard security boundary the spec calls for (§9, §12.8). `vm`
  * contexts still run in the *same OS process* as the rest of runnel, and are documented
  * to have known escape vectors (constructor-chain tricks, prototype access). It also cannot
- * enforce a wall-clock timeout on *async* code — `Script.runInContext`'s `timeout` option
+ * enforce a wall-clock timeout on *async* code - `Script.runInContext`'s `timeout` option
  * only bounds synchronous execution; an `await` inside user code suspends past it. Real
- * isolation — a separate process or worker thread that can be killed outright — is the
+ * isolation - a separate process or worker thread that can be killed outright - is the
  * task-runner work explicitly scoped to M12's hardening pass. Do not treat this module as
  * sufficient isolation for untrusted code in production.
  */
@@ -49,7 +49,7 @@ async function runInSandbox(code: string, globals: Record<string, unknown>, time
   // Two different mechanisms can time this out: vm's own synchronous `timeout` (which fires for
   // a blocking loop, and also when a busy machine takes too long just to *start* the script) and
   // the wall-clock race below (which covers async code that keeps running). They word their
-  // errors differently, so vm's is normalized here — callers get one message either way.
+  // errors differently, so vm's is normalized here - callers get one message either way.
   const normalizeTimeout = (err: unknown): never => {
     // Not `err instanceof Error`: the interrupt can arrive as an error from the vm's own realm,
     // where the host's Error constructor is a different object and instanceof is false.
@@ -61,7 +61,7 @@ async function runInSandbox(code: string, globals: Record<string, unknown>, time
   };
 
   // vm's interrupt surfaces either as a synchronous throw or as a rejection of the async IIFE's
-  // promise, depending on where the script was when the clock ran out — normalize both.
+  // promise, depending on where the script was when the clock ran out - normalize both.
   const execution = Promise.resolve()
     .then(() => script.runInContext(context, { timeout: timeoutMs }) as Promise<unknown>)
     .catch(normalizeTimeout);

@@ -142,7 +142,7 @@ describe('connectNodes', () => {
     expect(wf.connections.Model?.ai_languageModel?.[0]).toEqual([{ node: 'Agent', type: 'ai_languageModel', index: 0 }]);
   });
 
-  it('rejects a connection type neither end declares — structurally impossible, not just discouraged', () => {
+  it('rejects a connection type neither end declares - structurally impossible, not just discouraged', () => {
     const nodeTypes = registry();
     let wf = baseWorkflow();
     wf = addNode(wf, nodeTypes, { type: 'test.chatModel', name: 'Model' }).workflow;
@@ -288,7 +288,7 @@ describe('setNodeCredential', () => {
     expect(wf.nodes[0]!.credentials).toEqual({ testApi: { id: 'cred-1', name: 'My Cred' } });
   });
 
-  it('rejects a credential type the node does not declare — not a silent no-op', () => {
+  it('rejects a credential type the node does not declare - not a silent no-op', () => {
     const nodeTypes = registry();
     const wf = addNode(baseWorkflow(), nodeTypes, { type: 'test.noOp', name: 'A' }).workflow;
     expect(() => setNodeCredential(wf, nodeTypes, { name: 'A', credentialType: 'testApi', credentialId: 'cred-1' })).toThrow(

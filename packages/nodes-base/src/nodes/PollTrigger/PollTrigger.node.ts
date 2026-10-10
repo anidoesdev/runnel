@@ -9,7 +9,7 @@ interface IPollableItem {
  * A minimal "list items since last time" polling trigger: on each poll it compares the
  * configured static `items` list against the ids it has already emitted (persisted via
  * getWorkflowStaticData, so the cursor survives a server restart), and emits only the new
- * ones — or nothing at all, matching a real poll() that returns `null` when there's nothing
+ * ones - or nothing at all, matching a real poll() that returns `null` when there's nothing
  * new. A real polling node (RSS Feed Trigger, Airtable Trigger, ...) would call an external
  * API here instead of reading a static parameter; this stands in for that the same way
  * HttpRequest stands in for many possible API-specific nodes.
@@ -37,7 +37,7 @@ export const pollTrigger: INodeType = {
     ],
   },
   dryRunSafety: () => 'safe',
-  /** See ScheduleTrigger.node.ts — WorkflowExecute always calls execute() on the node it starts from. */
+  /** See ScheduleTrigger.node.ts - WorkflowExecute always calls execute() on the node it starts from. */
   async execute(this: IExecuteFunctions): Promise<NodeOutput> {
     return [this.getInputData()];
   },

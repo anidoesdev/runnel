@@ -42,7 +42,7 @@ function evalIn(source: string, ctx: IExpressionEvalContext): unknown {
   return evaluateExpressionSource(source, ctx);
 }
 
-describe('scope — $json / $binary', () => {
+describe('scope - $json / $binary', () => {
   it('$json is the current item json', () => {
     expect(evalIn('$json', richContext())).toEqual({ name: 'Alice', age: 30 });
     expect(evalIn('$json.name', richContext())).toBe('Alice');
@@ -53,7 +53,7 @@ describe('scope — $json / $binary', () => {
   });
 });
 
-describe('scope — $node / $(...)', () => {
+describe('scope - $node / $(...)', () => {
   it('$node["Name"].json reads the item at the current item index from that node', () => {
     expect(evalIn('$node["Prev"].json.a', richContext())).toBe(2);
   });
@@ -71,7 +71,7 @@ describe('scope — $node / $(...)', () => {
   });
 });
 
-describe('scope — $input', () => {
+describe('scope - $input', () => {
   it('exposes the current node\'s own input items', () => {
     const ctx = richContext();
     expect(evalIn('$input.item.json.x', ctx)).toBe(2);
@@ -81,7 +81,7 @@ describe('scope — $input', () => {
   });
 });
 
-describe('scope — $items legacy accessor', () => {
+describe('scope - $items legacy accessor', () => {
   it('returns the items for a given node/output/run', () => {
     const ctx = richContext();
     expect(evalIn('$items("Prev", 0).length', ctx)).toBe(2);
@@ -89,7 +89,7 @@ describe('scope — $items legacy accessor', () => {
   });
 });
 
-describe('scope — $parameter / $workflow / $execution / $prevNode', () => {
+describe('scope - $parameter / $workflow / $execution / $prevNode', () => {
   it('$parameter exposes sibling parameters', () => {
     expect(evalIn('$parameter.foo', richContext())).toBe('bar');
   });
@@ -121,7 +121,7 @@ describe('scope — $parameter / $workflow / $execution / $prevNode', () => {
   });
 });
 
-describe('scope — $now / $today', () => {
+describe('scope - $now / $today', () => {
   it('$now is a valid Luxon DateTime', () => {
     const result = evalIn('$now', richContext());
     expect(DateTime.isDateTime(result)).toBe(true);
@@ -135,7 +135,7 @@ describe('scope — $now / $today', () => {
   });
 });
 
-describe('scope — $runIndex / $itemIndex', () => {
+describe('scope - $runIndex / $itemIndex', () => {
   it('reflect the context values directly', () => {
     const ctx = richContext();
     expect(evalIn('$runIndex', ctx)).toBe(2);
@@ -143,7 +143,7 @@ describe('scope — $runIndex / $itemIndex', () => {
   });
 });
 
-describe('scope — $env gating', () => {
+describe('scope - $env gating', () => {
   it('returns injected env vars when access is not blocked', () => {
     expect(evalIn('$env.MY_VAR', richContext())).toBe('value');
   });
@@ -157,7 +157,7 @@ describe('scope — $env gating', () => {
   });
 });
 
-describe('scope — $vars / $secrets', () => {
+describe('scope - $vars / $secrets', () => {
   it('expose injected instance variables and secrets', () => {
     const ctx = richContext();
     expect(evalIn('$vars.v1', ctx)).toBe('x');
@@ -171,7 +171,7 @@ describe('scope — $vars / $secrets', () => {
   });
 });
 
-describe('scope — helper functions $if / $ifEmpty / $min / $max / $jmespath', () => {
+describe('scope - helper functions $if / $ifEmpty / $min / $max / $jmespath', () => {
   const ctx = richContext();
 
   it('$if branches on the condition', () => {

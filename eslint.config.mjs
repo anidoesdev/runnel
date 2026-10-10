@@ -31,7 +31,7 @@ export default tseslint.config(
           patterns: [
             {
               group: ['node:*', 'fs', 'fs/*', 'path', 'http', 'https', 'crypto', 'child_process', 'net', 'os'],
-              message: 'packages/workflow must stay Node-free — it is imported directly by the browser editor.',
+              message: 'packages/workflow must stay Node-free - it is imported directly by the browser editor.',
             },
           ],
         },

@@ -1,11 +1,11 @@
 import type { IDataObject } from '@runnel/workflow';
 
 /**
- * One hand-authored usage example per node type — a realistic `parameters` object, not the
+ * One hand-authored usage example per node type - a realistic `parameters` object, not the
  * node's own (often empty-string/zero) defaults, which teach the model nothing about actual
  * usage. Per the build prompt's get_node_schema spec: "keep required fields, defaults, and one
  * usage example." Missing an entry is fine (compressNodeSchema omits the field rather than
- * fabricating one) — add one here the first time an eval shows the model guessing wrong on a
+ * fabricating one) - add one here the first time an eval shows the model guessing wrong on a
  * node's parameter shape.
  */
 export const NODE_USAGE_EXAMPLES: Record<string, IDataObject> = {

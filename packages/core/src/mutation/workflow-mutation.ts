@@ -5,7 +5,7 @@ import { layoutWorkflow } from './workflow-layout.js';
 
 /**
  * Server-side counterparts of the graph edits the editor's Pinia store (workflow.store.ts)
- * already does client-side — but validated against the live node registry and returning a new
+ * already does client-side - but validated against the live node registry and returning a new
  * IWorkflowBase rather than mutating in place, so they're safe to call from anywhere that only
  * has a workflow document and a registry (the assistant's tool layer, scripts, MCP). Invalid
  * input (an unknown node type, a connection type neither end declares) throws
@@ -41,7 +41,7 @@ export class IncompatibleConnectionError extends WorkflowOperationError {
 
 /**
  * A parameter name the node type doesn't declare. Stored anyway, it would be silently ignored
- * at run time — and whoever set it (the assistant, typically, guessing `method` for a Webhook
+ * at run time - and whoever set it (the assistant, typically, guessing `method` for a Webhook
  * whose parameter is `httpMethod`) would go on to describe a behaviour the node doesn't have.
  * The message lists the valid names so the caller can correct itself in one step.
  */
@@ -55,7 +55,7 @@ export class UnknownParameterError extends WorkflowOperationError {
   }
 }
 
-/** A value an `options` parameter doesn't offer — stored anyway, it would be ignored or misread at run time. */
+/** A value an `options` parameter doesn't offer - stored anyway, it would be ignored or misread at run time. */
 export class InvalidParameterValueError extends WorkflowOperationError {
   constructor(nodeType: string, parameter: string, value: unknown, valid: Array<string | number | boolean>) {
     super(
@@ -68,7 +68,7 @@ export class InvalidParameterValueError extends WorkflowOperationError {
 
 /**
  * Only top-level keys are checked: nested values belong to collection/fixedCollection parameters
- * whose shapes vary by node. An `options` parameter's value must be one it offers — unless it's an
+ * whose shapes vary by node. An `options` parameter's value must be one it offers - unless it's an
  * expression (`=...`), which is only known at run time. A name can be declared more than once
  * (different displayOptions per mode), so its valid values are the union across declarations.
  */
@@ -126,7 +126,7 @@ function resolveVersion(description: INodeTypeDescription, requested?: number): 
   return Array.isArray(description.version) ? Math.max(...description.version) : description.version;
 }
 
-/** A model-driven add_node call rarely bothers with `position` — cascading by node count keeps a run of agent-added nodes from stacking exactly on top of each other at [0,0], without needing real layout logic. */
+/** A model-driven add_node call rarely bothers with `position` - cascading by node count keeps a run of agent-added nodes from stacking exactly on top of each other at [0,0], without needing real layout logic. */
 function defaultPosition(existingNodeCount: number): [number, number] {
   return [existingNodeCount * 260, 100];
 }
@@ -144,7 +144,7 @@ export interface IAddNodeResult {
   name: string;
 }
 
-/** The node type must already be registered — an unknown type is rejected here, before it ever reaches a saved document. Returns the *actual* name used after de-duplication. */
+/** The node type must already be registered - an unknown type is rejected here, before it ever reaches a saved document. Returns the *actual* name used after de-duplication. */
 export function addNode(workflow: IWorkflowBase, nodeTypes: INodeTypes, params: IAddNodeParams): IAddNodeResult {
   const description = describeType(nodeTypes, params.type, params.typeVersion);
   assertKnownParameters(description, params.type, params.parameters);
@@ -172,7 +172,7 @@ export interface IConnectNodesParams {
   type?: NodeConnectionType;
 }
 
-/** Rejects a connection whose type isn't declared on both ends (e.g. wiring `ai_tool` into a `main` input) — a mismatched edge is structurally impossible, not merely discouraged. Idempotent: connecting the same pair twice is a no-op. */
+/** Rejects a connection whose type isn't declared on both ends (e.g. wiring `ai_tool` into a `main` input) - a mismatched edge is structurally impossible, not merely discouraged. Idempotent: connecting the same pair twice is a no-op. */
 export function connectNodes(workflow: IWorkflowBase, nodeTypes: INodeTypes, params: IConnectNodesParams): IWorkflowBase {
   const type = params.type ?? 'main';
   const outputIndex = params.outputIndex ?? 0;
@@ -180,10 +180,10 @@ export function connectNodes(workflow: IWorkflowBase, nodeTypes: INodeTypes, par
 
   const sourceNode = requireNode(workflow, params.from);
   const targetNode = requireNode(workflow, params.to);
-  // A node wired straight into its own input can never run — it would wait on itself forever.
+  // A node wired straight into its own input can never run - it would wait on itself forever.
   // Loops (Split In Batches and friends) always pass through at least one other node.
   if (params.from === params.to) {
-    throw new IncompatibleConnectionError(`"${params.from}" can't be connected to itself — connect it to a different node.`);
+    throw new IncompatibleConnectionError(`"${params.from}" can't be connected to itself - connect it to a different node.`);
   }
   const sourceDescription = describeType(nodeTypes, sourceNode.type, sourceNode.typeVersion);
   const targetDescription = describeType(nodeTypes, targetNode.type, targetNode.typeVersion);
@@ -215,7 +215,7 @@ export interface IDisconnectNodesParams {
   type?: NodeConnectionType;
 }
 
-/** No-op (not an error) when the two nodes weren't connected — mirrors the editor's own removeConnection. */
+/** No-op (not an error) when the two nodes weren't connected - mirrors the editor's own removeConnection. */
 export function disconnectNodes(workflow: IWorkflowBase, params: IDisconnectNodesParams): IWorkflowBase {
   const type = params.type ?? 'main';
   const outputIndex = params.outputIndex ?? 0;
@@ -251,7 +251,7 @@ export interface ISetNodeParametersParams {
   parameters: IDataObject;
 }
 
-/** Deep-merges into the node's existing parameters — an agent narrowing one field doesn't clobber sibling fields it never mentioned. */
+/** Deep-merges into the node's existing parameters - an agent narrowing one field doesn't clobber sibling fields it never mentioned. */
 /** With `nodeTypes`, unknown parameter names are rejected (see UnknownParameterError); without it the merge is unchecked, for callers that have no catalog to check against. */
 export function setNodeParameters(workflow: IWorkflowBase, params: ISetNodeParametersParams, nodeTypes?: INodeTypes): IWorkflowBase {
   const node = requireNode(workflow, params.name);
@@ -262,7 +262,7 @@ export function setNodeParameters(workflow: IWorkflowBase, params: ISetNodeParam
   return cloned;
 }
 
-/** Renames a node, and everything that references it (connections, pinData, `$node[...]`/`$(...)` expressions in every other node) — delegates entirely to Workflow.renameNode, the one mutation that already existed at the domain layer. */
+/** Renames a node, and everything that references it (connections, pinData, `$node[...]`/`$(...)` expressions in every other node) - delegates entirely to Workflow.renameNode, the one mutation that already existed at the domain layer. */
 export function renameNode(workflow: IWorkflowBase, params: { oldName: string; newName: string }): IWorkflowBase {
   return new Workflow(workflow).renameNode(params.oldName, params.newName).toJSON();
 }
@@ -292,7 +292,7 @@ export interface ISetNodeCredentialParams {
   credentialName?: string;
 }
 
-/** Validates that the node type actually declares `credentialType` — attaching a credential a node doesn't use is a structural mistake the agent shouldn't be able to make silently. `credentialId: null` clears it. */
+/** Validates that the node type actually declares `credentialType` - attaching a credential a node doesn't use is a structural mistake the agent shouldn't be able to make silently. `credentialId: null` clears it. */
 export function setNodeCredential(workflow: IWorkflowBase, nodeTypes: INodeTypes, params: ISetNodeCredentialParams): IWorkflowBase {
   const node = requireNode(workflow, params.name);
   const description = describeType(nodeTypes, node.type, node.typeVersion);
@@ -337,10 +337,10 @@ export interface IWorkflowOutline {
 }
 
 /**
- * The compact, agent-facing view of a workflow — full node parameter values and expression
+ * The compact, agent-facing view of a workflow - full node parameter values and expression
  * bodies are deliberately left out (a workflow document can exceed 200KB; see get_node_schema's
  * budget for why that matters for context). Node types that fail to resolve against the
- * registry report an empty `unsetRequiredParams` here rather than throwing — that failure mode
+ * registry report an empty `unsetRequiredParams` here rather than throwing - that failure mode
  * belongs to validate_workflow's diagnostics, a later milestone, not to this read path.
  */
 export function getWorkflowOutline(workflow: IWorkflowBase, nodeTypes: INodeTypes): IWorkflowOutline {

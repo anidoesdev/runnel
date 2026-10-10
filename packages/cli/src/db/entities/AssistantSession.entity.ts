@@ -2,7 +2,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 import type { IModelMessage } from '@runnel/assistant';
 
 /**
- * Mirrors IAssistantSession almost field-for-field — the repository adapter (see
+ * Mirrors IAssistantSession almost field-for-field - the repository adapter (see
  * packages/cli/src/assistant/assistant-session.repository.ts) is a thin mapping, not a
  * transformation. `createdAt`/`updatedAt` are plain varchar ISO strings rather than
  * TypeORM-managed date columns, same reasoning as ExecutionEntity.stoppedAt: the domain object

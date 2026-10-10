@@ -8,7 +8,7 @@ import type { Repository } from 'typeorm';
 import type { Request, Response } from 'express';
 import type { CredentialEntity } from '../db/entities/Credential.entity.js';
 
-/** Never includes `data` (the encrypted blob) — plaintext or ciphertext, credential values never leave the server via the API. */
+/** Never includes `data` (the encrypted blob) - plaintext or ciphertext, credential values never leave the server via the API. */
 function toSafeCredential(entity: CredentialEntity) {
   return {
     id: entity.id,

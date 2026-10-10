@@ -1,8 +1,8 @@
 /**
- * Recursively redacts any object key that looks like it holds a secret, at any depth —
+ * Recursively redacts any object key that looks like it holds a secret, at any depth -
  * unlike pino's built-in `redact` option (backed by fast-redact), which only matches
  * specific static paths or a single wildcard segment, not "this key name wherever it
- * appears in an arbitrarily nested object". Used both as the logger's formatter (§12.7 —
+ * appears in an arbitrarily nested object". Used both as the logger's formatter (§12.7 -
  * credentials must never appear in logs) and available standalone for anything else that
  * serializes objects that might contain one (error payloads, etc).
  */
@@ -11,7 +11,7 @@ const SENSITIVE_KEY_PATTERN =
 
 const REDACTED = '[Redacted]';
 
-/** Only Object.prototype (`{}`) or a null-prototype object counts as "plain" — a class instance (Error, Date, a raw Node http request/response, ...) is left completely untouched rather than rebuilt key-by-key via Object.entries, which would silently drop its prototype methods and any non-enumerable state a later consumer (e.g. pino-http's own req/res serializers, which run *after* this formatter) still needs. */
+/** Only Object.prototype (`{}`) or a null-prototype object counts as "plain" - a class instance (Error, Date, a raw Node http request/response, ...) is left completely untouched rather than rebuilt key-by-key via Object.entries, which would silently drop its prototype methods and any non-enumerable state a later consumer (e.g. pino-http's own req/res serializers, which run *after* this formatter) still needs. */
 function isPlainObject(value: object): boolean {
   const proto = Object.getPrototypeOf(value) as object | null;
   return proto === Object.prototype || proto === null;

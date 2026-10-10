@@ -35,7 +35,7 @@ function toSession(entity: AssistantSessionEntity): IAssistantSession {
   };
 }
 
-/** TypeORM-backed IAssistantSessionRepositoryPort — this is what "a user who reloads mid-build must not lose the conversation" actually resolves to: the transcript, token budget, and any pending approval/question survive a process restart even though the draft itself (WorkflowDraftStore) does not — see the package README-level note in agent-loop.ts's session.ts for that scoping call. */
+/** TypeORM-backed IAssistantSessionRepositoryPort - this is what "a user who reloads mid-build must not lose the conversation" actually resolves to: the transcript, token budget, and any pending approval/question survive a process restart even though the draft itself (WorkflowDraftStore) does not - see the package README-level note in agent-loop.ts's session.ts for that scoping call. */
 export class AssistantSessionRepositoryAdapter implements IAssistantSessionRepositoryPort {
   constructor(private readonly sessions: Repository<AssistantSessionEntity>) {}
 

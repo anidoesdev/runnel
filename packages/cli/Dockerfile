@@ -18,7 +18,7 @@ ENV NODE_ENV=production
 # production-only node_modules: pnpm v10's non-legacy `pnpm deploy` requires
 # inject-workspace-packages (a workspace-wide .npmrc change out of scope here), and its
 # --legacy fallback turned out to only copy files without actually installing dependencies
-# into the target — this is the simplest option that's actually verified to run. It costs
+# into the target - this is the simplest option that's actually verified to run. It costs
 # image size (devDependencies and every workspace package's source come along for the ride);
 # slimming that down is a reasonable follow-up, not a correctness concern.
 COPY --from=build /repo ./

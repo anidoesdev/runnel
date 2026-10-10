@@ -12,7 +12,7 @@ import type { AgentLoopEvent } from './agent-loop.js';
 /**
  * Part 5 Safety: "Credential values never enter the transcript. Enforce with a redaction pass
  * over every tool result plus a test that greps transcripts for known credential fixtures." This
- * is that test — a known fixture value, pushed through the real runTurn/resumeApproval paths (not
+ * is that test - a known fixture value, pushed through the real runTurn/resumeApproval paths (not
  * a unit test of redactDeep in isolation, which workflow-tools already has), grepped out of
  * both the persisted transcript and the live SSE-bound event stream.
  */
@@ -37,7 +37,7 @@ async function makeToolContext(): Promise<IToolContext> {
   return { draftId: draft.id, nodeTypes: new MapNodeTypes(), draftStore };
 }
 
-/** Stands in for a future tool that carelessly echoes something secret-shaped back — e.g. an HTTP call that returns the auth header it sent, or a credential-adjacent object nested a few levels deep. */
+/** Stands in for a future tool that carelessly echoes something secret-shaped back - e.g. an HTTP call that returns the auth header it sent, or a credential-adjacent object nested a few levels deep. */
 const leakyTool: ITool<Record<string, never>, unknown> = {
   name: 'leaky_tool',
   description: 'test tool that returns credential-shaped data',
@@ -64,7 +64,7 @@ function transcriptText(session: { messages: Array<{ content: string }> }): stri
   return session.messages.map((m) => m.content).join('\n');
 }
 
-describe('agent loop — credential redaction', () => {
+describe('agent loop - credential redaction', () => {
   it('never lets a known credential fixture reach session.messages, no matter how deeply nested', async () => {
     const toolContext = await makeToolContext();
     const tools = new Map<string, AnyTool>([[leakyTool.name, leakyTool as unknown as AnyTool]]);

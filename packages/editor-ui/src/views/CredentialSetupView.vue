@@ -18,7 +18,7 @@ const credentialType = computed(() => (record.value ? nodeTypesStore.credentialT
 
 const name = ref('');
 /**
- * The API never returns a credential's stored `data` — plaintext or encrypted, values never
+ * The API never returns a credential's stored `data` - plaintext or encrypted, values never
  * leave the server (see CredentialsController). So every field starts from the credential
  * type's own default, same as creating a brand-new credential; the user re-enters real values
  * here regardless of whether this row already has some (e.g. it was a `request_credential`
@@ -67,7 +67,7 @@ async function onSave(): Promise<void> {
   <div class="auth-screen">
     <form v-if="!loading && !notFound" class="auth-form" @submit.prevent="onSave">
       <h1>Configure {{ credentialType?.displayName ?? record?.type }} credential</h1>
-      <p>Enter the real values for this credential — an assistant-requested credential is a placeholder until you do.</p>
+      <p>Enter the real values for this credential - an assistant-requested credential is a placeholder until you do.</p>
       <label>
         Name
         <RunnelInput v-model="name" />

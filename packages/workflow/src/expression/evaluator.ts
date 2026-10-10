@@ -6,7 +6,7 @@ import type { Expr } from './ast.js';
 /**
  * Property names that would let an expression climb out of the sandbox via prototype chain
  * access (the classic `''.constructor.constructor('return process')()` escape). Blocked
- * regardless of the target value's identity — this is the one hard security boundary the
+ * regardless of the target value's identity - this is the one hard security boundary the
  * evaluator enforces; everything else (which bare identifiers even resolve to) is closed off
  * simply by the scope resolver only knowing about the symbols in scope.ts.
  */

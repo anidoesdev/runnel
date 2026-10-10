@@ -18,7 +18,7 @@ import type { IAssistantMemoryPort, IRecallResult } from '@runnel/assistant';
 import type { IMemoryConfig } from '../../config.js';
 
 /**
- * The memory integration seen from the outside — over HTTP, against a real in-memory SQLite
+ * The memory integration seen from the outside - over HTTP, against a real in-memory SQLite
  * database and a local server standing in for OpenAI (same approach as
  * assistant.controller.integration.test.ts). The memory engine itself is replaced by a spy port:
  * these tests are about what the controller does with memory, not about Memnest.
@@ -137,7 +137,7 @@ function systemPromptOf(openAiRequest: IFakeOpenAi['requests'][number] | undefin
   return openAiRequest?.messages.find((m) => m.role === 'system')?.content;
 }
 
-describe('assistant memory — default off', () => {
+describe('assistant memory - default off', () => {
   it('with no memory env vars, sends the byte-identical system prompt and never calls the memory port', async () => {
     const config = loadConfig({}).memory;
     expect(config).toEqual({ capture: false, recall: false, tokenBudget: 400, minScore: 1 });
@@ -177,7 +177,7 @@ async function waitFor(condition: () => boolean, timeoutMs = 2000): Promise<void
 
 const SHADOW: IMemoryConfig = { capture: true, recall: false, tokenBudget: 400, minScore: 1 };
 
-describe('assistant memory — shadow mode (capture on, recall off)', () => {
+describe('assistant memory - shadow mode (capture on, recall off)', () => {
   it('recalls and logs, but the system prompt stays byte-identical', async () => {
     const port = spyMemoryPort();
     const h = await createHarness(port, SHADOW);
@@ -226,7 +226,7 @@ describe('assistant memory — shadow mode (capture on, recall off)', () => {
   });
 });
 
-describe('assistant memory — failures never break a turn', () => {
+describe('assistant memory - failures never break a turn', () => {
   it('recall rejects → the turn completes normally with no memory block, and a warning is logged', async () => {
     const port = spyMemoryPort({
       recall: async () => {
@@ -276,7 +276,7 @@ function recalling(memories: IRecallResult['memories'], tokensUsed = 12): Partia
   return { recall: async () => ({ memories, trace: { candidates: [] }, tokensUsed }) };
 }
 
-describe('assistant memory — recall on (injection)', () => {
+describe('assistant memory - recall on (injection)', () => {
   it('appends the memories that clear the floor to the system prompt, and only those', async () => {
     const port = spyMemoryPort(
       recalling([

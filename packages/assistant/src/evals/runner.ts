@@ -45,7 +45,7 @@ function fakeCredentialRepository(seed: ICredentialSummary[]): ICredentialReposi
   };
 }
 
-/** A canned, non-executing IWorkflowExecutorPort — see IEvalSeedExecutionOutput's own doc comment for why this doesn't run anything real. */
+/** A canned, non-executing IWorkflowExecutorPort - see IEvalSeedExecutionOutput's own doc comment for why this doesn't run anything real. */
 function fakeExecutor(seeds: Record<string, IEvalSeedExecutionOutput>): IWorkflowExecutorPort {
   return {
     async run(destinationNode, dryRun) {
@@ -71,14 +71,14 @@ function fakeExecutor(seeds: Record<string, IEvalSeedExecutionOutput>): IWorkflo
 }
 
 /** What a user who only cares about the case's key point says to any other question. */
-export const UNSCRIPTED_ANSWER = 'No preference — use a sensible default.';
+export const UNSCRIPTED_ANSWER = 'No preference - use a sensible default.';
 
 /**
  * Answers the questions the model actually asked. Question ids are the model's own invention, so a
  * scripted answer is matched to a question by id, then by its key appearing in the id or the
  * question text; with a single question, the first scripted answer is used whatever its key. Any
- * question left over — the model asking something the case didn't anticipate, which is a
- * legitimate thing for it to do — gets UNSCRIPTED_ANSWER rather than aborting the case.
+ * question left over - the model asking something the case didn't anticipate, which is a
+ * legitimate thing for it to do - gets UNSCRIPTED_ANSWER rather than aborting the case.
  */
 function resolveAskUserAnswers(questions: Array<{ id: string; question: string }>, authored: Record<string, string>): Record<string, string> {
   const authoredEntries = Object.entries(authored);

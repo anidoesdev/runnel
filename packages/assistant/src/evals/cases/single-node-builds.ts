@@ -1,8 +1,8 @@
 import type { IEvalCase } from '../types.js';
 
 /**
- * Prompts phrased the way a user actually types — casual, imperative, under-specified where a
- * real request would be — not the precise "add an httpRequest node named X" a test author would
+ * Prompts phrased the way a user actually types - casual, imperative, under-specified where a
+ * real request would be - not the precise "add an httpRequest node named X" a test author would
  * default to. Per Part 7: source from real language, not your own phrasing. Absent a live
  * community-forum corpus to pull from in this environment, these are hand-authored in that
  * register instead; swapping in real forum text is a reasonable follow-up once available.

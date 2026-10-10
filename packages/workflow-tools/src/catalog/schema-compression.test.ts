@@ -128,7 +128,7 @@ describe('getFieldOptions', () => {
   });
 });
 
-describe('token budget — Milestone 2\'s own bar: every real node schema stays under 1500 tokens', () => {
+describe('token budget - Milestone 2\'s own bar: every real node schema stays under 1500 tokens', () => {
   const catalog = registerAllNodeTypes(new MapNodeTypes());
 
   it.each(catalog.list().map((d) => d.name))('%s', (typeName) => {

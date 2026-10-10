@@ -170,7 +170,7 @@ describe('AI Agent node', () => {
     const chatModel = makeNode({ name: 'Chat Model', type: 'fakeChatModel' });
     const calculator = makeNode({ name: 'Calculator', type: 'fakeTool_calculator' });
 
-    // Every response keeps calling the tool — with maxIterations: 2, the loop must stop after
+    // Every response keeps calling the tool - with maxIterations: 2, the loop must stop after
     // the 2nd round instead of continuing forever.
     const fakeChatModel = makeFakeChatModel([
       { content: 'still thinking', toolCalls: [{ id: 'call_1', name: 'calculator', arguments: '{}' }] },

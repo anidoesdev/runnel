@@ -8,7 +8,7 @@ const store = useNodeTypesStore();
 const filter = ref('');
 const activeGroup = ref<string | null>(null);
 
-/** Real, distinct `group[0]` values actually present in the registry — not a fixed hardcoded list, so a category button never dead-ends on zero nodes. */
+/** Real, distinct `group[0]` values actually present in the registry - not a fixed hardcoded list, so a category button never dead-ends on zero nodes. */
 const availableGroups = computed(() => {
   const seen = new Set<string>();
   for (const nodeType of store.nodeTypes) seen.add(nodeType.group[0] ?? 'other');

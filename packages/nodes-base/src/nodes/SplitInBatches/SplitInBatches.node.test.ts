@@ -48,7 +48,7 @@ describe('Split In Batches node', () => {
     expect(third[1]).toHaveLength(3);
   });
 
-  it('only reads the real input on the first call — later calls ignore whatever is passed in', async () => {
+  it('only reads the real input on the first call - later calls ignore whatever is passed in', async () => {
     const node = makeNode({ name: 'Loop', type: 'splitInBatches', parameters: {} });
     const contextData: Record<string, unknown> = {};
     const items: INodeExecutionData[] = [{ json: { n: 1 } }, { json: { n: 2 } }];

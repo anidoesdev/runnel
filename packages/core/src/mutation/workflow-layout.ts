@@ -16,7 +16,7 @@ const SUBNODE_Y_OFFSET = 200;
  * (a node nothing feeds into), with parallel branches stacked vertically at the same depth;
  * ai_languageModel/ai_tool sub-nodes are placed underneath whichever node consumes them, mirroring
  * how the canvas actually renders an AI Agent's model/tool inputs. This replaces whatever position
- * each node carried before — call it after any change to `connections`, not after a bare add with
+ * each node carried before - call it after any change to `connections`, not after a bare add with
  * no wiring yet (a freshly added, still-unconnected node has no graph position to derive).
  */
 export function layoutWorkflow(workflow: IWorkflowBase): IWorkflowBase {
@@ -48,7 +48,7 @@ export function layoutWorkflow(workflow: IWorkflowBase): IWorkflowBase {
   function depthOf(name: string, visiting: Set<string>): number {
     const cached = depthCache.get(name);
     if (cached !== undefined) return cached;
-    if (visiting.has(name)) return 0; // a back-edge (e.g. Split In Batches' loop output) — don't recurse into a cycle
+    if (visiting.has(name)) return 0; // a back-edge (e.g. Split In Batches' loop output) - don't recurse into a cycle
     visiting.add(name);
     const preds = incoming.get(name) ?? [];
     const depth = preds.length === 0 ? 0 : Math.max(...preds.map((p) => depthOf(p, visiting) + 1));

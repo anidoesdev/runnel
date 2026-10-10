@@ -12,7 +12,7 @@ export interface IWorkflowPayload {
   folderId?: string | null;
 }
 
-/** Mirrors listWorkflowsQuerySchema in packages/cli — 'all' excludes the trash, 'trash' shows only it. */
+/** Mirrors listWorkflowsQuerySchema in packages/cli - 'all' excludes the trash, 'trash' shows only it. */
 export interface IWorkflowListQuery {
   view?: 'all' | 'starred' | 'trash';
   folderId?: string;

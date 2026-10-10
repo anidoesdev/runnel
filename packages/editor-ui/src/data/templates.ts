@@ -13,7 +13,7 @@ export interface IWorkflowTemplate {
 /**
  * Starter workflows, built from this project's own node types rather than fetched from a
  * template service. Each one is a working shape with the parameters that have obvious defaults
- * filled in — anything user-specific (a URL, a credential, a query) is left for the user to set,
+ * filled in - anything user-specific (a URL, a credential, a query) is left for the user to set,
  * which is also why templates open as an unsaved draft instead of running straight away.
  */
 

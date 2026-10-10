@@ -1,7 +1,7 @@
 export interface IModelToolCallRef {
   id: string;
   name: string;
-  /** Raw JSON string, exactly as the model returned it — same convention as ai-types.ts's IChatToolCall in nodes-base. */
+  /** Raw JSON string, exactly as the model returned it - same convention as ai-types.ts's IChatToolCall in nodes-base. */
   arguments: string;
 }
 
@@ -26,7 +26,7 @@ export type ModelStopReason = 'end_turn' | 'tool_use' | 'max_tokens' | 'aborted'
 /**
  * The event stream every ModelProvider implementation normalizes to, regardless of the
  * underlying API's own wire format (OpenAI's chunked `delta.tool_calls[].index`-keyed streaming
- * vs Anthropic's `content_block_start`/`_delta`/`_stop` — both collapse to this same shape). The
+ * vs Anthropic's `content_block_start`/`_delta`/`_stop` - both collapse to this same shape). The
  * agent loop (session.ts) only ever depends on this union, never on a specific provider's types.
  */
 export type ModelStreamEvent =
@@ -48,7 +48,7 @@ export interface IModelStreamOptions {
 
 /**
  * Behind this interface per the build prompt's MODEL section: default to one real
- * implementation (OpenAI, per the reuse-existing-credential-path decision — see
+ * implementation (OpenAI, per the reuse-existing-credential-path decision - see
  * openai-model-provider.ts) and do not build a second provider before the first works end to
  * end. The agent loop depends only on this interface, so a local model or Anthropic can be
  * swapped in later without touching session.ts.

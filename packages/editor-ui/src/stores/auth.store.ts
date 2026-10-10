@@ -6,7 +6,7 @@ export const useAuthStore = defineStore('auth', {
   state: () => ({
     user: null as IMeResponse | null,
     setupCompleted: null as boolean | null,
-    /** True once fetchCurrentUser has resolved at least once — lets the router guard tell "still checking" from "definitely logged out". */
+    /** True once fetchCurrentUser has resolved at least once - lets the router guard tell "still checking" from "definitely logged out". */
     initialized: false,
   }),
   getters: {

@@ -15,12 +15,12 @@ export function toDisplayName(camelName: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
-/** Windows path separators break both JSON string literals and tsconfig "extends" resolution if left as-is — package.json/tsconfig always want forward slashes regardless of platform. */
+/** Windows path separators break both JSON string literals and tsconfig "extends" resolution if left as-is - package.json/tsconfig always want forward slashes regardless of platform. */
 function toPosixPath(path: string): string {
   return path.split('\\').join('/');
 }
 
-/** Walks up from `startDir` looking for the pnpm workspace root — the scaffold depends on `@runnel/workflow` via a relative `file:` reference back into `packages/workflow`, which only makes sense once we know where that root is. */
+/** Walks up from `startDir` looking for the pnpm workspace root - the scaffold depends on `@runnel/workflow` via a relative `file:` reference back into `packages/workflow`, which only makes sense once we know where that root is. */
 export function findMonorepoRoot(startDir: string): string | null {
   let dir = startDir;
   while (true) {
@@ -32,7 +32,7 @@ export function findMonorepoRoot(startDir: string): string | null {
 }
 
 export interface IScaffoldOptions {
-  /** camelCase node type name, e.g. "myApiNode" — becomes INodeTypeDescription.name. */
+  /** camelCase node type name, e.g. "myApiNode" - becomes INodeTypeDescription.name. */
   name: string;
   displayName?: string;
   /** Absolute path the package will be written to. */
@@ -104,7 +104,7 @@ export function generateScaffoldFiles(options: IScaffoldOptions): Record<string,
 
   const nodeSource = `import type { IExecuteFunctions, INodeType, NodeOutput } from '@runnel/workflow';
 
-/** Scaffolded by \`runnel-node-dev new ${name}\` — replace this with real logic. */
+/** Scaffolded by \`runnel-node-dev new ${name}\` - replace this with real logic. */
 export const ${name}: INodeType = {
   description: {
     displayName: '${displayName}',
@@ -112,7 +112,7 @@ export const ${name}: INodeType = {
     icon: 'fa:cube',
     group: ['transform'],
     version: 1,
-    description: '${displayName} — a custom node',
+    description: '${displayName} - a custom node',
     defaults: { name: '${displayName}' },
     inputs: ['main'],
     outputs: ['main'],
@@ -140,7 +140,7 @@ import { ${name} } from './${pascalName}.node.js';
 import type { IExecuteFunctions, INode, INodeExecutionData, NodeOutput } from '@runnel/workflow';
 
 /**
- * A minimal hand-rolled IExecuteFunctions stand-in — real nodes-base tests reuse a shared
+ * A minimal hand-rolled IExecuteFunctions stand-in - real nodes-base tests reuse a shared
  * test harness from inside the runnel monorepo (which depends on @runnel/core), but a
  * standalone custom node package can't reach into that repo's src, so this stays self-contained.
  */

@@ -29,7 +29,7 @@ describe('SQLite migrations', () => {
     const afterUp = (await tableNames(dataSource)).sort();
     expect(afterUp).toEqual(['assistant_session', 'credential', 'execution', 'folder', 'migrations', 'notification', 'user', 'workflow']);
 
-    // Three migrations now (InitialSchema, AddAssistantSession, AddWorkflowLibrary) —
+    // Three migrations now (InitialSchema, AddAssistantSession, AddWorkflowLibrary) -
     // undoLastMigration only reverts the most recently applied one, so a full teardown needs
     // one call per migration.
     await dataSource.undoLastMigration();
@@ -60,7 +60,7 @@ describe('SQLite migrations', () => {
     const user = await userRepo.findOneByOrFail({ id: 'u1' });
     expect(user.email).toBe('owner@example.com');
 
-    // Raw SQL rather than the repository API here — TypeORM's generic FindOptionsWhere /
+    // Raw SQL rather than the repository API here - TypeORM's generic FindOptionsWhere /
     // QueryDeepPartialEntity types recurse excessively deep against WorkflowEntity's nested
     // structural types (INode[]/IConnections from @runnel/workflow), which is a type-
     // checker-only issue, not a runtime one. This still proves the thing that actually

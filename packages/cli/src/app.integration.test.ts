@@ -12,7 +12,7 @@ import type { INodeType } from '@runnel/workflow';
 
 /**
  * The M6 definition of done, exercised for real: a workflow is created, run, and inspected
- * entirely over the REST API — against a real (in-memory) SQLite database that's been
+ * entirely over the REST API - against a real (in-memory) SQLite database that's been
  * migrated the same way `runnel start` would migrate it, not a mocked repository layer.
  */
 let dataSource: DataSource;
@@ -34,7 +34,7 @@ afterAll(async () => {
   await dataSource.destroy();
 });
 
-describe('REST API — auth', () => {
+describe('REST API - auth', () => {
   it('rejects protected routes with no session', async () => {
     const res = await request(app).get('/rest/workflows');
     expect(res.status).toBe(401);
@@ -90,9 +90,9 @@ describe('REST API — auth', () => {
   });
 });
 
-describe('REST API — a workflow created, run, and inspected entirely over the API', () => {
+describe('REST API - a workflow created, run, and inspected entirely over the API', () => {
   // `agent` must be created inside beforeAll, not at describe-body scope: describe bodies run
-  // at collection time, before any beforeAll — `app` (assigned by the top-level beforeAll)
+  // at collection time, before any beforeAll - `app` (assigned by the top-level beforeAll)
   // would still be undefined here otherwise.
   let agent: ReturnType<typeof request.agent>;
   let workflowId: string;
@@ -201,7 +201,7 @@ describe('REST API — a workflow created, run, and inspected entirely over the 
   });
 });
 
-describe('REST API — credentials never expose their values', () => {
+describe('REST API - credentials never expose their values', () => {
   let agent: ReturnType<typeof request.agent>;
   let credentialId: string;
 
@@ -248,11 +248,11 @@ describe('REST API — credentials never expose their values', () => {
 
 /**
  * Proves the ai_languageModel/ai_tool sub-node connection types are accepted end to end over
- * the real REST API — the one layer the nodes-base package's own AI Agent integration test
+ * the real REST API - the one layer the nodes-base package's own AI Agent integration test
  * (which drives WorkflowExecute directly) never touches: the zod connections schema in
  * workflow.dto.ts, and the credential lookup path from a real stored+encrypted credential.
  */
-describe('REST API — AI Agent workflow (ai_languageModel / ai_tool sub-node connections)', () => {
+describe('REST API - AI Agent workflow (ai_languageModel / ai_tool sub-node connections)', () => {
   let agent: ReturnType<typeof request.agent>;
   let fakeOpenAiServer: Server;
   let fakeOpenAiUrl: string;
@@ -330,7 +330,7 @@ describe('REST API — AI Agent workflow (ai_languageModel / ai_tool sub-node co
   });
 });
 
-describe('REST API — activating a workflow starts its webhook (M7)', () => {
+describe('REST API - activating a workflow starts its webhook (M7)', () => {
   let agent: ReturnType<typeof request.agent>;
 
   beforeAll(async () => {
@@ -409,7 +409,7 @@ describe('REST API — activating a workflow starts its webhook (M7)', () => {
   });
 });
 
-describe('REST API — node/credential type metadata for the editor (M8)', () => {
+describe('REST API - node/credential type metadata for the editor (M8)', () => {
   let agent: ReturnType<typeof request.agent>;
 
   beforeAll(async () => {
@@ -439,7 +439,7 @@ describe('REST API — node/credential type metadata for the editor (M8)', () =>
   });
 });
 
-describe('REST API — custom node types (M10)', () => {
+describe('REST API - custom node types (M10)', () => {
   const echoCustomNode: INodeType = {
     description: {
       displayName: 'Echo Custom',
@@ -518,7 +518,7 @@ describe('REST API — custom node types (M10)', () => {
     expect(run.body.data.resultData.runData.Echo[0].data.main[0]).toEqual([{ json: { fromCustomNode: true } }]);
   });
 
-  it('a custom node colliding with a built-in name is skipped — the built-in still wins', async () => {
+  it('a custom node colliding with a built-in name is skipped - the built-in still wins', async () => {
     const res = await agent.get('/rest/node-types');
     const setEntries = (res.body as Array<{ name: string; displayName: string }>).filter((n) => n.name === 'set');
     expect(setEntries).toHaveLength(1);
@@ -526,7 +526,7 @@ describe('REST API — custom node types (M10)', () => {
   });
 });
 
-describe('REST API — logout invalidates the session', () => {
+describe('REST API - logout invalidates the session', () => {
   it('rejects protected routes after logout', async () => {
     const agent = request.agent(app);
     await agent.post('/rest/auth/login').send({ email: 'owner@example.com', password: 'correct-horse' });

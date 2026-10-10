@@ -8,7 +8,7 @@ export const start: INodeType = {
     icon: 'fa:play',
     group: ['trigger'],
     version: 1,
-    description: 'Legacy start node — prefer Manual Trigger for new workflows',
+    description: 'Legacy start node - prefer Manual Trigger for new workflows',
     defaults: { name: 'Start' },
     inputs: [],
     outputs: ['main'],

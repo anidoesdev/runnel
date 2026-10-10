@@ -18,7 +18,7 @@ onMounted(() => {
 const node = computed(() => workflowStore.nodes.find((n) => n.id === props.nodeId));
 const available = computed(() => credentialsStore.byType(props.credentialTypeName));
 const selectOptions = computed(() => [
-  { label: '— Select —', value: '' },
+  { label: 'Select...', value: '' },
   ...available.value.map((c) => ({ label: c.name, value: c.id })),
 ]);
 const selectedId = computed(() => node.value?.credentials?.[props.credentialTypeName]?.id ?? '');

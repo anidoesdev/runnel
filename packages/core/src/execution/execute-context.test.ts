@@ -21,7 +21,7 @@ function baseOptions(overrides: Partial<IExecuteFunctionsOptions> = {}): IExecut
   };
 }
 
-describe('buildExecuteFunctions — getInputData', () => {
+describe('buildExecuteFunctions - getInputData', () => {
   it('returns the items for the requested input branch, defaulting to 0', () => {
     const ctx = buildExecuteFunctions(baseOptions());
     expect(ctx.getInputData()).toEqual([{ json: { a: 1 } }, { json: { a: 2 } }]);
@@ -34,7 +34,7 @@ describe('buildExecuteFunctions — getInputData', () => {
   });
 });
 
-describe('buildExecuteFunctions — getNodeParameter', () => {
+describe('buildExecuteFunctions - getNodeParameter', () => {
   it('returns the raw value for a non-expression parameter', () => {
     const node = makeNode({ name: 'N', parameters: { mode: 'test' } });
     const ctx = buildExecuteFunctions(baseOptions({ node }));
@@ -91,7 +91,7 @@ describe('buildExecuteFunctions — getNodeParameter', () => {
   });
 });
 
-describe('buildExecuteFunctions — misc surface', () => {
+describe('buildExecuteFunctions - misc surface', () => {
   it('getNode returns the bound node', () => {
     const node = makeNode({ name: 'N' });
     const ctx = buildExecuteFunctions(baseOptions({ node }));
@@ -127,7 +127,7 @@ describe('buildExecuteFunctions — misc surface', () => {
     await expect(ctx.getCredentials('httpBasicAuth')).resolves.toEqual({ resolvedFor: 'httpBasicAuth' });
   });
 
-  it("getCredentials passes the node's specifically-assigned credential id through, not just the type name — resolving 'any credential of this type' is ambiguous once more than one exists", async () => {
+  it("getCredentials passes the node's specifically-assigned credential id through, not just the type name - resolving 'any credential of this type' is ambiguous once more than one exists", async () => {
     const node = makeNode({ name: 'N', credentials: { httpBasicAuth: { id: 'cred-42', name: 'My Cred' } } });
     const seen: Array<{ name: string; id: string | undefined }> = [];
     const ctx = buildExecuteFunctions(
@@ -219,7 +219,7 @@ describe('buildExecuteFunctions — misc surface', () => {
   });
 });
 
-describe('buildExecuteFunctions — getContext', () => {
+describe('buildExecuteFunctions - getContext', () => {
   it('returns a stable object across repeated calls for the same node', () => {
     const contextData: Record<string, unknown> = {};
     const node = makeNode({ name: 'N' });
@@ -252,7 +252,7 @@ describe('buildExecuteFunctions — getContext', () => {
   });
 });
 
-describe('buildExecuteFunctions — getInputConnectionData', () => {
+describe('buildExecuteFunctions - getInputConnectionData', () => {
   const fakeChatModel: INodeType = {
     description: {
       displayName: 'Fake Chat Model',

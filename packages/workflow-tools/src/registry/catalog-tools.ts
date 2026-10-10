@@ -8,7 +8,7 @@ import type { INodeSearchResult } from '../catalog/search-nodes.js';
 import type { ICompressedNodeSchema, INodeOptionEntry } from '../catalog/schema-compression.js';
 import type { IDataObject, INodeTypeDescription } from '@runnel/workflow';
 
-/** Same "wrap the raw registry error" pattern as packages/core's mutation module — MapNodeTypes throws a plain Error, not one of core's typed subclasses, so it's translated here at the one seam that calls it directly. */
+/** Same "wrap the raw registry error" pattern as packages/core's mutation module - MapNodeTypes throws a plain Error, not one of core's typed subclasses, so it's translated here at the one seam that calls it directly. */
 function describeType(ctx: IToolContext, type: string, typeVersion?: number): INodeTypeDescription {
   try {
     return ctx.nodeTypes.getByNameAndVersion(type, typeVersion).description;
@@ -19,7 +19,7 @@ function describeType(ctx: IToolContext, type: string, typeVersion?: number): IN
 
 const searchNodesTool: ITool<{ query: string; limit?: number }, INodeSearchResult[]> = {
   name: 'search_nodes',
-  description: 'Find node types by capability, brand name, or outcome — e.g. "send a slack message", "db", "notify my team". Always search before calling add_node; never guess a type string.',
+  description: 'Find node types by capability, brand name, or outcome - e.g. "send a slack message", "db", "notify my team". Always search before calling add_node; never guess a type string.',
   parameters: z.object({ query: z.string().min(1), limit: z.number().int().positive().max(50).optional() }),
   handler: (params, ctx) => searchNodeTypes(ctx.nodeTypes.list(), params.query, params.limit),
 };

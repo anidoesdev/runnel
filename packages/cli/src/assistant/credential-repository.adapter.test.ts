@@ -36,7 +36,7 @@ describe('CredentialRepositoryAdapter', () => {
     await dataSource.destroy();
   });
 
-  it('list() returns id/name/type only — never the encrypted data field', async () => {
+  it('list() returns id/name/type only - never the encrypted data field', async () => {
     await credentials.insert({ id: 'c1', name: 'My OpenAI', type: 'openAiApi', data: '{"iv":"x"}' });
 
     const result = await adapter.list();

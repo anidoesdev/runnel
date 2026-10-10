@@ -9,14 +9,14 @@ function run(mode: string, input0: INodeExecutionData[], input1: INodeExecutionD
   return merge.execute!.call(ctx);
 }
 
-describe('Merge node — append', () => {
+describe('Merge node - append', () => {
   it('concatenates input 0 followed by input 1', async () => {
     const result = await run('append', [{ json: { a: 1 } }], [{ json: { b: 2 } }]);
     expect(result[0]).toEqual([{ json: { a: 1 } }, { json: { b: 2 } }]);
   });
 });
 
-describe('Merge node — combineByPosition', () => {
+describe('Merge node - combineByPosition', () => {
   it('zips items by index, merging json fields', async () => {
     const result = await run(
       'combineByPosition',
@@ -42,7 +42,7 @@ describe('Merge node — combineByPosition', () => {
   });
 });
 
-describe('Merge node — combineByKey', () => {
+describe('Merge node - combineByKey', () => {
   it('inner-joins on the configured key', async () => {
     const result = await run(
       'combineByKey',

@@ -19,8 +19,8 @@ function fixThisMessage(nodeName: string, error: string, inputData: unknown): st
 
 /**
  * Exercises the "Fix this" flow (Milestone 8): a single message shaped exactly like
- * assistantStore.fixExecutionError's real output — real error text plus real input data for the
- * failing node — and checks the agent fixes the actual node in place rather than proposing a
+ * assistantStore.fixExecutionError's real output - real error text plus real input data for the
+ * failing node - and checks the agent fixes the actual node in place rather than proposing a
  * rebuild. Mirrors the message format in packages/editor-ui's assistant.store.ts so a prompt
  * change there and a case going stale here would be caught together.
  */

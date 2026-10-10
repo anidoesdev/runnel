@@ -4,7 +4,7 @@ import type { Logger, LoggerOptions } from 'pino';
 
 export interface ICreateLoggerOptions {
   level?: string;
-  /** For tests — pino writes newline-delimited JSON to this stream instead of stdout. */
+  /** For tests - pino writes newline-delimited JSON to this stream instead of stdout. */
   destination?: NodeJS.WritableStream;
 }
 

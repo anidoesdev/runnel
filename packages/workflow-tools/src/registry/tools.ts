@@ -20,17 +20,17 @@ import type { IDataObject } from '@runnel/workflow';
 
 const connectionTypeSchema = z.enum(['main', 'ai_languageModel', 'ai_tool']);
 
-/** Reads the draft's current working copy — every mutation tool follows this same read-mutate-write pattern against ctx.draftStore, which is what keeps each handler five lines. */
+/** Reads the draft's current working copy - every mutation tool follows this same read-mutate-write pattern against ctx.draftStore, which is what keeps each handler five lines. */
 function currentWorkflow(ctx: IToolContext) {
   return ctx.draftStore.get(ctx.draftId).current;
 }
 
-/** Longest parameter description echoed back by add_node — enough to tell two modes apart, not a manual. */
+/** Longest parameter description echoed back by add_node - enough to tell two modes apart, not a manual. */
 const PARAMETER_DESCRIPTION_CHARS = 100;
 
 export interface IAddNodeResult {
   name: string;
-  /** What was actually added — worth checking against what you meant (a Webhook trigger that receives requests is not an HTTP Request node that sends them). */
+  /** What was actually added - worth checking against what you meant (a Webhook trigger that receives requests is not an HTTP Request node that sends them). */
   added: { type: string; displayName: string; description: string };
   /** Every parameter this node takes given what's set so far: exact names, and allowed values where there's a fixed list. Set them with set_node_parameters. */
   parameters: Array<{
@@ -43,14 +43,14 @@ export interface IAddNodeResult {
   }>;
   /** Required parameters still empty on this node. */
   unsetRequired: string[];
-  /** Credential types this node takes — the exact values for list_credentials/request_credential/set_node_credential. */
+  /** Credential types this node takes - the exact values for list_credentials/request_credential/set_node_credential. */
   credentialTypes: string[];
 }
 
 /**
  * The result carries the node's own parameter list, not just its name. In live evals the model
  * routinely skipped get_node_schema, guessed `method` for a Webhook's `httpMethod`, and never set
- * the parameter at all — handing it the exact names and allowed values at the moment it has just
+ * the parameter at all - handing it the exact names and allowed values at the moment it has just
  * added the node closes that gap without an extra round trip, and echoing the node's display name
  * and description lets it notice when it picked the wrong type.
  */
@@ -85,9 +85,9 @@ function describeAddedNode(ctx: IToolContext, name: string): IAddNodeResult {
 const addNodeTool: ITool<{ type: string; typeVersion?: number; name?: string; parameters?: IDataObject }, IAddNodeResult> = {
   name: 'add_node',
   description:
-    'Add a node of the given type to the workflow draft. Returns the ACTUAL name used after de-duplication — use that, not the requested name, in subsequent connect_nodes calls — plus what was added and its parameters (exact names, allowed values, which required ones are still unset): check it is the node you meant, then set what the user asked for with set_node_parameters. Canvas position is placed automatically from the connection graph once you connect_nodes — there is no position to set here.',
+    'Add a node of the given type to the workflow draft. Returns the ACTUAL name used after de-duplication - use that, not the requested name, in subsequent connect_nodes calls - plus what was added and its parameters (exact names, allowed values, which required ones are still unset): check it is the node you meant, then set what the user asked for with set_node_parameters. Canvas position is placed automatically from the connection graph once you connect_nodes - there is no position to set here.',
   parameters: z.object({
-    type: z.string().describe('The node type name, e.g. "httpRequest" — get this from search_nodes, never guess it.'),
+    type: z.string().describe('The node type name, e.g. "httpRequest" - get this from search_nodes, never guess it.'),
     typeVersion: z.number().optional(),
     name: z.string().optional().describe('Requested display name; may be de-duplicated if already taken.'),
     parameters: dataObjectSchema.optional(),
@@ -141,7 +141,7 @@ const disconnectNodesTool: ITool<
 
 const setNodeParametersTool: ITool<{ name: string; parameters: IDataObject }, { updated: true }> = {
   name: 'set_node_parameters',
-  description: 'Deep-merge new values into a node\'s parameters. Untouched fields are preserved — only pass the fields you want to change.',
+  description: 'Deep-merge new values into a node\'s parameters. Untouched fields are preserved - only pass the fields you want to change.',
   parameters: z.object({ name: z.string(), parameters: dataObjectSchema }),
   handler: (params, ctx) => {
     const workflow = coreSetNodeParameters(currentWorkflow(ctx), params, ctx.nodeTypes);
@@ -179,7 +179,7 @@ const setNodeCredentialTool: ITool<
   { updated: true }
 > = {
   name: 'set_node_credential',
-  description: 'Attach a stored credential to a node, or clear one (credentialId: null). The credential must already exist — use list_credentials to find its id; never invent one.',
+  description: 'Attach a stored credential to a node, or clear one (credentialId: null). The credential must already exist - use list_credentials to find its id; never invent one.',
   parameters: z.object({
     name: z.string(),
     credentialType: z.string(),
@@ -200,7 +200,7 @@ const getWorkflowOutlineTool: ITool<Record<string, never>, IWorkflowOutline> = {
   handler: (_params, ctx) => coreGetWorkflowOutline(currentWorkflow(ctx), ctx.nodeTypes),
 };
 
-/** The read/mutate tool set that operates on a draft's graph directly (Milestone 1). Node-catalog discovery (search_nodes, get_node_schema, get_node_options — Milestone 2) lives in catalog-tools.ts; validate_workflow, execute_until, ask_user, and the credential-listing tools remain deliberately absent — adding stubs for them here would violate "never stub and continue". */
+/** The read/mutate tool set that operates on a draft's graph directly (Milestone 1). Node-catalog discovery (search_nodes, get_node_schema, get_node_options - Milestone 2) lives in catalog-tools.ts; validate_workflow, execute_until, ask_user, and the credential-listing tools remain deliberately absent - adding stubs for them here would violate "never stub and continue". */
 export function createWorkflowTools(): AnyTool[] {
   return [
     getWorkflowOutlineTool,

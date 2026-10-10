@@ -7,7 +7,7 @@ import type { Memnest } from '@memnest/core';
 import type { SqliteStore } from '@memnest/store-sqlite';
 
 /**
- * The adapter against the real engine on the SQLite store — Runnel's default setup, where the
+ * The adapter against the real engine on the SQLite store - Runnel's default setup, where the
  * store has no vector search at all, so every recall here is the degraded lexical-only path.
  * No completion provider: memories are written directly, so nothing depends on a model.
  */

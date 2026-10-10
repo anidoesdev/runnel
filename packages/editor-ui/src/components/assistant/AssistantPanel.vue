@@ -2,7 +2,7 @@
 import { computed, nextTick, ref, watch } from 'vue';
 import { RunnelButton, RunnelInput } from '@runnel/design-system';
 import { useAssistantStore } from '../../stores/assistant.store.js';
-import { credentialSetupId, diffFields, humanizeToolCall } from '../../utils/assistantDisplay.js';
+import { credentialSetupId, diffFields, humanizeToolCall, stripEmDashes } from '../../utils/assistantDisplay.js';
 
 const assistantStore = useAssistantStore();
 
@@ -82,7 +82,7 @@ async function onApply(): Promise<void> {
 
       <template v-for="(item, index) in assistantStore.transcript" :key="index">
         <div v-if="item.type === 'user'" class="assistant-panel__bubble assistant-panel__bubble--user">{{ item.content }}</div>
-        <div v-else-if="item.type === 'assistant_text'" class="assistant-panel__bubble assistant-panel__bubble--assistant">{{ item.content }}</div>
+        <div v-else-if="item.type === 'assistant_text'" class="assistant-panel__bubble assistant-panel__bubble--assistant">{{ stripEmDashes(item.content) }}</div>
         <div v-else class="assistant-panel__tool-row" :class="{ 'assistant-panel__tool-row--error': item.error }">
           {{ humanizeToolCall(item.name, item.args, item.result, false) }}
           <span v-if="item.error" class="assistant-panel__tool-row-detail">{{ item.error.message }}</span>
@@ -146,8 +146,8 @@ async function onApply(): Promise<void> {
 
       <div v-if="assistantStore.session?.status === 'awaiting_approval' && assistantStore.session.pendingApproval" class="assistant-panel__approval">
         <p>
-          {{ humanizeToolCall(assistantStore.session.pendingApproval.toolName, assistantStore.session.pendingApproval.args, undefined, false) }}
-          — approve this change?
+          {{ humanizeToolCall(assistantStore.session.pendingApproval.toolName, assistantStore.session.pendingApproval.args, undefined, false) }} -
+          approve this change?
         </p>
         <div class="assistant-panel__approval-actions">
           <RunnelButton :disabled="assistantStore.sending" @click="onApprove">Approve</RunnelButton>

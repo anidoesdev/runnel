@@ -44,7 +44,7 @@ module.exports = {
     {
       name: 'design-system-no-internal-deps',
       severity: 'error',
-      comment: 'design-system is pure Vue primitives — no dependency on workflow/core/cli.',
+      comment: 'design-system is pure Vue primitives - no dependency on workflow/core/cli.',
       from: { path: pkg('design-system') },
       to: { path: '^packages/(workflow|core|nodes-base|cli|editor-ui|node-dev)/src' },
     },

@@ -10,7 +10,7 @@ describe('isExpression', () => {
   });
 });
 
-describe('evaluateExpressionString — non-expression passthrough', () => {
+describe('evaluateExpressionString - non-expression passthrough', () => {
   it('returns non-"=" strings unchanged', () => {
     const ctx = makeExpressionContext();
     expect(evaluateExpressionString('hello world', ctx)).toBe('hello world');
@@ -20,7 +20,7 @@ describe('evaluateExpressionString — non-expression passthrough', () => {
   });
 });
 
-describe('evaluateExpressionString — whole-body single expression returns the raw value', () => {
+describe('evaluateExpressionString - whole-body single expression returns the raw value', () => {
   it('preserves object/array/number types instead of stringifying', () => {
     const ctx = makeExpressionContext({ item: { json: { user: { name: 'Ada' }, count: 3 } } });
     expect(evaluateExpressionString('={{ $json.user }}', ctx)).toEqual({ name: 'Ada' });
@@ -34,7 +34,7 @@ describe('evaluateExpressionString — whole-body single expression returns the 
   });
 });
 
-describe('evaluateExpressionString — mixed text and expressions stringify and concatenate', () => {
+describe('evaluateExpressionString - mixed text and expressions stringify and concatenate', () => {
   it('concatenates literal text with one interpolated value', () => {
     const ctx = makeExpressionContext({ item: { json: { name: 'World' } } });
     expect(evaluateExpressionString('=Hello {{ $json.name }}!', ctx)).toBe('Hello World!');
@@ -51,7 +51,7 @@ describe('evaluateExpressionString — mixed text and expressions stringify and 
   });
 });
 
-describe('evaluateExpressionString — object literal blocks do not get truncated at nested braces', () => {
+describe('evaluateExpressionString - object literal blocks do not get truncated at nested braces', () => {
   it('correctly finds the closing }} past a nested object literal', () => {
     const ctx = makeExpressionContext();
     expect(evaluateExpressionString('={{ {a: {b: 1}} }}', ctx)).toEqual({ a: { b: 1 } });
@@ -63,7 +63,7 @@ describe('evaluateExpressionString — object literal blocks do not get truncate
   });
 });
 
-describe('evaluateExpressionString — error propagation', () => {
+describe('evaluateExpressionString - error propagation', () => {
   it('propagates a parse error for malformed expression syntax', () => {
     const ctx = makeExpressionContext();
     expect(() => evaluateExpressionString('={{ 1 + }}', ctx)).toThrow();

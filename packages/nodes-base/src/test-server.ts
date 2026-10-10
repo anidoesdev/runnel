@@ -10,7 +10,7 @@ export interface TestServer {
   close: () => Promise<void>;
 }
 
-/** Spins up a real local HTTP server on an ephemeral port for testing the HTTP Request node against actual network behavior — matching the M5 DoD's "offline, against a mock HTTP server". */
+/** Spins up a real local HTTP server on an ephemeral port for testing the HTTP Request node against actual network behavior - matching the M5 DoD's "offline, against a mock HTTP server". */
 export function startTestServer(handler: Handler): Promise<TestServer> {
   return new Promise((resolve) => {
     const server = createServer(handler);

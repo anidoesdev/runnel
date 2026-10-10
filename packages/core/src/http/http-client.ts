@@ -5,11 +5,11 @@ import type { IDataObject, IHttpRequestOptions, IHttpResponse } from '@runnel/wo
  * fetch (no new HTTP-client dependency). Supports methods, headers, query string, JSON/text
  * bodies, redirect control, retries with backoff, and both parsed-body and full-response
  * shapes. `proxy` is accepted on IHttpRequestOptions for forward compatibility but not
- * wired to a dispatcher yet — routing fetch through a proxy needs the `undici` package's
+ * wired to a dispatcher yet - routing fetch through a proxy needs the `undici` package's
  * ProxyAgent, which is a deliberate M5 scope cut, not an oversight.
  */
 export interface IHttpClientOptions {
-  /** Injectable delay for retry backoff — tests pass a no-op to stay fast. */
+  /** Injectable delay for retry backoff - tests pass a no-op to stay fast. */
   sleep?: (ms: number) => Promise<void>;
 }
 
@@ -86,7 +86,7 @@ function toHeaderRecord(headers: Headers): Record<string, string> {
 }
 
 /**
- * A response is retried on a 5xx status or a network-level failure (fetch throwing — DNS,
+ * A response is retried on a 5xx status or a network-level failure (fetch throwing - DNS,
  * connection refused, timeout/abort). A non-5xx error status is not retried: retrying a 404
  * or a 401 endlessly wouldn't help, and HttpStatusError carries the parsed body so a caller
  * (or a node's continueOnFail handling) can still inspect why it failed.

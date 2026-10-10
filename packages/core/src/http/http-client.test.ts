@@ -10,7 +10,7 @@ afterEach(async () => {
   server = undefined;
 });
 
-describe('httpRequest — basic requests', () => {
+describe('httpRequest - basic requests', () => {
   it('performs a GET and parses a JSON response', async () => {
     server = await startTestServer((req, res) => {
       res.writeHead(200, { 'content-type': 'application/json' });
@@ -83,7 +83,7 @@ describe('httpRequest — basic requests', () => {
   });
 });
 
-describe('httpRequest — response parsing', () => {
+describe('httpRequest - response parsing', () => {
   it('parses a text response when content-type is not JSON', async () => {
     server = await startTestServer((req, res) => {
       res.writeHead(200, { 'content-type': 'text/plain' });
@@ -114,7 +114,7 @@ describe('httpRequest — response parsing', () => {
   });
 });
 
-describe('httpRequest — error handling', () => {
+describe('httpRequest - error handling', () => {
   it('throws HttpStatusError with the parsed body on a non-2xx response', async () => {
     server = await startTestServer((req, res) => {
       res.writeHead(404, { 'content-type': 'application/json' });
@@ -143,7 +143,7 @@ describe('httpRequest — error handling', () => {
   });
 });
 
-describe('httpRequest — retries', () => {
+describe('httpRequest - retries', () => {
   it('retries on a 5xx response and succeeds once the server recovers', async () => {
     let attempts = 0;
     server = await startTestServer((req, res) => {
@@ -205,7 +205,7 @@ describe('httpRequest — retries', () => {
   });
 });
 
-describe('httpRequest — timeout', () => {
+describe('httpRequest - timeout', () => {
   it('aborts a request that exceeds the timeout', async () => {
     server = await startTestServer((req, res) => {
       setTimeout(() => {

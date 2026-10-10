@@ -79,7 +79,7 @@ describe('assistant defaults', () => {
     expect((input.element as HTMLInputElement).value).toBe('50000');
 
     await input.setValue('120000');
-    // RunnelButton renders a bare <button>, so it submits its form — same as the real page.
+    // RunnelButton renders a bare <button>, so it submits its form - same as the real page.
     await wrapper.find('.settings-form--inline').trigger('submit');
     await flushPromises();
 

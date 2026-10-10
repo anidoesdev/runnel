@@ -12,7 +12,7 @@ export interface IllegalCycle {
  * Graph model over an IWorkflowBase: node lookup, traversal, execution-order resolution,
  * cycle detection, and the atomic node-rename operation.
  *
- * This class has no notion of *what* a node does — node-type-dependent decisions (is this
+ * This class has no notion of *what* a node does - node-type-dependent decisions (is this
  * type allowed to loop?) are injected by the caller as a predicate rather than looked up
  * here, since the node-type registry lives in packages/core, one layer below this one.
  */
@@ -48,7 +48,7 @@ export class Workflow {
   /**
    * Every node whose `type`-typed connection targets `nodeName` at `inputIndex` (default 0),
    * in the order they appear in the workflow's `connections`. Unlike `main`, these connection
-   * types are never traversed by NodeGraph — a sub-node (a chat model, a tool) has no `main`
+   * types are never traversed by NodeGraph - a sub-node (a chat model, a tool) has no `main`
    * edge to be reachable through, so this is a direct reverse scan of the raw connections
    * rather than a graph walk. Used by the execution engine to resolve
    * IExecuteFunctions.getInputConnectionData.
@@ -67,7 +67,7 @@ export class Workflow {
 
   /**
    * A cycle is legal only if at least one of its members is an "iteration node"
-   * (SplitInBatches / Loop Over Items) — decided by the caller-supplied predicate, since
+   * (SplitInBatches / Loop Over Items) - decided by the caller-supplied predicate, since
    * this package has no node-type registry of its own. A self-loop (a node connected to
    * itself) counts as a size-1 cycle.
    */
@@ -94,7 +94,7 @@ export class Workflow {
    * Structural execution order: a topological sort of the graph's strongly-connected-
    * component condensation (which is always acyclic), with each multi-node component
    * (a legal loop) internally ordered by BFS from its entry node. This returns each node
-   * once — the runtime engine (packages/core, M4) is what re-enters a loop body across
+   * once - the runtime engine (packages/core, M4) is what re-enters a loop body across
    * multiple `runIndex`es; this method only establishes the structural order of a single pass.
    */
   getExecutionOrder(startNode: string): string[] {
@@ -192,7 +192,7 @@ export class Workflow {
    * A workflow definition containing only `destinationNode` and its transitive ancestors,
    * with `destinationNode`'s own outgoing connections dropped. Running this through the
    * normal execution engine naturally stops once `destinationNode` has executed, since
-   * there's nothing left downstream of it to propagate into — that's what makes "run up to
+   * there's nothing left downstream of it to propagate into - that's what makes "run up to
    * this node" (the editor's per-node test button) possible without any change to the
    * engine itself: prune first, then run the pruned definition exactly like any other.
    */
@@ -204,7 +204,7 @@ export class Workflow {
     const keep = new Set([destinationNode, ...this.getParentNodes(destinationNode)]);
 
     // Sub-node connections (ai_languageModel, ai_tool, ...) aren't part of the main graph, so
-    // getParentNodes above never sees them — a node supplying one into anything we're keeping
+    // getParentNodes above never sees them - a node supplying one into anything we're keeping
     // must be kept too, or that node loses its language model/tools when the pruned workflow
     // runs. Fixed-point since a kept sub-node could itself depend on another sub-node.
     let grew = true;
@@ -245,7 +245,7 @@ export class Workflow {
    * Renames a node atomically: the node itself, every connection that references it (as
    * source key or as a target), its pinData entry, and every `$node["Old"]` / `$("Old")`
    * reference inside every other node's expression-enabled parameters. Returns a new
-   * Workflow — the underlying definition is not mutated in place.
+   * Workflow - the underlying definition is not mutated in place.
    */
   renameNode(oldName: string, newName: string): Workflow {
     if (oldName === newName) return this;

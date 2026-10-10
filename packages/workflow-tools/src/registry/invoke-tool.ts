@@ -10,10 +10,10 @@ import type { AnyTool, IToolContext } from './tool.js';
 
 /**
  * Maps the typed error subclasses @runnel/core's mutation ops throw into the tool-facing
- * taxonomy — by `instanceof`, not by sniffing message text, so this stays correct even if a
- * message wording changes. A plain (un-subclassed) WorkflowOperationError — e.g. from
+ * taxonomy - by `instanceof`, not by sniffing message text, so this stays correct even if a
+ * message wording changes. A plain (un-subclassed) WorkflowOperationError - e.g. from
  * Workflow.renameNode, which lives in packages/workflow and can't depend on packages/core's
- * subclasses — falls back to INVALID_ARGS rather than a wrong specific code.
+ * subclasses - falls back to INVALID_ARGS rather than a wrong specific code.
  */
 function toToolError(err: unknown): ToolError {
   if (err instanceof ToolError) return err;
@@ -31,7 +31,7 @@ function toToolError(err: unknown): ToolError {
 
 /**
  * The single entry point the agent loop calls for every tool_use block the model emits.
- * Validates args against the tool's own Zod schema before the handler ever runs — an invalid
+ * Validates args against the tool's own Zod schema before the handler ever runs - an invalid
  * node type or malformed argument is rejected here, never reaches a mutation.
  */
 export async function invokeTool(

@@ -18,13 +18,13 @@ function toSample(task: ITaskData): INodeOutputSample {
 }
 
 /**
- * TypeORM/engine-backed IWorkflowExecutorPort — the only implementation of grounding's
+ * TypeORM/engine-backed IWorkflowExecutorPort - the only implementation of grounding's
  * execution seam (see execution.port.ts in workflow-tools). Runs the DRAFT's *current* working
  * copy, re-read from the draft store on every `run()` call so a mutation earlier in the same
- * turn (add_node, set_node_parameters, ...) is reflected — never the last-saved/live workflow.
+ * turn (add_node, set_node_parameters, ...) is reflected - never the last-saved/live workflow.
  *
  * `run()` caches every node's last recorded task for the lifetime of this instance so
- * `getNodeOutput` can read it back — one instance per agent turn (constructed fresh in
+ * `getNodeOutput` can read it back - one instance per agent turn (constructed fresh in
  * AssistantController.streamTurn, same as every other tool-context dependency), so the cache
  * never outlives the turn it was populated in.
  */

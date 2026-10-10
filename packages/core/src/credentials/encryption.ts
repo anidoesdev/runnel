@@ -3,7 +3,7 @@ import type { IDataObject } from '@runnel/workflow';
 
 /**
  * Credential values are encrypted at rest with AES-256-GCM. The key is derived from
- * RUNNEL_ENCRYPTION_KEY via scrypt with a fixed instance-level salt — deliberately not the
+ * RUNNEL_ENCRYPTION_KEY via scrypt with a fixed instance-level salt - deliberately not the
  * salt-less "hash the passphrase directly" approach, and deliberately GCM (authenticated
  * encryption) rather than a CBC scheme, per the M1 architecture decision.
  */

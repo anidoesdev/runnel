@@ -9,8 +9,8 @@ import type { DataSource } from 'typeorm';
 import type { Express } from 'express';
 
 /**
- * The library features behind the editor's formerly-disabled controls — starring, trash,
- * folders, notifications and settings — exercised over HTTP against a real in-memory SQLite
+ * The library features behind the editor's formerly-disabled controls - starring, trash,
+ * folders, notifications and settings - exercised over HTTP against a real in-memory SQLite
  * database, the same way assistant.controller.integration.test.ts does.
  */
 
