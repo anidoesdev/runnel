@@ -37,11 +37,20 @@ defineEmits<{ 'update:modelValue': [value: boolean] }>();
   position: relative;
   background: white;
   border-radius: 8px;
-  min-width: 320px;
-  max-width: 90vw;
+  /* `min()` so a 320px floor never forces horizontal page scroll on a 320px
+     screen - the modal shrinks to the viewport minus a gutter instead. */
+  min-width: min(320px, calc(100vw - 24px));
+  max-width: min(90vw, calc(100vw - 24px));
   max-height: 85vh;
   overflow: auto;
   padding: 16px;
+}
+
+@media (max-width: 480px) {
+  .runnel-modal {
+    padding: 14px 12px;
+    max-height: 92vh;
+  }
 }
 .runnel-modal__header {
   margin-bottom: 12px;

@@ -3,6 +3,11 @@ import { computed, ref } from 'vue';
 import { useNodeTypesStore } from '../../stores/nodeTypes.store.js';
 import type { INodeTypeDescription } from '@runnel/workflow';
 
+const emit = defineEmits<{
+  /** Tap-to-add: touch devices never fire `dragstart`, so a plain click/tap on a palette row has to be a first-class way to add a node. The parent decides where it lands (canvas centre). */
+  add: [nodeType: string];
+}>();
+
 const store = useNodeTypesStore();
 
 const filter = ref('');
@@ -95,8 +100,13 @@ function onDragStart(event: DragEvent, nodeTypeName: string): void {
           :key="nodeType.name"
           class="node-palette__item"
           draggable="true"
+          role="button"
+          tabindex="0"
           :title="nodeType.description"
           @dragstart="onDragStart($event, nodeType.name)"
+          @click="emit('add', nodeType.name)"
+          @keydown.enter.prevent="emit('add', nodeType.name)"
+          @keydown.space.prevent="emit('add', nodeType.name)"
         >
           {{ nodeType.displayName }}
         </div>

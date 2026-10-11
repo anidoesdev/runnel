@@ -37,13 +37,13 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
 
 <template>
   <div class="bg-background min-h-screen flex flex-col text-on-surface antialiased">
-    <header class="w-full h-16 flex justify-between items-center px-margin-page bg-surface-container-lowest border-b border-surface-variant sticky top-0 z-50 shadow-sm">
+    <header class="w-full h-16 flex justify-between items-center px-5 md:px-margin-page bg-surface-container-lowest border-b border-surface-variant sticky top-0 z-50 shadow-sm">
       <div class="flex items-center gap-2 text-headline-md font-headline-md font-bold text-on-surface tracking-tight">
         <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1">schema</span>
         Runnel
       </div>
-      <div class="flex gap-4">
-        <button type="button" class="inline-flex items-center justify-center gap-2 h-9 px-4 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30" @click="goToLogin">
+      <div class="flex gap-2 md:gap-4">
+        <button type="button" class="hidden sm:inline-flex items-center justify-center gap-2 h-9 px-4 font-label-md text-label-md text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30" @click="goToLogin">
           Sign In
         </button>
         <button
@@ -58,7 +58,7 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
 
     <main class="flex-grow flex flex-col items-center w-full max-w-[1440px] mx-auto">
       <!-- Hero -->
-      <section class="w-full px-margin-page py-24 md:py-32 flex flex-col items-center text-center relative overflow-hidden">
+      <section class="w-full px-5 md:px-margin-page py-16 md:py-32 flex flex-col items-center text-center relative overflow-hidden">
         <div class="absolute inset-0 grid-bg z-0 pointer-events-none"></div>
         <div class="z-10 max-w-3xl flex flex-col items-center gap-6">
           <div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-base border border-border-muted text-primary rounded-full font-label-sm text-label-sm uppercase tracking-wider mb-2">
@@ -72,7 +72,7 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
           <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mb-8">
             The modern, node-based automation platform designed for engineering teams. Build complex workflows with visual clarity, native expressions, and zero compromises.
           </p>
-          <div class="flex gap-4 mb-16">
+          <div class="flex flex-wrap justify-center gap-3 md:gap-4 mb-10 md:mb-16">
             <button
               type="button"
               class="inline-flex items-center justify-center gap-2 h-10 px-6 bg-primary text-on-primary rounded-full font-label-md text-label-md hover:bg-primary/90 active:scale-[0.97] transition-all shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
@@ -89,7 +89,7 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
 
         <!-- Canvas preview -->
         <div class="w-full max-w-5xl z-10 relative">
-          <div class="hero-window bg-surface-container-lowest rounded-xl border border-surface-variant overflow-hidden flex flex-col h-[500px]">
+          <div class="hero-window bg-surface-container-lowest rounded-xl border border-surface-variant overflow-hidden flex flex-col h-[300px] md:h-[500px]">
             <div class="h-12 border-b border-surface-variant bg-surface flex items-center justify-between px-4">
               <div class="flex items-center gap-2">
                 <div class="w-3 h-3 rounded-full bg-outline-variant"></div>
@@ -117,13 +117,13 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
       </section>
 
       <!-- Feature grid -->
-      <section class="w-full px-margin-page py-16 flex flex-col gap-8 max-w-7xl mx-auto">
+      <section class="w-full px-5 md:px-margin-page py-12 md:py-16 flex flex-col gap-8 max-w-7xl mx-auto">
         <div class="text-center mb-8">
           <h2 class="font-headline-md text-headline-md text-on-surface">Engineered for Technical Workflows</h2>
           <p class="font-body-md text-body-md text-on-surface-variant mt-2">Tools that respect your intelligence, built for complex systems.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[300px]">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-auto md:auto-rows-[300px]">
           <div class="md:col-span-2 bg-surface-container-lowest border border-surface-variant rounded-xl p-8 flex flex-col relative overflow-hidden group">
             <div class="absolute inset-0 bg-gradient-to-br from-surface to-surface-container-lowest pointer-events-none"></div>
             <div class="relative z-10 max-w-sm">
@@ -131,7 +131,7 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
               <h3 class="font-headline-md text-headline-md text-on-surface mb-2">Safe Dry-Runs</h3>
               <p class="font-body-md text-body-md text-on-surface-variant">Test complex logic paths without affecting production data. Our sandbox environment simulates full execution environments.</p>
             </div>
-            <div class="absolute right-0 bottom-0 p-8 opacity-80 group-hover:opacity-100 transition-opacity">
+            <div class="hidden md:block absolute right-0 bottom-0 p-8 opacity-80 group-hover:opacity-100 transition-opacity">
               <div class="bg-inverse-surface rounded-lg p-4 shadow-xl border border-outline w-64 transform rotate-2 translate-y-4 translate-x-4">
                 <div class="flex items-center gap-2 mb-2 border-b border-outline pb-2">
                   <span class="material-symbols-outlined text-secondary-fixed-dim text-sm">check_circle</span>
@@ -194,9 +194,9 @@ const HERO_FLOW: { nodes: Array<Pick<INode, 'name' | 'type' | 'position'>>; conn
       </section>
     </main>
 
-    <footer class="bg-surface-container-lowest border-t border-surface-variant flex justify-between items-center px-margin-page py-4 w-full mt-auto">
+    <footer class="bg-surface-container-lowest border-t border-surface-variant flex flex-col md:flex-row gap-3 md:gap-0 justify-between items-center px-5 md:px-margin-page py-4 w-full mt-auto">
       <div class="font-body-sm text-body-sm font-bold text-on-surface">© {{ year }} Runnel Automation</div>
-      <div class="flex gap-6 font-label-sm text-label-sm">
+      <div class="flex flex-wrap justify-center gap-4 md:gap-6 font-label-sm text-label-sm">
         <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Documentation</a>
         <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">System Status</a>
         <a class="text-on-surface-variant hover:text-primary transition-colors" href="#">Changelog</a>

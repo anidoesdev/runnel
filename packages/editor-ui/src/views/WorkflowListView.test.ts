@@ -168,6 +168,33 @@ describe('templates', () => {
     expect(push).toHaveBeenCalledWith({ name: 'workflow-edit', params: { id: 'wf-new' } });
   });
 
+  /**
+   * Below 1024px the sidebar is a drawer (global.css), so the toggle and the close-on-select
+   * behaviour are what make the library navigable on a phone at all.
+   */
+  it('opens the sidebar drawer from the topbar and closes it once a view is picked', async () => {
+    const wrapper = await mountView();
+
+    const toggle = wrapper.find('.workflow-library__menu-toggle');
+    expect(wrapper.find('.workflow-library__sidebar--open').exists()).toBe(false);
+
+    await toggle.trigger('click');
+    expect(wrapper.find('.workflow-library__sidebar--open').exists()).toBe(true);
+    expect(wrapper.find('.workflow-library__backdrop').exists()).toBe(true);
+
+    await navItem(wrapper, 'Starred').trigger('click');
+    expect(wrapper.find('.workflow-library__sidebar--open').exists()).toBe(false);
+  });
+
+  it('closes the drawer when the backdrop is tapped', async () => {
+    const wrapper = await mountView();
+    await wrapper.find('.workflow-library__menu-toggle').trigger('click');
+
+    await wrapper.find('.workflow-library__backdrop').trigger('click');
+
+    expect(wrapper.find('.workflow-library__sidebar--open').exists()).toBe(false);
+  });
+
   it('links Community and the footer out to the project on GitHub', async () => {
     const wrapper = await mountView();
 

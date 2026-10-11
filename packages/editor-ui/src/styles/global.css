@@ -2303,3 +2303,365 @@ a.workflow-library__tab {
     animation: none;
   }
 }
+
+/* =============================================================================
+   Responsive layout
+
+   The rules above describe the desktop layout (>1024px) this app was built for;
+   everything below adapts it downwards, to a 320px floor. Three breakpoints:
+
+     <=1024px  small laptop / tablet landscape - the two side columns (palette,
+               library sidebar) stop holding a grid track and become drawers;
+               right-hand panels overlay the canvas instead of squeezing it.
+     <=768px   tablet portrait / large phone - one column everywhere, and the
+               editor's actions move out of the top bar into a fixed bottom bar
+               so the canvas keeps the full height between them.
+     <=480px   phones - chrome shrinks: icon-only logos, no duplicated buttons,
+               bubbles go full width.
+
+   Drawers are driven by state in the views (`paletteOpen`, `sidebarOpen`), not
+   by CSS alone, because they also need a backdrop and to close on selection.
+   ============================================================================= */
+
+/* Mobile browsers resolve `height: 100%` against the *large* viewport, which hides the
+   bottom row of a full-height app shell behind the URL bar. `dvh` tracks the visible
+   viewport instead; the percentage heights above stay as the fallback. */
+@supports (height: 100dvh) {
+  @media (max-width: 1024px) {
+    html,
+    body,
+    #app {
+      height: 100dvh;
+    }
+  }
+}
+
+/* Shown only once the matching column has collapsed into a drawer. */
+.workflow-library__menu-toggle,
+.workflow-library__backdrop,
+.workflow-editor__palette-toggle,
+.workflow-editor__palette-backdrop {
+  display: none;
+}
+
+/* Touch input: the 28px icon buttons are below the ~44px comfortable tap target,
+   and palette rows need to be tappable without hitting a neighbour. Keyed on
+   hover capability rather than width, since touch laptops exist. */
+@media (hover: none) {
+  .icon-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .icon-button--lg {
+    width: 44px;
+    height: 44px;
+  }
+
+  .node-palette__item {
+    padding: 11px 10px;
+  }
+
+  .workflow-card__menu-item,
+  .app-avatar-menu-item {
+    padding: 11px 8px;
+  }
+}
+
+@media (max-width: 1024px) {
+  /* --- Workflow library: sidebar -> left drawer --- */
+  .workflow-library__body {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-library__menu-toggle {
+    display: inline-flex;
+  }
+
+  .workflow-library__sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    width: 264px;
+    max-width: 82vw;
+    background: var(--color-surface-container-lowest);
+    border-right: 1px solid var(--color-border);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .workflow-library__sidebar--open {
+    transform: none;
+  }
+
+  .workflow-library__backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(0, 0, 0, 0.4);
+  }
+
+  .workflow-library__main {
+    padding: 24px 20px 40px;
+  }
+
+  /* --- Editor: palette -> drawer, right panels -> overlays --- */
+  .workflow-editor__body,
+  .workflow-editor__body--collapsed,
+  .workflow-editor__body--assistant-open {
+    grid-template-columns: 1fr;
+  }
+
+  .workflow-editor__body {
+    position: relative;
+  }
+
+  .workflow-editor__palette-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface-container-lowest);
+    color: var(--color-on-surface);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .node-palette {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 30;
+    width: 252px;
+    max-width: 80vw;
+    background: var(--color-surface-container-lowest);
+    border-right: 1px solid var(--color-border);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+  }
+
+  .node-palette--open {
+    transform: none;
+  }
+
+  .workflow-editor__palette-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 25;
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  /* The assistant/results columns cover the canvas rather than compete with it
+     for width - at this size, splitting leaves neither usable. */
+  .workflow-editor__body > .assistant-panel,
+  .workflow-editor__body > .execution-panel {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    background: var(--color-surface-container-lowest);
+    border-left: none;
+  }
+}
+
+@media (max-width: 768px) {
+  /* iOS Safari zooms the viewport when a focused field's text is below 16px.
+     `!important` because most of these inputs get their size from a Tailwind
+     utility class, which outranks a bare element selector. */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
+  /* --- Auth screens --- */
+  .auth-screen {
+    align-items: flex-start;
+    padding: 24px 16px;
+  }
+
+  .auth-form {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto;
+    padding: 24px 20px;
+  }
+
+  /* --- Workflow library --- */
+  .workflow-library__topbar {
+    gap: 10px;
+    padding: 10px 12px;
+  }
+
+  /* The sidebar drawer already has "New Workflow"; two of the same button in
+     one viewport is just noise. */
+  .workflow-library__create-btn {
+    display: none;
+  }
+
+  .workflow-library__main {
+    padding: 20px 16px 40px;
+  }
+
+  .workflow-library__grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
+  }
+
+  .workflow-library__search {
+    flex: 1 1 100%;
+    max-width: none;
+  }
+
+  /* --- Editor: actions move to a fixed bottom bar --- */
+  .workflow-editor {
+    padding-bottom: 56px;
+  }
+
+  .workflow-editor__bar {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .workflow-editor__bar-divider {
+    display: none;
+  }
+
+  .workflow-editor__title {
+    max-width: none;
+    font-size: 15px;
+  }
+
+  .workflow-editor__bar-actions {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 35;
+    gap: 8px;
+    padding: 8px 12px;
+    background: var(--color-surface-container-lowest);
+    border-top: 1px solid var(--color-border);
+    /* More actions than fit at 320px; scrolling the bar beats hiding any. */
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .workflow-editor__bar-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .workflow-editor__bar-actions > * {
+    flex: none;
+  }
+
+  /* `margin-left: auto` is meaningless once the group is fixed to the bottom. */
+  .workflow-editor__bar-actions {
+    margin-left: 0;
+  }
+
+  /* Chat dock: a fixed 340px leaves nothing for the canvas on a phone. */
+  .workflow-editor__chat-dock {
+    flex-direction: column;
+    height: 60%;
+  }
+
+  .workflow-editor__chat-dock .execution-panel {
+    width: 100%;
+    max-height: 38%;
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* --- Node detail modal: the side-by-side input/output panels stack --- */
+  .ndv {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    width: 100%;
+    max-height: 76vh;
+  }
+
+  /* --- Settings --- */
+  .settings-view__main {
+    padding: 20px 16px 40px;
+  }
+
+  .settings-system {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .settings-form--inline {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  /* --- Notification panel: 340px overflows a 320px screen --- */
+  .topbar-bell__panel {
+    width: min(340px, calc(100vw - 24px));
+    max-height: min(420px, 70vh);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Icon-only brand marks: the wordmark is the first thing worth dropping. */
+  .workflow-editor__logo-text,
+  .workflow-library__logo-text {
+    display: none;
+  }
+
+  /* The dot alone carries saved/saving/dirty; the label costs room the title needs. */
+  .workflow-editor__save-text {
+    display: none;
+  }
+
+  .workflow-library__heading h1 {
+    font-size: 20px;
+  }
+
+  .workflow-library__tabs {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .workflow-library__toolbar-actions {
+    width: 100%;
+  }
+
+  .workflow-library__select {
+    flex: 1 1 140px;
+  }
+
+  .workflow-library__main {
+    padding: 16px 12px 32px;
+  }
+
+  .workflow-card__preview {
+    height: 120px;
+  }
+
+  .chat-panel__message,
+  .assistant-panel__bubble {
+    max-width: 100%;
+  }
+
+  .execution-panel__raw {
+    max-height: 220px;
+  }
+}
+
+/* Drawers slide; honour a reduced-motion preference like everything else here. */
+@media (prefers-reduced-motion: reduce) {
+  .workflow-library__sidebar,
+  .node-palette {
+    transition: none;
+  }
+}

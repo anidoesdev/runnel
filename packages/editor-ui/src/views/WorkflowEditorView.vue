@@ -43,6 +43,14 @@ async function onToggleAssistant(): Promise<void> {
   await assistantStore.open(workflowStore.id);
 }
 
+/**
+ * Narrow viewports can't afford a permanent 220px palette column, so below the 1024px
+ * breakpoint it becomes a drawer opened from the action bar (see global.css). Kept in one
+ * place because the same flag also dims the canvas behind it.
+ */
+const paletteOpen = ref(false);
+const canvasRef = ref<InstanceType<typeof WorkflowCanvas> | null>(null);
+
 const selectedNodeId = ref<string | null>(null);
 const selectedNode = computed(() => effectiveNodes.value.find((n) => n.id === selectedNodeId.value) ?? null);
 const activateError = ref<string | null>(null);
@@ -147,6 +155,18 @@ function onDropNode(nodeType: string, position: { x: number; y: number }): void 
   if (nodeType === 'aiAgent') attachChatTrigger(node, position);
 }
 
+/**
+ * Tap-to-add from the palette: touch devices never fire the HTML5 drag events the canvas
+ * drop handler relies on, so a tap places the node at the centre of the current view
+ * instead. Same downstream path as a drop, so an AI Agent still gets its Chat trigger.
+ */
+function onPaletteAdd(nodeType: string): void {
+  const position = canvasRef.value?.nextPlacementPosition();
+  if (!position) return;
+  onDropNode(nodeType, position);
+  paletteOpen.value = false;
+}
+
 async function onSave(): Promise<void> {
   try {
     await workflowStore.save();
@@ -182,7 +202,7 @@ async function onExecute(): Promise<void> {
     <header class="workflow-editor__bar">
       <RouterLink :to="{ name: 'workflows' }" class="workflow-editor__logo" title="Back to workflows">
         <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">schema</span>
-        Runnel
+        <span class="workflow-editor__logo-text">Runnel</span>
       </RouterLink>
       <div class="workflow-editor__bar-divider" />
 
@@ -202,10 +222,21 @@ async function onExecute(): Promise<void> {
             'workflow-editor__save-dot--saved': !workflowStore.saving && !workflowStore.dirty,
           }"
         />
-        {{ workflowStore.saving ? 'Saving…' : workflowStore.dirty ? 'Unsaved changes' : 'Saved' }}
+        <span class="workflow-editor__save-text">
+          {{ workflowStore.saving ? 'Saving…' : workflowStore.dirty ? 'Unsaved changes' : 'Saved' }}
+        </span>
       </span>
 
       <div class="workflow-editor__bar-actions">
+        <button
+          type="button"
+          class="workflow-editor__palette-toggle"
+          :aria-expanded="paletteOpen"
+          @click="paletteOpen = !paletteOpen"
+        >
+          <span class="material-symbols-outlined text-[18px]">{{ paletteOpen ? 'close' : 'add' }}</span>
+          Node
+        </button>
         <RunnelCheckbox
           :model-value="workflowStore.active"
           label="Active"
@@ -221,9 +252,9 @@ async function onExecute(): Promise<void> {
         <RunnelButton :disabled="!workflowStore.id || workflowStore.executing" @click="onExecute">
           {{ workflowStore.executing ? 'Running…' : 'Execute' }}
         </RunnelButton>
-
-        <TopbarActions />
       </div>
+
+      <TopbarActions />
     </header>
     <p v-if="workflowStore.error" class="auth-error">{{ workflowStore.error }}</p>
     <p v-if="activateError" class="auth-error">{{ activateError }}</p>
@@ -235,8 +266,15 @@ async function onExecute(): Promise<void> {
         'workflow-editor__body--collapsed': rightColumnCollapsed,
       }"
     >
-      <NodePalette />
+      <div
+        v-if="paletteOpen"
+        class="workflow-editor__palette-backdrop"
+        aria-hidden="true"
+        @click="paletteOpen = false"
+      />
+      <NodePalette :class="{ 'node-palette--open': paletteOpen }" @add="onPaletteAdd" />
       <WorkflowCanvas
+        ref="canvasRef"
         :preview-nodes="previewNodes"
         :preview-connections="previewConnections"
         :pulse-node-names="assistantStore.pulseNodeNames"

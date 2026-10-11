@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { VueFlow, useVueFlow } from '@vue-flow/core';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import CanvasNode from './CanvasNode.vue';
 import { useWorkflowStore } from '../../stores/workflow.store.js';
 import { nodeRunStates } from '../../utils/runStatus.js';
@@ -24,6 +24,7 @@ const emit = defineEmits<{
 
 const store = useWorkflowStore();
 const { project, zoomIn, zoomOut, fitView } = useVueFlow();
+const root = ref<HTMLElement | null>(null);
 
 /**
  * Frame the whole workflow once when it opens - nodes otherwise sit wherever the saved positions
@@ -192,6 +193,23 @@ function onDrop(event: DragEvent): void {
   emit('drop', nodeType, position);
 }
 
+/**
+ * Where a tapped-not-dragged palette node should land: the centre of whatever part of the
+ * graph is currently on screen, stepped by a small offset each time so adding several in a
+ * row fans them out instead of stacking them all on one spot. Null while previewing an
+ * assistant draft, which is read-only. Called by the parent view through the template ref.
+ */
+let placementStep = 0;
+function nextPlacementPosition(): { x: number; y: number } | null {
+  if (readonly.value) return null;
+  const bounds = root.value?.getBoundingClientRect();
+  const offset = (placementStep++ % 5) * 36;
+  const center = project({ x: (bounds?.width ?? 800) / 2, y: (bounds?.height ?? 600) / 2 });
+  return { x: center.x + offset - 90, y: center.y + offset - 30 };
+}
+
+defineExpose({ nextPlacementPosition });
+
 function onDeleteNode(nodeId: string): void {
   if (readonly.value) return;
   store.removeNode(nodeId);
@@ -199,7 +217,7 @@ function onDeleteNode(nodeId: string): void {
 </script>
 
 <template>
-  <div class="workflow-canvas" :class="{ 'workflow-canvas--readonly': readonly }" @dragover="onDragOver" @drop="onDrop">
+  <div ref="root" class="workflow-canvas" :class="{ 'workflow-canvas--readonly': readonly }" @dragover="onDragOver" @drop="onDrop">
     <VueFlow
       :nodes="flowNodes"
       :edges="flowEdges"
@@ -222,7 +240,7 @@ function onDeleteNode(nodeId: string): void {
     <div v-if="isEmpty && !readonly" class="workflow-canvas__empty">
       <span class="material-symbols-outlined workflow-canvas__empty-icon">bolt</span>
       <p class="workflow-canvas__empty-title">Start building</p>
-      <p class="workflow-canvas__empty-body">Drag a node in from the sidebar, or describe what you want to automate.</p>
+      <p class="workflow-canvas__empty-body">Add a node from the palette, or describe what you want to automate.</p>
       <button type="button" class="workflow-canvas__empty-cta" @click="emit('ask-assistant')">
         <span class="material-symbols-outlined text-[16px]">smart_toy</span>
         Ask Assistant
@@ -359,6 +377,23 @@ function onDeleteNode(nodeId: string): void {
 
 .workflow-canvas__zoom-controls .material-symbols-outlined {
   font-size: 18px;
+}
+
+/* Clear of the editor's fixed bottom action bar, and big enough to hit with a thumb. */
+@media (max-width: 768px) {
+  .workflow-canvas__zoom-controls {
+    bottom: 68px;
+    left: 12px;
+  }
+
+  .workflow-canvas__zoom-controls button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .workflow-canvas__zoom-controls .material-symbols-outlined {
+    font-size: 20px;
+  }
 }
 
 /* Neutral, quiet ground instead of a full-bleed saturated tint - the canvas is the dominant

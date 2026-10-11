@@ -27,6 +27,9 @@ const sortBy = ref<'updated' | 'name' | 'created'>('updated');
  * third server-side filter that composes with none of them - picking one clears the view.
  */
 type LibraryView = 'all' | 'recent' | 'starred' | 'trash';
+/** Below 1024px the 240px sidebar becomes a drawer (see global.css); this toggles it. */
+const sidebarOpen = ref(false);
+
 const libraryView = ref<LibraryView>('all');
 const selectedFolderId = ref<string | null>(null);
 const activeTab = ref<'workflows' | 'templates'>('workflows');
@@ -59,12 +62,14 @@ async function refreshFolders(): Promise<void> {
 watch([libraryView, selectedFolderId], () => void refresh());
 
 function selectView(view: LibraryView): void {
+  sidebarOpen.value = false;
   selectedFolderId.value = null;
   libraryView.value = view;
   activeTab.value = 'workflows';
 }
 
 function selectFolder(id: string): void {
+  sidebarOpen.value = false;
   libraryView.value = 'all';
   selectedFolderId.value = id;
   activeTab.value = 'workflows';
@@ -262,19 +267,29 @@ onUnmounted(() => {
 <template>
   <div class="workflow-library">
     <header class="workflow-library__topbar">
+      <button
+        type="button"
+        class="icon-button icon-button--lg workflow-library__menu-toggle"
+        :aria-expanded="sidebarOpen"
+        aria-label="Library menu"
+        @click="sidebarOpen = !sidebarOpen"
+      >
+        <span class="material-symbols-outlined">{{ sidebarOpen ? 'close' : 'menu' }}</span>
+      </button>
       <RouterLink :to="{ name: 'workflows' }" class="workflow-library__logo">
         <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1">schema</span>
-        Runnel
+        <span class="workflow-library__logo-text">Runnel</span>
       </RouterLink>
 
       <div class="workflow-library__topbar-actions">
-        <RunnelButton @click="router.push({ name: 'workflow-new' })">Create New</RunnelButton>
+        <RunnelButton class="workflow-library__create-btn" @click="router.push({ name: 'workflow-new' })">Create New</RunnelButton>
         <TopbarActions />
       </div>
     </header>
 
     <div class="workflow-library__body">
-      <aside class="workflow-library__sidebar">
+      <div v-if="sidebarOpen" class="workflow-library__backdrop" aria-hidden="true" @click="sidebarOpen = false" />
+      <aside class="workflow-library__sidebar" :class="{ 'workflow-library__sidebar--open': sidebarOpen }">
         <button type="button" class="workflow-library__new-btn" @click="router.push({ name: 'workflow-new' })">
           <span class="material-symbols-outlined text-[18px]">add</span>
           New Workflow
